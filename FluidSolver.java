@@ -1,4 +1,4 @@
-package stableFluids;
+package StableFluids;
 
 import jv.object.PsDebug;
 

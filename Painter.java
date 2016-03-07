@@ -1,4 +1,4 @@
-package stableFluids;
+package StableFluids;
 
 import java.awt.Color;
 import java.awt.Component;
