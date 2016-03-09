@@ -665,18 +665,13 @@ public class Painter extends PjProject implements ComponentListener {
     /**
      * Calculate the mouse input force for each cell
      * in the fluid grid. We add force linearly decreasing
-     * in circles around the "old" mouse position (oldX, oldY).
-     * If m_blockSize > 1, then in one block, the average is taken 
-     * over all pixels in that block.
-     * Furthermore, since there are possibly multiple forces added in one
-     * timestep, we just add the maximum of all input forces over all mouse input
-     * force points to every block.
+     * in circles around the "old" mouse position (m_MouseXOld, m_MouseYOld).
      *
-     * @param oldX: first pixel coordinate in canvas, around which force is added.
-     * @param oldY: second pixel coordinate in canvas, around which force is added.
-     * @param newX: force in x-direction is determined by pixel difference newX-oldX.
-     * @param newY: force in y-direction is determined by pixel difference newY-oldY.
-     * @param radius: force is added up to radius pixels around old mouse position.
+     * @param oldX: force is added at point with first coordinate oldX.
+     * @param oldY: force is added ad point with first coordinate oldY.
+     * @param newX: force in x-direction is determined by difference newX-oldX.
+     * @param newY: force in y-direction is determined by difference newY-oldY.
+     * @param radius: force is added up to radius around old mouse position.
      **/
     private void addForce(int oldX, int oldY, int newX, int newY, int radius)
     {
@@ -684,8 +679,7 @@ public class Painter extends PjProject implements ComponentListener {
 //    	PsDebug.message("addForce to x: " + String.valueOf(m_mouseX_Old) + ", y: " + String.valueOf(m_mouseY_Old));
 //    	PsDebug.message("new x: " + String.valueOf(m_mouseX) + ", new y: " + String.valueOf(m_mouseY));
 
-    	float[] lowerUbound = new float[m_numBlocksX*m_numBlocksY];
-    	float[] lowerVbound = new float[m_numBlocksX*m_numBlocksY];
+		int uSign = newX - oldX >= 0 ? 1 : -1, vSign = newY - oldY >= 0 ? 1 : -1;
     	PdVector mousePos = new PdVector((double)oldX, (double)oldY);
     	
 		for (int x=Math.max(0, oldX-radius); x<Math.min(m_imageWidth, oldX+radius); x++)
@@ -703,33 +697,11 @@ public class Painter extends PjProject implements ComponentListener {
 				
 //				PsDebug.message("x: " + String.valueOf(x) + ", y: " + String.valueOf(y)
 //							+ ", lambda: " + String.valueOf(lambda));
-				
-				lowerUbound[I(block(x), block(y))] += (float)(m_forceConst.getValue() * lambda * (newX - oldX) / m_blockSize.getValue());
-				lowerVbound[I(block(x), block(y))] += (float)(m_forceConst.getValue() * lambda * (newY - oldY) / m_blockSize.getValue());
+
+				m_fluidSolver.uOld[I(x, y)] = uSign * Math.max((float)(uSign * m_forceConst.getValue() * lambda * (newX - oldX)), m_fluidSolver.uOld[I(x, y)]);
+				m_fluidSolver.vOld[I(x, y)] = vSign * Math.max((float)(vSign * m_forceConst.getValue() * lambda * (newY - oldY)), m_fluidSolver.vOld[I(x, y)]);
 			}
 		}
-		// DIESE GRENZEN TESTEN
-		for (int x=Math.max(0, block(oldX-radius)); x<Math.min(m_numBlocksX, block(oldX+radius)); x+=m_blockSize.getValue())
-		{
-			for (int y=Math.max(0, block(oldY-radius)); y<Math.min(m_numBlocksY, block(oldY+radius)); y+=m_blockSize.getValue())
-			{
-				lowerUbound[I(block(x), block(y))] /= (m_blockSize.getValue() * m_blockSize.getValue());
-				lowerVbound[I(block(x), block(y))] /= (m_blockSize.getValue() * m_blockSize.getValue());
-			}
-		}
-		// Put maximum of input force that is already there and new forcecone into fluidSolver
-		int uSign = newX - oldX >= 0 ? 1 : -1, vSign = newY - oldY >= 0 ? 1 : -1;
-		// DIESE GRENZEN TESTEN
-		for (int x=Math.max(0, block(oldX-radius)); x<Math.min(m_numBlocksX, block(oldX+radius)); x+=m_blockSize.getValue())
-		{
-			for (int y=Math.max(0, block(oldY-radius)); y<Math.min(m_numBlocksY, block(oldY+radius)); y+=m_blockSize.getValue())
-			{
-				m_fluidSolver.uOld[I(block(x), block(y))] += uSign * Math.max(uSign * lowerUbound[I(block(x), block(y))], uSign * m_fluidSolver.uOld[[I(block(x), block(y))]);
-				m_fluidSolver.vOld[I(block(x), block(y))] += vSign * Math.max((float)(vSign * m_forceConst.getValue() * lambda * (newY - oldY)), m_fluidSolver.vOld[I(x, y)]);
-			}
-		}
-		m_fluidSolver.uOld[I(x, y)]
-				
 //		if (!wasZero)
 //			PsDebug.warning("vOld/uOld war nicht null!");
     }
