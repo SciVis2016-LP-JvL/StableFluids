@@ -220,7 +220,7 @@ public class Painter extends PjProject implements ComponentListener {
 	{
 		if (m_disp == null)
 			m_disp = getDisp();
-		//m_disp.showScenegraph(false);
+		m_disp.showScenegraph(false);
 		
 		// Adjust sizes of images to dimension of display canvas
 		if (resizeImage(m_disp))
