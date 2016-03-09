@@ -3,10 +3,10 @@ package StableFluids;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-// import java.awt.GridLayout;
+import java.awt.GridLayout;
 import java.awt.Image;
 //import java.awt.Label;
-// import java.awt.Panel;
+import java.awt.Panel;
 import java.awt.Point;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
@@ -368,15 +368,15 @@ public class Painter extends PjProject implements ComponentListener {
 				{
 					PsDebug.message("create new fluidSolver");
 					m_fluidSolver = new FluidSolver();
-					m_fluidSolver.setup(m_numBlocksX - 2, m_numBlocksY - 2, (float)m_dt.getValue());
+					m_fluidSolver.setup(m_imageWidth-2, m_imageHeight-2, (float)m_dt.getValue());
 					m_oldFluidSolver = new FluidSolver();
-					m_oldFluidSolver.setup(m_numBlocksX - 2, m_numBlocksY - 2, (float)m_dt.getValue());
+					m_oldFluidSolver.setup(m_imageWidth-2, m_imageHeight-2, (float)m_dt.getValue());
 				}
-				else if (m_fluidSolver.n != m_numBlocksX || m_fluidSolver.m != m_numBlocksY)
+				else
 				{
 					PsDebug.message("resize fluidSolver");
-					m_fluidSolver.resizeArray(m_numBlocksX - 2, m_numBlocksY - 2);
-					m_oldFluidSolver.resizeArray(m_numBlocksX - 2, m_numBlocksY - 2);
+					m_fluidSolver.resizeArray(m_imageWidth - 2, m_imageHeight - 2);
+					m_oldFluidSolver.resizeArray(m_imageWidth - 2, m_imageHeight - 2);
 				}
 				
 				// Reset animation
@@ -626,7 +626,7 @@ public class Painter extends PjProject implements ComponentListener {
 		catch (CloneNotSupportedException e) { PsDebug.warning("Clone of fluidSolver not supported!"); }
 
 		// Change resolution from fluidSolver
-		m_fluidSolver.setup(m_numBlocksX - 2, m_numBlocksY - 2, (float)m_dt.getValue());
+		m_fluidSolver.setup(m_numBlocksX, m_numBlocksY, (float)m_dt.getValue());
 
 		// Average colors from blocks
 		int oldSize = m_oldBlockSize.getValue();
@@ -635,26 +635,16 @@ public class Painter extends PjProject implements ComponentListener {
 		{
 			for (int y = 0; y < m_imageHeight; ++y)
 			{
-				m_fluidSolver.d[I(block(x), block(y))] += m_oldFluidSolver.d[I(block(x, oldSize), block(y, oldSize))];
-				m_fluidSolver.u[I(block(x), block(y))] += m_oldFluidSolver.u[I(block(x, oldSize), block(y, oldSize))];
-				m_fluidSolver.v[I(block(x), block(y))] += m_oldFluidSolver.v[I(block(x, oldSize), block(y, oldSize))];
-				m_fluidSolver.dOld[I(block(x), block(y))] += m_oldFluidSolver.dOld[I(block(x, oldSize), block(y, oldSize))];
-				m_fluidSolver.uOld[I(block(x), block(y))] += m_oldFluidSolver.uOld[I(block(x, oldSize), block(y, oldSize))];
-				m_fluidSolver.vOld[I(block(x), block(y))] += m_oldFluidSolver.vOld[I(block(x, oldSize), block(y, oldSize))];
+				m_fluidSolver.d[I(block(x), block(y))] += m_oldFluidSolver.d[I(block(x, oldSize), block(y, oldSize))] / (newSize*newSize);
+				m_fluidSolver.u[I(block(x), block(y))] += m_oldFluidSolver.u[I(block(x, oldSize), block(y, oldSize))] / (newSize*newSize);
+				m_fluidSolver.v[I(block(x), block(y))] += m_oldFluidSolver.v[I(block(x, oldSize), block(y, oldSize))] / (newSize*newSize);
+				m_fluidSolver.dOld[I(block(x), block(y))] += m_oldFluidSolver.dOld[I(block(x, oldSize), block(y, oldSize))] / (newSize*newSize);
+				m_fluidSolver.uOld[I(block(x), block(y))] += m_oldFluidSolver.uOld[I(block(x, oldSize), block(y, oldSize))] / (newSize*newSize);
+				m_fluidSolver.vOld[I(block(x), block(y))] += m_oldFluidSolver.vOld[I(block(x, oldSize), block(y, oldSize))] / (newSize*newSize);
 			}
 		}
-		for (int x = 0; x < m_imageWidth; ++x)
-		{
-			for (int y = 0; y < m_imageHeight; ++y)
-			{
-				m_fluidSolver.d[I(block(x), block(y))] /= (newSize*newSize);
-				m_fluidSolver.u[I(block(x), block(y))] /= (newSize*newSize);
-				m_fluidSolver.v[I(block(x), block(y))] /= (newSize*newSize);
-				m_fluidSolver.dOld[I(block(x), block(y))] /= (newSize*newSize);
-				m_fluidSolver.uOld[I(block(x), block(y))] /= (newSize*newSize);
-				m_fluidSolver.vOld[I(block(x), block(y))] /= (newSize*newSize);
-			}
-		}
+		
+		// Put into fluidSolver
 		
 		// Save state into old
 		m_oldBlockSize.setValue(m_blockSize.getValue());
@@ -679,7 +669,7 @@ public class Painter extends PjProject implements ComponentListener {
 //    	PsDebug.message("addForce to x: " + String.valueOf(m_mouseX_Old) + ", y: " + String.valueOf(m_mouseY_Old));
 //    	PsDebug.message("new x: " + String.valueOf(m_mouseX) + ", new y: " + String.valueOf(m_mouseY));
 
-		int uSign = newX - oldX >= 0 ? 1 : -1, vSign = newY - oldY >= 0 ? 1 : -1;
+    	// final float forceConst = 0.5f;
     	PdVector mousePos = new PdVector((double)oldX, (double)oldY);
     	
 		for (int x=Math.max(0, oldX-radius); x<Math.min(m_imageWidth, oldX+radius); x++)
@@ -698,6 +688,7 @@ public class Painter extends PjProject implements ComponentListener {
 //				PsDebug.message("x: " + String.valueOf(x) + ", y: " + String.valueOf(y)
 //							+ ", lambda: " + String.valueOf(lambda));
 
+				int uSign = newX - oldX >= 0 ? 1 : -1, vSign = newY - oldY >= 0 ? 1 : -1;
 				m_fluidSolver.uOld[I(x, y)] = uSign * Math.max((float)(uSign * m_forceConst.getValue() * lambda * (newX - oldX)), m_fluidSolver.uOld[I(x, y)]);
 				m_fluidSolver.vOld[I(x, y)] = vSign * Math.max((float)(vSign * m_forceConst.getValue() * lambda * (newY - oldY)), m_fluidSolver.vOld[I(x, y)]);
 			}
