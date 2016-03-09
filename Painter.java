@@ -99,7 +99,7 @@ public class Painter extends PjProject implements ComponentListener {
 	}
 	public void myReset()
 	{
-		PsDebug.message("reset");
+		// PsDebug.message("reset");
 		m_pix					= new PiVector();
 		m_density				= new PdVector();
 		m_forceTraceX			= new PiVector();
@@ -112,17 +112,6 @@ public class Painter extends PjProject implements ComponentListener {
 		m_densityConst			= new PuDouble("Density constant");
 		m_fluidSolver			= new FluidSolver();
 		m_oldFluidSolver		= new FluidSolver();
-		// TEST
-		m_fluidSolver.setDiff((float)0.1);
-		try { m_oldFluidSolver = m_fluidSolver.clone(); }
-		catch (CloneNotSupportedException e) { PsDebug.warning("Clone of fluidSolver not supported!"); }
-		m_oldFluidSolver.setDiff((float)0.2);
-		PsDebug.message("orig: " + String.valueOf(m_fluidSolver.getDiff()));
-		PsDebug.message("old: " + String.valueOf(m_oldFluidSolver.getDiff()));
-		m_fluidSolver.setDiff((float)0.3);
-		PsDebug.message("orig: " + String.valueOf(m_fluidSolver.getDiff()));
-		PsDebug.message("old: " + String.valueOf(m_oldFluidSolver.getDiff()));
-		// TEST ENDE
 		m_dt					= new PuDouble("Timestep");
 		m_time					= new PuDouble("Time");
 		m_blockSize				= new PuInteger("Block Size", this);
@@ -147,7 +136,7 @@ public class Painter extends PjProject implements ComponentListener {
 	}
 
 	public void init() {
-		PsDebug.message("init");
+		// PsDebug.message("init");
 		super.init();
 		// PsDebug.message("super init done");
 
@@ -175,12 +164,12 @@ public class Painter extends PjProject implements ComponentListener {
 		m_numBlocksX			= 0;
 		m_numBlocksY			= 0;
 		
-		m_blockSize.setBounds(1, 10, 1, 2);
-		m_blockSize.setDefValue(1);
 		m_blockSize.init();
-		m_oldBlockSize.setBounds(1, 10, 1, 2);
-		m_oldBlockSize.setDefValue(1);
+		m_blockSize.setBounds(1, 10, 1, 2);
+		m_blockSize.setValue(1);
 		m_oldBlockSize.init();
+		m_oldBlockSize.setBounds(1, 10, 1, 2);
+		m_oldBlockSize.setValue(1);
 		
 		m_currentlyCalculating	= false;
 		m_curCalcCount			= 0;
@@ -210,7 +199,7 @@ public class Painter extends PjProject implements ComponentListener {
 	 */
 	public void start()
 	{
-		PsDebug.message("start");
+		// PsDebug.message("start");
 		myStart();
 		super.start();
 	}
@@ -275,7 +264,7 @@ public class Painter extends PjProject implements ComponentListener {
 	// Initialize animation: Create time listener, reset time intervals etc.
 	private void initAnimation()
 	{
-		PsDebug.message("initAnimation");
+		// PsDebug.message("initAnimation");
 		if (!super.hasAnimation())
 		{
 			PsAnimation anim = new PsAnimation();
@@ -336,7 +325,8 @@ public class Painter extends PjProject implements ComponentListener {
 		if (m_currentlyResizing)
 		{
 			m_curResizeCount++;
-			PsDebug.message(String.valueOf(m_curResizeCount) + ". time currently resizing!");
+			// PsDebug.message(String.valueOf(m_curResizeCount) + ". time currently resizing!");
+			PsDebug.message("Called resizeImage again, while still resizing!");
 			return false;
 		}
 		else
@@ -357,10 +347,10 @@ public class Painter extends PjProject implements ComponentListener {
 				 (m_mis==null || m_imageHeight != dim.height || m_imageWidth != dim.width)) 
 			{
 				// Set resolution
-				m_imageHeight			= dim.height;
-				m_imageWidth			= dim.width;
-				m_numBlocksX			= Math.floorDiv(m_imageWidth, m_blockSize.getValue()) + 1;
-				m_numBlocksY			= Math.floorDiv(m_imageHeight, m_blockSize.getValue()) + 1;
+				m_imageHeight = dim.height;
+				m_imageWidth = dim.width;
+				m_numBlocksX = (int) Math.ceil((double)(m_imageWidth) / m_blockSize.getValue());
+				m_numBlocksY = (int) Math.ceil((double)(m_imageHeight) / m_blockSize.getValue());
 
 				// Set up fluid solver
 				m_dt.setValue(0.2f);
@@ -374,9 +364,15 @@ public class Painter extends PjProject implements ComponentListener {
 				}
 				else if (m_fluidSolver.n != m_numBlocksX || m_fluidSolver.m != m_numBlocksY)
 				{
-					PsDebug.message("resize fluidSolver");
-					m_fluidSolver.resizeArray(m_numBlocksX - 2, m_numBlocksY - 2);
-					m_oldFluidSolver.resizeArray(m_numBlocksX - 2, m_numBlocksY - 2);
+					// FUNCTION RESIZEARRAY DOES NOT WORK YET
+					// PsDebug.message("resize fluidSolver");
+					// m_fluidSolver.resizeArray(m_numBlocksX - 2, m_numBlocksY - 2);
+					// m_oldFluidSolver.resizeArray(m_numBlocksX - 2, m_numBlocksY - 2);
+					PsDebug.message("create new fluidSolver");
+					m_fluidSolver = new FluidSolver();
+					m_fluidSolver.setup(m_numBlocksX - 2, m_numBlocksY - 2, (float)m_dt.getValue());
+					m_oldFluidSolver = new FluidSolver();
+					m_oldFluidSolver.setup(m_numBlocksX - 2, m_numBlocksY - 2, (float)m_dt.getValue());
 				}
 				
 				// Reset animation
@@ -474,7 +470,8 @@ public class Painter extends PjProject implements ComponentListener {
 		// PsDebug.message("Compute image!");
 		if (m_currentlyCalculating)
 		{
-			PsDebug.message(String.valueOf(m_curCalcCount + 1) + ". time parallel calculating!");
+			// PsDebug.message(String.valueOf(m_curCalcCount + 1) + ". time parallel calculating!");
+			PsDebug.message("Called computeImage again, while still computing!");
 			// PsDebug.message("not returning!");
 			m_curCalcCount++;
 			return;
@@ -511,11 +508,7 @@ public class Painter extends PjProject implements ComponentListener {
 			{
 				blockRemain = Math.min(m_blockSize.getValue(), m_imageWidth-x);
 				for (int k=0; k<blockRemain; k++)
-					if (m_fluidSolver.d[I(x,y)] > 0)
-						m_density.setEntry(I(x+k,y), m_fluidSolver.d[I(x,y)]);
-					else
-						m_density.setEntry(I(x+k,y), 0);
-						
+					m_density.setEntry(I(x+k,y), Math.max(0, m_fluidSolver.d[Id(block(x), block(y))]));
 			}
 			// Duplicate row column to fill blocks - only effective if blockSize > 1
 			blockRemain = Math.min(m_blockSize.getValue(), m_imageHeight-y)-1;
@@ -621,15 +614,22 @@ public class Painter extends PjProject implements ComponentListener {
 	private void changeBlockSize()
 	{
 		// Change resolutions
-		m_numBlocksX = Math.floorDiv(m_imageWidth, m_blockSize.getValue()) + 1;
-		m_numBlocksY = Math.floorDiv(m_imageHeight, m_blockSize.getValue()) + 1;
+		int oldNumBlocksX = m_numBlocksX;
+		m_numBlocksX = (int) Math.ceil((double)(m_imageWidth) / m_blockSize.getValue());
+		m_numBlocksY = (int) Math.ceil((double)(m_imageHeight) / m_blockSize.getValue());
 
+		// BE CAREFUL NOT TO OVERWRITE IT WITH SOMETHING I ALREADY DID IN RESIZEIMAGE!
 		// Save current fluidSolver
 		try { m_oldFluidSolver = m_fluidSolver.clone(); }
 		catch (CloneNotSupportedException e) { PsDebug.warning("Clone of fluidSolver not supported!"); }
 
 		// Change resolution from fluidSolver
 		m_fluidSolver.setup(m_numBlocksX - 2, m_numBlocksY - 2, (float)m_dt.getValue());
+
+		// testoutputs
+		PsDebug.message("change blockSize from " + String.valueOf(m_oldBlockSize.getValue()) + " to " + String.valueOf(m_blockSize.getValue()));
+		PsDebug.message("oldFluidSolverSize: " + String.valueOf(m_oldFluidSolver.size));
+		PsDebug.message("fluidSolverSize: " + String.valueOf(m_fluidSolver.size));
 
 		// Average colors from blocks
 		int oldSize = m_oldBlockSize.getValue();
@@ -638,24 +638,35 @@ public class Painter extends PjProject implements ComponentListener {
 		{
 			for (int y = 0; y < m_imageHeight; ++y)
 			{
-				m_fluidSolver.d[I(block(x), block(y))] += m_oldFluidSolver.d[I(block(x, oldSize), block(y, oldSize))];
-				m_fluidSolver.u[I(block(x), block(y))] += m_oldFluidSolver.u[I(block(x, oldSize), block(y, oldSize))];
-				m_fluidSolver.v[I(block(x), block(y))] += m_oldFluidSolver.v[I(block(x, oldSize), block(y, oldSize))];
-				m_fluidSolver.dOld[I(block(x), block(y))] += m_oldFluidSolver.dOld[I(block(x, oldSize), block(y, oldSize))];
-				m_fluidSolver.uOld[I(block(x), block(y))] += m_oldFluidSolver.uOld[I(block(x, oldSize), block(y, oldSize))];
-				m_fluidSolver.vOld[I(block(x), block(y))] += m_oldFluidSolver.vOld[I(block(x, oldSize), block(y, oldSize))];
+				// if (I(x,y) > 32767)
+				// {
+				// 	PsDebug.message(String.valueOf(x) + ", " + String.valueOf(y) + ", " + String.valueOf(I(x,y)));
+				// 	PsDebug.message(String.valueOf(block(x) + ", " + String.valueOf(block(y))));
+				// }
+
+				try { m_fluidSolver.d[Id(block(x), block(y))] += m_oldFluidSolver.d[Id(block(x, oldSize), block(y, oldSize), oldNumBlocksX)]; }
+				catch (ArrayIndexOutOfBoundsException e)
+				{
+					PsDebug.message(String.valueOf(Id(block(x),block(y))) + ", " + String.valueOf(Id(block(x, oldSize), block(y, oldSize), oldNumBlocksX)));
+					PsDebug.message(String.valueOf(m_fluidSolver.size) + ", " + String.valueOf(m_oldFluidSolver.size));
+				}
+				m_fluidSolver.u[Id(block(x), block(y))] += m_oldFluidSolver.u[Id(block(x, oldSize), block(y, oldSize), oldNumBlocksX)];
+				m_fluidSolver.v[Id(block(x), block(y))] += m_oldFluidSolver.v[Id(block(x, oldSize), block(y, oldSize), oldNumBlocksX)];
+				m_fluidSolver.dOld[Id(block(x), block(y))] += m_oldFluidSolver.dOld[Id(block(x, oldSize), block(y, oldSize), oldNumBlocksX)];
+				m_fluidSolver.uOld[Id(block(x), block(y))] += m_oldFluidSolver.uOld[Id(block(x, oldSize), block(y, oldSize), oldNumBlocksX)];
+				m_fluidSolver.vOld[Id(block(x), block(y))] += m_oldFluidSolver.vOld[Id(block(x, oldSize), block(y, oldSize), oldNumBlocksX)];
 			}
 		}
 		for (int x = 0; x < m_imageWidth; ++x)
 		{
 			for (int y = 0; y < m_imageHeight; ++y)
 			{
-				m_fluidSolver.d[I(block(x), block(y))] /= (newSize*newSize);
-				m_fluidSolver.u[I(block(x), block(y))] /= (newSize*newSize);
-				m_fluidSolver.v[I(block(x), block(y))] /= (newSize*newSize);
-				m_fluidSolver.dOld[I(block(x), block(y))] /= (newSize*newSize);
-				m_fluidSolver.uOld[I(block(x), block(y))] /= (newSize*newSize);
-				m_fluidSolver.vOld[I(block(x), block(y))] /= (newSize*newSize);
+				m_fluidSolver.d[Id(block(x), block(y))] /= (newSize*newSize);
+				m_fluidSolver.u[Id(block(x), block(y))] /= (newSize*newSize);
+				m_fluidSolver.v[Id(block(x), block(y))] /= (newSize*newSize);
+				m_fluidSolver.dOld[Id(block(x), block(y))] /= (newSize*newSize);
+				m_fluidSolver.uOld[Id(block(x), block(y))] /= (newSize*newSize);
+				m_fluidSolver.vOld[Id(block(x), block(y))] /= (newSize*newSize);
 			}
 		}
 		
@@ -708,8 +719,8 @@ public class Painter extends PjProject implements ComponentListener {
 //				PsDebug.message("x: " + String.valueOf(x) + ", y: " + String.valueOf(y)
 //							+ ", lambda: " + String.valueOf(lambda));
 				
-				lowerUbound[I(block(x), block(y))] += (float)(m_forceConst.getValue() * lambda * (newX - oldX) / m_blockSize.getValue());
-				lowerVbound[I(block(x), block(y))] += (float)(m_forceConst.getValue() * lambda * (newY - oldY) / m_blockSize.getValue());
+				lowerUbound[Id(block(x), block(y))] += (float)(m_forceConst.getValue() * lambda * (newX - oldX) / m_blockSize.getValue());
+				lowerVbound[Id(block(x), block(y))] += (float)(m_forceConst.getValue() * lambda * (newY - oldY) / m_blockSize.getValue());
 			}
 		}
 
@@ -720,12 +731,12 @@ public class Painter extends PjProject implements ComponentListener {
 			for (int y=Math.max(0, block(oldY-radius)); y<Math.min(m_numBlocksY, block(oldY+radius)); ++y)
 			{
 				// Average
-				lowerUbound[I(x, y)] /= (m_blockSize.getValue() * m_blockSize.getValue());
-				lowerVbound[I(x, y)] /= (m_blockSize.getValue() * m_blockSize.getValue());
+				lowerUbound[Id(x, y)] /= (m_blockSize.getValue() * m_blockSize.getValue());
+				lowerVbound[Id(x, y)] /= (m_blockSize.getValue() * m_blockSize.getValue());
 				
 				// Put maximum of input force that is already there and new forcecone into fluidSolver
-				m_fluidSolver.uOld[I(x, y)] = uSign * Math.max(uSign * lowerUbound[I(x, y)], uSign * m_fluidSolver.uOld[I(x, y)]);
-				m_fluidSolver.vOld[I(x, y)] = vSign * Math.max(vSign * lowerVbound[I(x, y)], vSign * m_fluidSolver.vOld[I(x, y)]);
+				m_fluidSolver.uOld[Id(x, y)] = uSign * Math.max(uSign * lowerUbound[Id(x, y)], uSign * m_fluidSolver.uOld[Id(x, y)]);
+				m_fluidSolver.vOld[Id(x, y)] = vSign * Math.max(vSign * lowerVbound[Id(x, y)], vSign * m_fluidSolver.vOld[Id(x, y)]);
 			}
 		}
 				
@@ -765,8 +776,8 @@ public class Painter extends PjProject implements ComponentListener {
 //				PsDebug.message("x: " + String.valueOf(x) + ", y: " + String.valueOf(y)
 //							+ ", lambda: " + String.valueOf(lambda));
 
-				m_fluidSolver.dOld[I(x, y)] = Math.max((float)(lambda * m_densityConst.getValue() * densityNormConst), m_fluidSolver.dOld[I(x, y)]);
-				lowerDbound[I(block(x), block(y))] += (float)(lambda * m_densityConst.getValue() * densityNormConst);
+				// m_fluidSolver.dOld[I(x, y)] = Math.max((float)(lambda * m_densityConst.getValue() * densityNormConst), m_fluidSolver.dOld[I(x, y)]);
+				lowerDbound[Id(block(x), block(y))] += (float)(lambda * m_densityConst.getValue() * densityNormConst);
 			}
 		}
 		for (int x=Math.max(0, block(pX-radius)); x<Math.min(m_numBlocksX, block(pX+radius)); ++x)
@@ -774,10 +785,10 @@ public class Painter extends PjProject implements ComponentListener {
 			for (int y=Math.max(0, block(pY-radius)); y<Math.min(m_numBlocksY, block(pY+radius)); ++y)
 			{
 				// Average
-				lowerDbound[I(x, y)] /= (m_blockSize.getValue() * m_blockSize.getValue());
+				lowerDbound[Id(x, y)] /= (m_blockSize.getValue() * m_blockSize.getValue());
 
 				// Put maximum of input force that is already there and new forcecone into fluidSolver
-				m_fluidSolver.dOld[I(x, y)] = Math.max(lowerDbound[I(x, y)], m_fluidSolver.dOld[I(x, y)]);
+				m_fluidSolver.dOld[Id(x, y)] = Math.max(lowerDbound[Id(x, y)], m_fluidSolver.dOld[Id(x, y)]);
 			}
 		}
 		
@@ -821,8 +832,12 @@ public class Painter extends PjProject implements ComponentListener {
 
 	/* Utility indexing functions */
 
-    // Calculates the index of a 1d-Array for given x,y-coordinates of 2d-array
+    // Calculates the index of a 1d-Array for given x,y-coordinates of 2d *image*-array
 	private int I(int x, int y)	{return x + (m_imageWidth*y);}
+    // Calculates the index of a 1d-Array for given x,y-coordinates of 2d *datagrid*-array
+	private int Id(int x, int y) {return x + (m_numBlocksX*y);}
+	// Same as above, but for "custom" (parameter) width of data array
+	private int Id(int x, int y, int arrayWidth) {return x + (arrayWidth*y);}
     // Calculates the index of a 1d-Array for given x,y-coordinates of 2d-array, which has a 1-pix-border around
 	private int I2(int x, int y)	{return x + ((m_imageWidth+2)*y);}
 	// "Inverse functions" of I
@@ -838,37 +853,38 @@ public class Painter extends PjProject implements ComponentListener {
 	private int cornerPix(int block, int blockSize) {return block * blockSize;}
 	
 	// Just used for debugging:
-	private void checkWhetherduvOldEqualsZero()
-	{
-		// Debugging: Checken, ob uOld, vOld == 0 sind
-		for (int x=0; x<m_imageWidth; x+=m_blockSize.getValue())
-		{
-			boolean breakThis = false;
-			for (int y=0; y<m_imageHeight; y+=m_blockSize.getValue())
-			{
-				if (m_fluidSolver.uOld[I(x,y)] != 0)
-				{
-					PsDebug.warning("uOld nicht 0 am Beginn eines Frames!");
-					breakThis = true;
-				}
-				else if (m_fluidSolver.vOld[I(x,y)] != 0)
-				{
-					PsDebug.warning("vOld nicht 0 am Beginn eines Frames!");
-					breakThis = true;
-				}
-				else if (m_fluidSolver.dOld[I(x,y)] != 0)
-				{
-					PsDebug.warning("dOld nicht 0 am Beginn eines Frames!");
-					breakThis = true;
-				}
-				
-				if (breakThis)
-					break;
-			}
-			if (breakThis)
-				break;
-		}
-	}
+	// DOES NOT YET WORK WITH BLOCKSIZE
+	// private void checkWhetherduvOldEqualsZero()
+	// {
+	// 	// Debugging: Checken, ob uOld, vOld == 0 sind
+	// 	for (int x=0; x<m_imageWidth; x+=m_blockSize.getValue())
+	// 	{
+	// 		boolean breakThis = false;
+	// 		for (int y=0; y<m_imageHeight; y+=m_blockSize.getValue())
+	// 		{
+	// 			if (m_fluidSolver.uOld[I(x,y)] != 0)
+	// 			{
+	// 				PsDebug.warning("uOld nicht 0 am Beginn eines Frames!");
+	// 				breakThis = true;
+	// 			}
+	// 			else if (m_fluidSolver.vOld[I(x,y)] != 0)
+	// 			{
+	// 				PsDebug.warning("vOld nicht 0 am Beginn eines Frames!");
+	// 				breakThis = true;
+	// 			}
+	// 			else if (m_fluidSolver.dOld[I(x,y)] != 0)
+	// 			{
+	// 				PsDebug.warning("dOld nicht 0 am Beginn eines Frames!");
+	// 				breakThis = true;
+	// 			}
+	// 			
+	// 			if (breakThis)
+	// 				break;
+	// 		}
+	// 		if (breakThis)
+	// 			break;
+	// 	}
+	// }
 	
 	public PuDouble getTime()
 	{
