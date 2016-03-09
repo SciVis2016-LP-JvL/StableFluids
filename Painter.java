@@ -513,9 +513,6 @@ public class Painter extends PjProject implements ComponentListener {
 				for (int k=0; k<blockRemain; k++)
 					if (m_fluidSolver.d[I(x,y)] > 0)
 						m_density.setEntry(I(x+k,y), m_fluidSolver.d[I(x,y)]);
-					else
-						m_density.setEntry(I(x+k,y), 0);
-						
 			}
 			// Duplicate row column to fill blocks - only effective if blockSize > 1
 			blockRemain = Math.min(m_blockSize.getValue(), m_imageHeight-y)-1;
@@ -691,10 +688,9 @@ public class Painter extends PjProject implements ComponentListener {
     	float[] lowerVbound = new float[m_numBlocksX*m_numBlocksY];
     	PdVector mousePos = new PdVector((double)oldX, (double)oldY);
     	
-    	// Add forces to lower bound, linearly decreasing from center
-		for (int x=Math.max(0, oldX-radius); x<Math.min(m_imageWidth, oldX+radius); ++x)
+		for (int x=Math.max(0, oldX-radius); x<Math.min(m_imageWidth, oldX+radius); x++)
 		{
-			for (int y=Math.max(0, oldY-radius); y<Math.min(m_imageHeight, oldY+radius); ++y)
+			for (int y=Math.max(0, oldY-radius); y<Math.min(m_imageHeight, oldY+radius); y++)
 			{
 //				if (m_fluidSolver.vOld[I(x, y)] != 0 || m_fluidSolver.uOld[I(x, y)] != 0)
 //				{
@@ -712,22 +708,27 @@ public class Painter extends PjProject implements ComponentListener {
 				lowerVbound[I(block(x), block(y))] += (float)(m_forceConst.getValue() * lambda * (newY - oldY) / m_blockSize.getValue());
 			}
 		}
-
 		// DIESE GRENZEN TESTEN
-		int uSign = newX - oldX >= 0 ? 1 : -1, vSign = newY - oldY >= 0 ? 1 : -1;
-		for (int x=Math.max(0, block(oldX-radius)); x<Math.min(m_numBlocksX, block(oldX+radius)); ++x)
+		for (int x=Math.max(0, block(oldX-radius)); x<Math.min(m_numBlocksX, block(oldX+radius)); x+=m_blockSize.getValue())
 		{
-			for (int y=Math.max(0, block(oldY-radius)); y<Math.min(m_numBlocksY, block(oldY+radius)); ++y)
+			for (int y=Math.max(0, block(oldY-radius)); y<Math.min(m_numBlocksY, block(oldY+radius)); y+=m_blockSize.getValue())
 			{
-				// Average
-				lowerUbound[I(x, y)] /= (m_blockSize.getValue() * m_blockSize.getValue());
-				lowerVbound[I(x, y)] /= (m_blockSize.getValue() * m_blockSize.getValue());
-				
-				// Put maximum of input force that is already there and new forcecone into fluidSolver
-				m_fluidSolver.uOld[I(x, y)] = uSign * Math.max(uSign * lowerUbound[I(x, y)], uSign * m_fluidSolver.uOld[I(x, y)]);
-				m_fluidSolver.vOld[I(x, y)] = vSign * Math.max(vSign * lowerVbound[I(x, y)], vSign * m_fluidSolver.vOld[I(x, y)]);
+				lowerUbound[I(block(x), block(y))] /= (m_blockSize.getValue() * m_blockSize.getValue());
+				lowerVbound[I(block(x), block(y))] /= (m_blockSize.getValue() * m_blockSize.getValue());
 			}
 		}
+		// Put maximum of input force that is already there and new forcecone into fluidSolver
+		int uSign = newX - oldX >= 0 ? 1 : -1, vSign = newY - oldY >= 0 ? 1 : -1;
+		// DIESE GRENZEN TESTEN
+		for (int x=Math.max(0, block(oldX-radius)); x<Math.min(m_numBlocksX, block(oldX+radius)); x+=m_blockSize.getValue())
+		{
+			for (int y=Math.max(0, block(oldY-radius)); y<Math.min(m_numBlocksY, block(oldY+radius)); y+=m_blockSize.getValue())
+			{
+				m_fluidSolver.uOld[I(block(x), block(y))] += uSign * Math.max(uSign * lowerUbound[I(block(x), block(y))], uSign * m_fluidSolver.uOld[[I(block(x), block(y))]);
+				m_fluidSolver.vOld[I(block(x), block(y))] += vSign * Math.max((float)(vSign * m_forceConst.getValue() * lambda * (newY - oldY)), m_fluidSolver.vOld[I(x, y)]);
+			}
+		}
+		m_fluidSolver.uOld[I(x, y)]
 				
 //		if (!wasZero)
 //			PsDebug.warning("vOld/uOld war nicht null!");
@@ -747,12 +748,11 @@ public class Painter extends PjProject implements ComponentListener {
     {
 //    	PsDebug.message("addForce to x: " + String.valueOf(m_mouseX_Old) + ", y: " + String.valueOf(m_mouseY_Old));
 //    	PsDebug.message("new x: " + String.valueOf(m_mouseX) + ", new y: " + String.valueOf(m_mouseY));
-    	float[] lowerDbound = new float[m_numBlocksX*m_numBlocksY];
     	PdVector mousePos = new PdVector((double)pX, (double)pY);
+    	// final float densityIncrement = 200.0f;
     	final float densityNormConst = 3/(float)(radius*radius)/(float)Math.PI;
 //    	boolean wasZero = true;
     	
-    	// Add densities to lower bound, linearly decreasing from center
 		for (int x=Math.max(0, pX-radius); x<Math.min(m_imageWidth, pX+radius); x++)
 		{
 			for (int y=Math.max(0, pY-radius); y<Math.min(m_imageHeight, pY+radius); y++)
@@ -766,18 +766,6 @@ public class Painter extends PjProject implements ComponentListener {
 //							+ ", lambda: " + String.valueOf(lambda));
 
 				m_fluidSolver.dOld[I(x, y)] = Math.max((float)(lambda * m_densityConst.getValue() * densityNormConst), m_fluidSolver.dOld[I(x, y)]);
-				lowerDbound[I(block(x), block(y))] += (float)(lambda * m_densityConst.getValue() * densityNormConst);
-			}
-		}
-		for (int x=Math.max(0, block(pX-radius)); x<Math.min(m_numBlocksX, block(pX+radius)); ++x)
-		{
-			for (int y=Math.max(0, block(pY-radius)); y<Math.min(m_numBlocksY, block(pY+radius)); ++y)
-			{
-				// Average
-				lowerDbound[I(x, y)] /= (m_blockSize.getValue() * m_blockSize.getValue());
-
-				// Put maximum of input force that is already there and new forcecone into fluidSolver
-				m_fluidSolver.dOld[I(x, y)] = Math.max(lowerDbound[I(x, y)], m_fluidSolver.dOld[I(x, y)]);
 			}
 		}
 		
