@@ -86,8 +86,8 @@ public class Painter extends PjProject implements ComponentListener {
 
     private 	PuDouble 			m_dt;
     
-    private		boolean				m_currentlyCalculating;
-    private		int					m_curCalcCount;
+    private		boolean				m_writingNow;
+    private		int					m_writingCount;
     private		boolean				m_currentlyResizing;
     private		int					m_curResizeCount;
 
@@ -171,8 +171,8 @@ public class Painter extends PjProject implements ComponentListener {
 		m_oldBlockSize.setBounds(1, 10, 1, 2);
 		m_oldBlockSize.setValue(1);
 		
-		m_currentlyCalculating	= false;
-		m_curCalcCount			= 0;
+		m_writingNow	= false;
+		m_writingCount			= 0;
 		m_currentlyResizing		= false;
 		m_curResizeCount		= 0;
 		
@@ -251,16 +251,28 @@ public class Painter extends PjProject implements ComponentListener {
 		else if (event == m_blockSize) 
 		{
 			// Update resolution-values and fluidSolver to new blockSize
+			// waitUntilNotWriting();
 			changeBlockSize();
 
-			computeImage(m_disp);
-			m_disp.update(null);
+			// computeImage(m_disp);
+			// m_disp.update(null);
 			
 			return true;
 		}
 		return super.update(event);
 	}
 	
+	// Wait, until variable m_writingNow is false
+	private void waitUntilNotWriting()
+	{
+		while(m_writingNow) 
+		{
+			// wai
+			try{Thread.sleep(1);}
+			catch(InterruptedException e) {PsDebug.message("interruptedException");}
+		}
+	}
+
 	// Initialize animation: Create time listener, reset time intervals etc.
 	private void initAnimation()
 	{
@@ -319,23 +331,45 @@ public class Painter extends PjProject implements ComponentListener {
 	
 	
 	// Adjust size of image to dimension of Display canvas.
-	private boolean resizeImage(PvDisplayIf disp) 
+	private synchronized boolean resizeImage(PvDisplayIf disp) 
 	{
-		// Check, if another thread is currently resizing this
-		if (m_currentlyResizing)
-		{
-			m_curResizeCount++;
-			// PsDebug.message(String.valueOf(m_curResizeCount) + ". time currently resizing!");
-			PsDebug.message("Called resizeImage again, while still resizing!");
-			return false;
-		}
-		else
-			m_currentlyResizing = true;
 		PsDebug.message("resize");
+
+		// // Check, if another thread is currently resizing this
+		// if (m_currentlyResizing)
+		// {
+		// 	m_curResizeCount++;
+		// 	// PsDebug.message(String.valueOf(m_curResizeCount) + ". time currently resizing!");
+		// 	PsDebug.message("Called resizeImage again, while still resizing!");
+		// 	return false;
+		// }
+		// else
+		// 	m_currentlyResizing = true;
+		// PsDebug.message("resize");
+		
+		// if (disp == null)
+		// {
+		// 	m_currentlyResizing = false;
+		// 	return false;
+		// }
+
+		// Check, if another thread is currently writing on fluidSolver
+		// if (m_writingNow)
+		// {
+		// 	m_writingCount++;
+		// 	// PsDebug.message(String.valueOf(m_curResizeCount) + ". time currently resizing!");
+		// 	PsDebug.message("Called resizeImage, while writing on fluidSolver! return false...");
+		// 	return false;
+		// }
+		// else
+		// 	m_writingNow = true;
+		
+		// waitUntilNotWriting();
+		m_writingNow = true;
 		
 		if (disp == null)
 		{
-			m_currentlyResizing = false;
+			m_writingNow = false;
 			return false;
 		}
 		boolean resized	= false;
@@ -364,7 +398,6 @@ public class Painter extends PjProject implements ComponentListener {
 				}
 				else if (m_fluidSolver.n != m_numBlocksX || m_fluidSolver.m != m_numBlocksY)
 				{
-					// FUNCTION RESIZEARRAY DOES NOT WORK YET
 					// PsDebug.message("resize fluidSolver");
 					// m_fluidSolver.resizeArray(m_numBlocksX - 2, m_numBlocksY - 2);
 					// m_oldFluidSolver.resizeArray(m_numBlocksX - 2, m_numBlocksY - 2);
@@ -397,10 +430,10 @@ public class Painter extends PjProject implements ComponentListener {
 				resized	= true;
 			}
 
-			m_currentlyResizing = false;
+			m_writingNow = false;
 			return resized;
 		}
-		m_currentlyResizing = false;
+		m_writingNow = false;
 		return false;
 	}
 
@@ -464,20 +497,23 @@ public class Painter extends PjProject implements ComponentListener {
 	}
 
 	// Compute image pixel values
-	private void computeImage(PvDisplayIf disp)
+	private synchronized void computeImage(PvDisplayIf disp)
 	{
-		PsDebug.initTime();
 		// PsDebug.message("Compute image!");
-		if (m_currentlyCalculating)
-		{
-			// PsDebug.message(String.valueOf(m_curCalcCount + 1) + ". time parallel calculating!");
-			PsDebug.message("Called computeImage again, while still computing!");
-			// PsDebug.message("not returning!");
-			m_curCalcCount++;
-			return;
-		}
-		else
-			m_currentlyCalculating = true;
+
+		// waitUntilNotWriting();
+		m_writingNow = true;
+		PsDebug.initTime();
+		// if (m_writingNow)
+		// {
+		// 	// PsDebug.message(String.valueOf(m_writingCount + 1) + ". time parallel calculating!");
+		// 	PsDebug.message("Called computeImage, while writing on fluidSolver! return...");
+		// 	// PsDebug.message("not returning!");
+		// 	m_writingCount++;
+		// 	return;
+		// }
+		// else
+		// 	m_writingNow = true;
 		
 		// Add forces on corresponding mouse trace
 		if (m_forceTraceX.getSize() == m_forceTraceY.getSize())
@@ -519,7 +555,7 @@ public class Painter extends PjProject implements ComponentListener {
 		computeColors();
 		m_mis.newPixels(0, 0, m_imageWidth, m_imageHeight);
 
-		m_currentlyCalculating = false;
+		m_writingNow = false;
 		
 //		PsDebug.message("Seconds per Frame: " + PsDebug.getTimeUsed());
 	}
@@ -611,8 +647,26 @@ public class Painter extends PjProject implements ComponentListener {
 		}
 	}
 
-	private void changeBlockSize()
+	private synchronized boolean changeBlockSize()
 	{
+		PsDebug.message("changeBlockSize");
+		
+		// waitUntilNotWriting();
+		m_writingNow = true;
+		// Only enter this, when not currently writing on fluidSolver
+		// if (m_writingNow)
+		// {
+		// 	m_writingCount++;
+		// 	// PsDebug.message(String.valueOf(m_curResizeCount) + ". time currently resizing!");
+		// 	PsDebug.message("Called changeBlockSize, while writing on fluidSolver! return false...");
+		// 	return false;
+		// }
+		// else
+		// 	m_writingNow = true;
+		
+		// testoutputs
+		PsDebug.message("change blockSize from " + String.valueOf(m_oldBlockSize.getValue()) + " to " + String.valueOf(m_blockSize.getValue()));
+
 		// Change resolutions
 		int oldNumBlocksX = m_numBlocksX;
 		m_numBlocksX = (int) Math.ceil((double)(m_imageWidth) / m_blockSize.getValue());
@@ -627,7 +681,6 @@ public class Painter extends PjProject implements ComponentListener {
 		m_fluidSolver.setup(m_numBlocksX - 2, m_numBlocksY - 2, (float)m_dt.getValue());
 
 		// testoutputs
-		PsDebug.message("change blockSize from " + String.valueOf(m_oldBlockSize.getValue()) + " to " + String.valueOf(m_blockSize.getValue()));
 		PsDebug.message("oldFluidSolverSize: " + String.valueOf(m_oldFluidSolver.size));
 		PsDebug.message("fluidSolverSize: " + String.valueOf(m_fluidSolver.size));
 
@@ -649,6 +702,7 @@ public class Painter extends PjProject implements ComponentListener {
 				{
 					PsDebug.message(String.valueOf(Id(block(x),block(y))) + ", " + String.valueOf(Id(block(x, oldSize), block(y, oldSize), oldNumBlocksX)));
 					PsDebug.message(String.valueOf(m_fluidSolver.size) + ", " + String.valueOf(m_oldFluidSolver.size));
+					PsDebug.message(String.valueOf(oldSize) + ", " + String.valueOf(newSize));
 				}
 				m_fluidSolver.u[Id(block(x), block(y))] += m_oldFluidSolver.u[Id(block(x, oldSize), block(y, oldSize), oldNumBlocksX)];
 				m_fluidSolver.v[Id(block(x), block(y))] += m_oldFluidSolver.v[Id(block(x, oldSize), block(y, oldSize), oldNumBlocksX)];
@@ -670,10 +724,15 @@ public class Painter extends PjProject implements ComponentListener {
 			}
 		}
 		
-		// Save state into old
+		// Save current state
 		m_oldBlockSize.setValue(m_blockSize.getValue());
 		try { m_oldFluidSolver = m_fluidSolver.clone(); }
 		catch (CloneNotSupportedException e) { PsDebug.warning("Clone of fluidSolver not supported!"); }
+		
+		// Unlock fluidSolver
+		m_writingNow = false;
+		
+		return true;
 	}
 
     /**
