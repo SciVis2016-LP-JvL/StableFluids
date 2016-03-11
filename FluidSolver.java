@@ -1,8 +1,5 @@
 package StableFluids;
 
-//Test for Git (by Lukas)
-//Hallo?
-
 import jv.object.PsDebug;
 
 /**
@@ -40,7 +37,27 @@ public class FluidSolver implements Cloneable
     
     float timer; //measures time to improve speed
     
-    public FluidSolver clone() throws CloneNotSupportedException { return (FluidSolver) super.clone(); }
+    public FluidSolver clone() throws CloneNotSupportedException
+    {
+    	FluidSolver copy = null;
+    	try
+    	{
+    		copy = (FluidSolver) super.clone();
+    		copy.d = d.clone();
+    		copy.v = v.clone();
+    		copy.u = u.clone();
+    		copy.dOld = dOld.clone();
+    		copy.vOld = vOld.clone();
+    		copy.uOld = uOld.clone();
+    		copy.tmp = tmp.clone();
+    		copy.neu = neu.clone();
+    		copy.neu2 = neu2.clone();
+    		copy.div = div.clone();
+    		copy.rot = rot.clone();
+    	} catch(CloneNotSupportedException e) {}
+
+    	return copy;
+    }
     
     public void setup(int n, int m, float dt)
     {
@@ -64,6 +81,7 @@ public class FluidSolver implements Cloneable
         div  = new float[size];
         neu2 = new float[size];
         rot = new float[size];
+        tmp = new float[size];
                         
     	//initialize velocity and density to 0
         for (int i = 0; i < size; i++)
