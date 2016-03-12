@@ -594,7 +594,7 @@ public class Painter extends PjProject implements ComponentListener {
 		// PsDebug.message("changeBlockSize");
 		
 		// testoutputs
-		PsDebug.message("change blockSize from " + String.valueOf(m_oldBlockSize.getValue()) + " to " + String.valueOf(m_blockSize.getValue()));
+		// PsDebug.message("change blockSize from " + String.valueOf(m_oldBlockSize.getValue()) + " to " + String.valueOf(m_blockSize.getValue()));
 
 		// Change resolutions
 		int oldNumBlocksX = m_numBlocksX;
@@ -610,10 +610,8 @@ public class Painter extends PjProject implements ComponentListener {
 		m_fluidSolver.setup(m_numBlocksX - 2, m_numBlocksY - 2, (float)m_dt.getValue());
 
 		// testoutputs
-		PsDebug.message("oldFluidSolverSize: " + String.valueOf(m_oldFluidSolver.size));
-		PsDebug.message("fluidSolverSize: " + String.valueOf(m_fluidSolver.size));
-
-		boolean allZero = true;
+		// PsDebug.message("oldFluidSolverSize: " + String.valueOf(m_oldFluidSolver.size));
+		// PsDebug.message("fluidSolverSize: " + String.valueOf(m_fluidSolver.size));
 
 		// Average colors from blocks
 		int oldSize = m_oldBlockSize.getValue();
@@ -622,15 +620,7 @@ public class Painter extends PjProject implements ComponentListener {
 		{
 			for (int y = 0; y < m_imageHeight; ++y)
 			{
-				try { m_fluidSolver.d[Id(block(x), block(y))] += m_oldFluidSolver.d[Id(block(x, oldSize), block(y, oldSize), oldNumBlocksX)]; }
-				catch (ArrayIndexOutOfBoundsException e)
-				{
-					PsDebug.message(String.valueOf(Id(block(x),block(y))) + ", " + String.valueOf(Id(block(x, oldSize), block(y, oldSize), oldNumBlocksX)));
-					PsDebug.message(String.valueOf(m_fluidSolver.size) + ", " + String.valueOf(m_oldFluidSolver.size));
-					PsDebug.message(String.valueOf(oldSize) + ", " + String.valueOf(newSize));
-				}
-				if (m_oldFluidSolver.d[Id(block(x, oldSize), block(y, oldSize), oldNumBlocksX)] != (float)0)
-					allZero = false;
+				m_fluidSolver.d[Id(block(x), block(y))] += m_oldFluidSolver.d[Id(block(x, oldSize), block(y, oldSize), oldNumBlocksX)];
 				m_fluidSolver.u[Id(block(x), block(y))] += m_oldFluidSolver.u[Id(block(x, oldSize), block(y, oldSize), oldNumBlocksX)];
 				m_fluidSolver.v[Id(block(x), block(y))] += m_oldFluidSolver.v[Id(block(x, oldSize), block(y, oldSize), oldNumBlocksX)];
 				m_fluidSolver.dOld[Id(block(x), block(y))] += m_oldFluidSolver.dOld[Id(block(x, oldSize), block(y, oldSize), oldNumBlocksX)];
@@ -638,8 +628,6 @@ public class Painter extends PjProject implements ComponentListener {
 				m_fluidSolver.vOld[Id(block(x), block(y))] += m_oldFluidSolver.vOld[Id(block(x, oldSize), block(y, oldSize), oldNumBlocksX)];
 			}
 		}
-		if (allZero)
-			PsDebug.message("WARNING: oldFluidSolver is 0 everywhere in changeBlockSize!");
 		for (int x = 0; x < m_numBlocksX; ++x)
 		{
 			for (int y = 0; y < m_numBlocksY; ++y)
