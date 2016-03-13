@@ -65,6 +65,10 @@ public class Painter extends PjProject implements ComponentListener {
 	private		PiVector			m_forceTraceY;
 	protected	PuInteger			m_forceRadius;
 	protected	PuDouble			m_forceConst;
+	protected	PuDouble			m_buoyancy;
+	protected	PuDouble			m_diffusion;
+	protected	PuDouble			m_viscosity;
+	protected	PuDouble			m_vorticity;
 	private		PiVector			m_densityTraceX;
 	private		PiVector			m_densityTraceY;
 	protected	PuInteger			m_densityRadius;
@@ -101,6 +105,10 @@ public class Painter extends PjProject implements ComponentListener {
 		m_forceTraceY			= new PiVector();
 		m_forceRadius			= new PuInteger("Force radius");
 		m_forceConst			= new PuDouble("Force constant");
+		m_buoyancy				= new PuDouble("Buoyancy force");
+		m_diffusion				= new PuDouble("Diffusion");
+		m_viscosity				= new PuDouble("Viscosity");
+		m_vorticity				= new PuDouble("Vorticity");
 		m_densityTraceX			= new PiVector();
 		m_densityTraceY			= new PiVector();
 		m_densityRadius			= new PuInteger("Density radius");
@@ -147,6 +155,11 @@ public class Painter extends PjProject implements ComponentListener {
 		initAnimation();
 		myStart();
 	}
+	
+	public void buttonClear()
+	{
+		m_fluidSolver.clearArray();
+	}
 
 	public void init() {
 		// PsDebug.message("init");
@@ -164,6 +177,14 @@ public class Painter extends PjProject implements ComponentListener {
 		m_forceRadius.setValue(20);
 		m_forceConst.setBounds(0.0, 0.6, 0.01, 0.1);
 		m_forceConst.setValue(0.3);
+		m_buoyancy.setBounds(0.0, 1.0, 0.01, 0.1);
+		m_buoyancy.setValue(0.1);
+		m_diffusion.setBounds(0.0, 1.0, 0.01, 0.1);
+		m_diffusion.setValue(0.0);
+		m_viscosity.setBounds(0.0, 1.0, 0.01, 0.1);
+		m_viscosity.setValue(0.0);
+		m_vorticity.setBounds(0.0, 1.0, 0.01, 0.1);
+		m_vorticity.setValue(0.35);
 		m_densityTraceX.setSize(0);
 		m_densityTraceY.setSize(0);
 		m_densityRadius.setBounds(1, 20, 1, 5);
@@ -472,6 +493,12 @@ public class Painter extends PjProject implements ComponentListener {
 		
 		// Delete mouse traces
 		resetMouseTraces();
+		
+		// configure fluidSolver
+		m_fluidSolver.setDiff((float) m_diffusion.getValue() / 100000);
+		m_fluidSolver.setBuoyancy(10.0f * (float) m_buoyancy.getValue());
+		m_fluidSolver.setVorticity((float) m_vorticity.getValue());
+		m_fluidSolver.setVisc((float) m_viscosity.getValue());
 		
 		// Solve fluid
         m_fluidSolver.velocitySolver();

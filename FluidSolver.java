@@ -18,18 +18,21 @@ public class FluidSolver implements Cloneable
     float dt; //time step
 
     //constants that determine the nature of the fluid
-    //values in parenthesis [0.0f] give the default values of each constant
-    float visc = 0.0000000f; //[] constant that determines the viscosity of the fluid
-    float diff = 0.000000001f; //[] constant that determines the effect of diffusion, i.e. how much the density diffuses
-    float vorticity = 0; //[] factor that determines the effect of Vorticity Confinement, i.e. how "curly" the fluid should look like
-    float heat = 0.025f; //[0.025f] constant that determines the upward force due to heat of smoke
-    float weight = 0.000625f; //[0.000625f] constant that determines the downward force due to weight of smoke
+    //values in parenthesis [0.0f] give the default values of each constant, or the domain
+    float visc = 0.0f; //[] constant that determines the viscosity of the fluid
+    float diff = 0.0f; //[] constant that determines the effect of diffusion, i.e. how much the density diffuses
+    float vorticity = 0.35f; //[0.0f to 1.0f] factor that determines the effect of Vorticity Confinement, i.e. how "curly" the fluid should look like
+    						 //the bigger the vorticity, the more curly, but the more crispy
+    float weightAir = 5.0f; //[0.025f] constant that determines the upward force due to heat of smoke
+    float weightSmoke = 0.4f; //[0.000625f] constant that determines the downward force due to weight of smoke
+    float buoyancy = 0.5f;
 
     float[] d, dOld; //density, old density
     float[] u, uOld; //x-component of the velocity vector field
     float[] v, vOld; //y-component of the velocity vector field
     
-    float timer; //measures time to improve speed
+    float[] tmp;
+    float[] curl;
     
     public FluidSolver clone() throws CloneNotSupportedException { return (FluidSolver) super.clone(); }
     
@@ -51,6 +54,9 @@ public class FluidSolver implements Cloneable
         uOld = new float[size];
         v    = new float[size];
         vOld = new float[size];
+        
+        curl = new float[size];
+        tmp = new float[size];
                         
     	//initialize velocity and density to 0
         for (int i = 0; i < size; i++)
@@ -90,24 +96,29 @@ public class FluidSolver implements Cloneable
     	return vorticity;
     }
     
-    public void setHeat(float buoyancy)
+    public void setWeightAir(float buoyancy)
     {
-    	this.heat = buoyancy;
+    	this.weightAir = buoyancy;
     }
     
-    public float getHeat()
+    public float getWeightAir()
     {
-    	return heat;
+    	return weightAir;
     }
     
-    public void setWeight(float mass)
+    public void setWeightSmoke(float weight)
     {
-    	this.weight = mass;
+    	this.weightAir = weight;
     }
     
-    public float getWeight()
+    public float getWeightSmoke()
     {
-    	return weight;
+    	return weightAir;
+    }
+    
+    public void setBuoyancy(float buoyancy)
+    {
+    	this.buoyancy = buoyancy;
     }
     
     
@@ -161,6 +172,22 @@ public class FluidSolver implements Cloneable
             }
         }
     }
+    
+    public void clearArray()
+    {
+    	for (int i = 1; i <= n; i++)
+        {
+            for (int j = 1; j <= m; j++)
+            {
+            	u[I(i,j)] = 0;
+            	v[I(i,j)] = 0;
+            	d[I(i,j)] = 0;
+            	uOld[I(i,j)] = 0;
+            	vOld[I(i,j)] = 0;
+            	dOld[I(i,j)] = 0;
+            }
+        }
+    }
        
 
     /**
@@ -171,23 +198,29 @@ public class FluidSolver implements Cloneable
 
     public void velocitySolver()
     {
-    	// timer = System.nanoTime();
         //add velocity that was input by mouse
         inputData(u, uOld);
         inputData(v, vOld);
-        project();
+        //project();
 
         //add vorticity confinement force
         vorticityConfinementNEW();
-        project();
-               
+              
+        //project();
+
         //add buoyancy force (Auftriebskraft)
         buoyancy();
-        project();
         
-        //let the fluid flow
+        //buoyancy(vOld);
+        //addSource(v, vOld);
+        //project();
+
+        
     	diffuse();
+    	project();
+    	
         advect();
+        
         project();
         
         /**
@@ -218,9 +251,6 @@ public class FluidSolver implements Cloneable
         
         // clear all input velocities for next frame
         for (int i = 0; i < size; i++){ uOld[i] = 0; vOld[i] = 0; }
-                
-        // System.out.println("Solver");
-        // System.out.println(System.nanoTime()-timer);
     }
     
     /**
@@ -230,23 +260,36 @@ public class FluidSolver implements Cloneable
     
     public void buoyancy()
     {
+    	float factor = buoyancy;
         float Tamb = 0;
         //determine average temperature
         for (int i = 1; i <= n; i++)
         {
             for (int j = 1; j <= m; j++)
             {
-                Tamb += d[I(i, j)];
+            	if(d[I(i, j)] <= 255)
+        		{
+            		Tamb += d[I(i, j)];
+        		} else {
+        			Tamb = Tamb + 255;
+        		}
             }
         }
-        Tamb = Tamb / (n * n);
+        Tamb = Tamb / (n * m);
 
         //hot smoke goes up, heavy smoke goes down
         for (int i = 1; i <= n; i++)
         {
             for (int j = 1; j <= m; j++)
             {
-                v[I(i, j)] = v[I(i, j)] + weight * d[I(i, j)] - heat * (d[I(i, j)] - Tamb);
+                //v[I(i, j)] = v[I(i, j)] + dt * (heat * (d[I(i, j)]) - weight * (d[I(i, j)] - Tamb));
+            	if(d[I(i, j)] <= 255)
+        		{
+            		// v = v + dt * Auftrieb - dt * Gewicht;
+            		v[I(i, j)] = v[I(i, j)] - factor * dt * ( Tamb/255 * weightSmoke + (1-Tamb/255) * weightAir) + factor * dt * (d[I(i,j)]/255 * weightSmoke + (1-d[I(i,j)]/255) * weightAir);
+        		} else {
+        			v[I(i, j)] = v[I(i, j)] - factor * dt * ( Tamb/255 * weightSmoke + (1-Tamb/255) * weightAir) + factor * dt * (1 * weightSmoke);
+        		}
             }
         }
     }
@@ -263,6 +306,7 @@ public class FluidSolver implements Cloneable
     
     public void vorticityConfinementNEW()
     {
+    	
     	float n1,n2,factor;
     	float[] rot;
     	rot = new float[size];
@@ -286,13 +330,13 @@ public class FluidSolver implements Cloneable
             	n2 = (rot[I(i,j+1)] - rot[I(i,j-1)] ) / 2 ;
             	
             	//normalize the gradient
-            	factor = (float) Math.sqrt(n1 * n1 + n2 * n2) + 0.0000000001f; //length
+            	factor = (float) Math.sqrt(n1 * n1 + n2 * n2) + 0.000000001f; //length
             	n1 = n1 / factor;
             	n2 = n2 / factor;
             	
             	//add force to the vector field
-            	u[I(i,j)] = u[I(i,j)] + n2 * vorticity  * rot[I(i,j)] / n;
-            	v[I(i,j)] = v[I(i,j)] - n1 * vorticity  * rot[I(i,j)] / n;
+            	u[I(i,j)] = u[I(i,j)] - n2 * vorticity  * ((u[I(i, j + 1)] - u[I(i, j - 1)]) - (v[I(i + 1, j)] - v[I(i - 1, j)]))/2;
+            	v[I(i,j)] = v[I(i,j)] + n1 * vorticity  * ((u[I(i, j + 1)] - u[I(i, j - 1)]) - (v[I(i + 1, j)] - v[I(i - 1, j)]))/2;
             }
         }
     }
@@ -310,10 +354,19 @@ public class FluidSolver implements Cloneable
 	 *
      **/
     
-    private void advect ()
+    private void advect()
     {
-		float x, y, f1, f2, f3, f4; //factors in the convex combination
+		float x, y; //factors in the convex combination
 		int xI, yI;
+		for (int i = 1; i<=n; i++)
+    	{
+    		for (int j = 1; j<=m; j++)
+    		{
+    			uOld[I(i,j)] = u[I(i,j)];
+    			vOld[I(i,j)] = v[I(i,j)];
+    		}
+    	}
+		
     	for (int i = 1; i<=n; i++)
     	{
     		for (int j = 1; j<=m; j++)
@@ -332,20 +385,18 @@ public class FluidSolver implements Cloneable
     			xI = (int) x;
     			yI = (int) y;
     			
-    			f1 = x - xI;
-    			f2 = 1 - f1;
-    			f3 = y - yI;
-    			f4 = 1 - f3;
-    			
     			//assign the resulting vector to the output array
-    			u[I(i,j)] = f2 * ( f4 * uOld[I(xI,yI)] + f3 * uOld[I(xI,yI+1)])
-    					+ f1 * ( (1-f3) * uOld[I(xI+1,yI)] + f3 * uOld[I(xI+1,yI+1)]);
-    			v[I(i,j)] = f2 * ( f4 * vOld[I(xI,yI)] + f3 * vOld[I(xI,yI+1)])
-    					+ f1 * ( f4 * vOld[I(xI+1,yI)] + f2 * vOld[I(xI+1,yI+1)]);
+    			u[I(i,j)] = (1-x+xI) * ( (1-y+yI) * uOld[I(xI,yI)] + (y-yI) * uOld[I(xI,yI+1)] )
+    					+ (x-xI) * ( (1-y+yI) * uOld[I(xI+1,yI)] + (y-yI) * uOld[I(xI+1,yI+1)] );
+    			v[I(i,j)] = (1-x+xI) * ( (1-y+yI) * vOld[I(xI,yI)] + (y-yI) * vOld[I(xI,yI+1)] )
+    					+ (x-xI) * ( (1-y+yI) * vOld[I(xI+1,yI)] + (y-yI) * vOld[I(xI+1,yI+1)] );
     		}
     	}
+    	
     	boundaryCondition(1, u);
-    	boundaryCondition(1, v);
+    	boundaryCondition(2, v);
+    	
+    	
     }
     
     
@@ -358,7 +409,7 @@ public class FluidSolver implements Cloneable
     
     private void diffuse()
     {
-		float factor = visc * dt * n * n;
+		float factor = visc * dt * m * m;
 		// PsDebug.message("factor:"+ Float.toString(factor));
 		float[] neu;
 		float[] neu2;
@@ -367,7 +418,7 @@ public class FluidSolver implements Cloneable
 		neu = uOld;
 		neu2 = vOld;
 		
-    	for (int k = 1;k<= 20; k++)
+    	for (int k = 1;k< 20; k++)
     	{
     		for (int i = 1;i<=n; i++)
     		{
@@ -378,8 +429,14 @@ public class FluidSolver implements Cloneable
     			}
     		}    		
     	}    
-    	uOld = neu;
-    	vOld = neu2;
+    	for (int i = 1;i<=n; i++)
+		{
+			for (int j = 1;j<=m; j++)
+			{
+				u[I(i,j)] = neu[I(i,j)];
+				v[I(i,j)] = neu2[I(i,j)];
+			}
+		}
     }
     
     
@@ -413,7 +470,7 @@ public class FluidSolver implements Cloneable
     	
     	
     	//solve the resulting Poisson equation
-    	for (int k = 1; k <= 20; k++)
+    	for (int k = 1; k < 20; k++)
     	{
 	    	for (int i = 1; i <= n; i++)
 	        {
@@ -443,12 +500,11 @@ public class FluidSolver implements Cloneable
     {
     	float[] neu;
 		neu = new float[size];
-    	timer = System.nanoTime();
         // add density inputed by mouse
         inputData(d, dOld);
         
         //let the density diffuse
-        float factor = diff * dt * n * n*2;
+        float factor = diff * dt * m * m ;
         neu = dOld;
         for (int k = 1;k<= 20; k++)
     	{
@@ -497,8 +553,6 @@ public class FluidSolver implements Cloneable
 
         // clear input density array for next frame
         for (int i = 0; i < size; i++) dOld[i] = 0;
-        // System.out.println("Density");
-        // System.out.println(System.nanoTime()-timer);
     }
 
     

@@ -31,6 +31,7 @@ public class Painter_IP extends PjProject_IP implements ActionListener {
 	protected	PsPanel				m_pSlider;
 	protected	Panel				m_pBottomButtons;
 	protected	Button				m_bReset;
+	protected	Button				m_bClear;
 	protected	PsPanel				m_lTime;
 	
 	protected final String notice	= "Drag mouse:\n"
@@ -74,6 +75,10 @@ public class Painter_IP extends PjProject_IP implements ActionListener {
 		m_bReset = new Button("Reset");
 		m_bReset.addActionListener(this);
 		m_pBottomButtons.add(m_bReset);
+		
+		m_bClear = new Button("Clear");
+		m_bClear.addActionListener(this);
+		m_pBottomButtons.add(m_bClear);
 	}
 	
 	/**
@@ -88,6 +93,10 @@ public class Painter_IP extends PjProject_IP implements ActionListener {
 		m_pSlider.add(m_Project.m_forceRadius.getInfoPanel());
 		m_pSlider.add(m_Project.m_densityConst.getInfoPanel());
 		m_pSlider.add(m_Project.m_forceConst.getInfoPanel());
+		m_pSlider.add(m_Project.m_buoyancy.getInfoPanel());
+		m_pSlider.add(m_Project.m_diffusion.getInfoPanel());
+		m_pSlider.add(m_Project.m_viscosity.getInfoPanel());
+		m_pSlider.add(m_Project.m_vorticity.getInfoPanel());
 	}
 	
 	/**
@@ -115,6 +124,10 @@ public class Painter_IP extends PjProject_IP implements ActionListener {
 			// m_Project.start();
 			m_Project.buttonReset();
 			// m_pSlider.update(this);
+			m_Project.update(m_Project);
+		}
+		if (source == m_bClear) {
+			m_Project.buttonClear();
 			m_Project.update(m_Project);
 		}
 	}
