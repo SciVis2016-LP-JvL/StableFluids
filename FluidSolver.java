@@ -21,43 +21,17 @@ public class FluidSolver implements Cloneable
     //values in parenthesis [0.0f] give the default values of each constant
     float visc = 0.0000000f; //[] constant that determines the viscosity of the fluid
     float diff = 0.000000001f; //[] constant that determines the effect of diffusion, i.e. how much the density diffuses
-    float vorticity = 80; //[] factor that determines the effect of Vorticity Confinement, i.e. how "curly" the fluid should look like
-    float heat = 0.010f; //[0.025f] constant that determines the upward force due to heat of smoke
+    float vorticity = 0; //[] factor that determines the effect of Vorticity Confinement, i.e. how "curly" the fluid should look like
+    float heat = 0.025f; //[0.025f] constant that determines the upward force due to heat of smoke
     float weight = 0.000625f; //[0.000625f] constant that determines the downward force due to weight of smoke
-    
-    float[] tmp;
-    float[] neu;
-    float[] neu2;
 
     float[] d, dOld; //density, old density
     float[] u, uOld; //x-component of the velocity vector field
     float[] v, vOld; //y-component of the velocity vector field
-    float[] div; //divergence of the vector field
-    float[] rot; //curl of the vector field
     
     float timer; //measures time to improve speed
     
-    public FluidSolver clone() throws CloneNotSupportedException
-    {
-    	FluidSolver copy = null;
-    	try
-    	{
-    		copy = (FluidSolver) super.clone();
-    		copy.d = d.clone();
-    		copy.v = v.clone();
-    		copy.u = u.clone();
-    		copy.dOld = dOld.clone();
-    		copy.vOld = vOld.clone();
-    		copy.uOld = uOld.clone();
-    		copy.tmp = tmp.clone();
-    		copy.neu = neu.clone();
-    		copy.neu2 = neu2.clone();
-    		copy.div = div.clone();
-    		copy.rot = rot.clone();
-    	} catch(CloneNotSupportedException e) {}
-
-    	return copy;
-    }
+    public FluidSolver clone() throws CloneNotSupportedException { return (FluidSolver) super.clone(); }
     
     public void setup(int n, int m, float dt)
     {
@@ -73,15 +47,10 @@ public class FluidSolver implements Cloneable
     {
         d    = new float[size];
         dOld = new float[size];
-        neu = new float[size];
         u    = new float[size];
         uOld = new float[size];
         v    = new float[size];
         vOld = new float[size];
-        div  = new float[size];
-        neu2 = new float[size];
-        rot = new float[size];
-        tmp = new float[size];
                         
     	//initialize velocity and density to 0
         for (int i = 0; i < size; i++)
@@ -144,67 +113,53 @@ public class FluidSolver implements Cloneable
     
     public void resizeArray(int width, int height)
     {
-    	size = (width +2) * (height +2);
+    	int nOld, mOld;
+    	size = (n+2)*(m+2);
+    	float[] uT = new float[size];
+    	float[] vT = new float[size];
+    	float[] dT = new float[size];
     	float[] uOldT = new float[size];
     	float[] vOldT = new float[size];
     	float[] dOldT = new float[size];
     	
-    	//store the current value of u, v, d in uOldT, vOldT, dOldT
-    	for (int i = 1; i <= n; i++)
+    	//store the current value of u, v, d, uOld, vOld, dOld
+    	for (int i = 1; i <= Math.min(n, width); i++)
         {
-            for (int j = 1; j <= m; j++)
+            for (int j = 1; j <= Math.min(m, height); j++)
             {
-            	uOldT[I(i,j)] = u[I(i,j)];
-            	vOldT[I(i,j)] = v[I(i,j)];
-            	dOldT[I(i,j)] = d[I(i,j)];
-            }
-        }
-    	//resize the array u,v,d
-    	u = new float[size];
-    	v = new float[size];
-    	d = new float[size];
-    	//copy the values back
-    	for (int i = 1; i <= n; i++)
-        {
-            for (int j = 1; j <= m; j++)
-            {
-            	u[I(i,j)] = uOldT[I(i,j)];
-            	v[I(i,j)] = vOldT[I(i,j)];
-            	d[I(i,j)] = dOldT[I(i,j)];
-            }
-        }
-    	
-    	//store the current value of uOld, vOld, dOld in uOldT, vOldT, dOldT
-    	for (int i = 1; i <= n; i++)
-        {
-            for (int j = 1; j <= m; j++)
-            {
+            	uT[I(i,j)] = u[I(i,j)];
+            	vT[I(i,j)] = v[I(i,j)];
+            	dT[I(i,j)] = d[I(i,j)];
             	uOldT[I(i,j)] = uOld[I(i,j)];
             	vOldT[I(i,j)] = vOld[I(i,j)];
             	dOldT[I(i,j)] = dOld[I(i,j)];
             }
         }
-    	//resize the array uOld, vOld, dOld
+    	//resize the array u,v,d
+    	size = (width +2) * (height +2);
+    	nOld = n;
+    	mOld = m;
+    	n = width;
+    	m = height;
+    	u = new float[size];
+    	v = new float[size];
+    	d = new float[size];
     	uOld = new float[size];
     	vOld = new float[size];
     	dOld = new float[size];
     	//copy the values back
-    	for (int i = 1; i <= n; i++)
+    	for (int i = 1; i <= Math.min(nOld, n); i++)
         {
-            for (int j = 1; j <= m; j++)
+            for (int j = 1; j <= Math.min(mOld, m); j++)
             {
-            	uOld[I(i,j)] = uOldT[I(i,j)];
-            	vOld[I(i,j)] = vOldT[I(i,j)];
-            	dOld[I(i,j)] = dOldT[I(i,j)];
+            	u[I(i,j)] = uT[i + (nOld + 2) * j];
+            	v[I(i,j)] = vT[i + (nOld + 2) * j];
+            	d[I(i,j)] = dT[i + (nOld + 2) * j];
+            	uOld[I(i,j)] = uOldT[i + (nOld + 2) * j];
+            	vOld[I(i,j)] = vOldT[i + (nOld + 2) * j];
+            	dOld[I(i,j)] = dOldT[i + (nOld + 2) * j];
             }
         }
-    	n = width;
-    	m = height;
-    	tmp = new float[size];
-    	neu = new float[size];
-    	neu2 = new float[size];
-    	rot = new float[size];
-    	div = new float[size];
     }
        
 
@@ -228,7 +183,6 @@ public class FluidSolver implements Cloneable
                
         //add buoyancy force (Auftriebskraft)
         buoyancy();
-        //inputData(v, vOld);
         project();
         
         //let the fluid flow
@@ -310,6 +264,8 @@ public class FluidSolver implements Cloneable
     public void vorticityConfinementNEW()
     {
     	float n1,n2,factor;
+    	float[] rot;
+    	rot = new float[size];
     	//first compute the absolute curl at each point of the grid
     	for (int i = 1; i <= n; i++)
         {
@@ -363,8 +319,8 @@ public class FluidSolver implements Cloneable
     		for (int j = 1; j<=m; j++)
     		{
     			//go backwards through the velocity field
-    			x = i - uOld[I(i,j)] * dt * n;
-    			y = j - vOld[I(i,j)] * dt * n;
+    			x = i - uOld[I(i,j)] * dt * m;
+    			y = j - vOld[I(i,j)] * dt * m;
     			
     			//interpolate the corresponding velocity vector at the position P(x,-\delta t)
     			//catch boundary overshooting
@@ -404,7 +360,10 @@ public class FluidSolver implements Cloneable
     {
 		float factor = visc * dt * n * n;
 		// PsDebug.message("factor:"+ Float.toString(factor));
-		
+		float[] neu;
+		float[] neu2;
+		neu = new float[size];
+		neu2 = new float[size];
 		neu = uOld;
 		neu2 = vOld;
 		
@@ -436,6 +395,10 @@ public class FluidSolver implements Cloneable
     
     void project()
     {
+		float[] neu2;
+		float[] div;
+		neu2 = new float[size];
+		div = new float[size];
 		//compute the divergence of the vector field
     	for (int i = 1; i <= n; i++)
         {
@@ -450,7 +413,7 @@ public class FluidSolver implements Cloneable
     	
     	
     	//solve the resulting Poisson equation
-    	for (int k = 1; k <= 30; k++)
+    	for (int k = 1; k <= 20; k++)
     	{
 	    	for (int i = 1; i <= n; i++)
 	        {
@@ -478,6 +441,8 @@ public class FluidSolver implements Cloneable
     
     public void densitySolver()
     {
+    	float[] neu;
+		neu = new float[size];
     	timer = System.nanoTime();
         // add density inputed by mouse
         inputData(d, dOld);
@@ -485,7 +450,7 @@ public class FluidSolver implements Cloneable
         //let the density diffuse
         float factor = diff * dt * n * n*2;
         neu = dOld;
-        for (int k = 1;k<= 30; k++)
+        for (int k = 1;k<= 20; k++)
     	{
     		for (int i = 1;i<=n; i++)
     		{
@@ -505,8 +470,8 @@ public class FluidSolver implements Cloneable
     		for (int j = 1; j<=m; j++)
     		{
     			//go backwards through the velocity field
-    			x = i - u[I(i,j)] * dt * n;
-    			y = j - v[I(i,j)] * dt * n;
+    			x = i - u[I(i,j)] * dt * m;
+    			y = j - v[I(i,j)] * dt * m;
     			
     			//interpolate the corresponding velocity vector at the position P(x,-\delta t)
     			//catch boundary overshooting

@@ -210,7 +210,7 @@ public class Painter extends PjProject implements ComponentListener {
 	{
 		if (m_disp == null)
 			m_disp = getDisp();
-		m_disp.showScenegraph(false);
+		//m_disp.showScenegraph(false);
 		
 		// Adjust sizes of images to dimension of display canvas
 		if (resizeImage(m_disp))
@@ -357,6 +357,7 @@ public class Painter extends PjProject implements ComponentListener {
 				}
 				else if (m_fluidSolver.n != m_numBlocksX || m_fluidSolver.m != m_numBlocksY)
 				{
+<<<<<<< HEAD
 					// PsDebug.message("resize fluidSolver");
 					// m_fluidSolver.resizeArray(m_numBlocksX - 2, m_numBlocksY - 2);
 					// m_oldFluidSolver.resizeArray(m_numBlocksX - 2, m_numBlocksY - 2);
@@ -365,6 +366,16 @@ public class Painter extends PjProject implements ComponentListener {
 					m_fluidSolver.setup(m_numBlocksX - 2, m_numBlocksY - 2, (float)m_dt.getValue());
 					// m_oldFluidSolver = new FluidSolver();
 					// m_oldFluidSolver.setup(m_numBlocksX - 2, m_numBlocksY - 2, (float)m_dt.getValue());
+=======
+					PsDebug.message("resize fluidSolver");
+					m_fluidSolver.resizeArray(m_numBlocksX - 2, m_numBlocksY - 2);
+					m_oldFluidSolver.resizeArray(m_numBlocksX - 2, m_numBlocksY - 2);
+					//PsDebug.message("create new fluidSolver");
+					//m_fluidSolver = new FluidSolver();
+					//m_fluidSolver.setup(m_numBlocksX - 2, m_numBlocksY - 2, (float)m_dt.getValue());
+					//m_oldFluidSolver = new FluidSolver();
+					//m_oldFluidSolver.setup(m_numBlocksX - 2, m_numBlocksY - 2, (float)m_dt.getValue());
+>>>>>>> refs/remotes/origin/master
 				}
 				
 				// Reset animation
