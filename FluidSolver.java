@@ -34,7 +34,22 @@ public class FluidSolver implements Cloneable
     float[] tmp;
     float[] curl;
     
-    public FluidSolver clone() throws CloneNotSupportedException { return (FluidSolver) super.clone(); }
+    public FluidSolver clone() throws CloneNotSupportedException
+    {
+    	FluidSolver copy = null;
+    	try
+    	{
+    		copy = (FluidSolver) super.clone();
+    		copy.d = d.clone();
+    		copy.v = v.clone();
+    		copy.u = u.clone();
+    		copy.dOld = dOld.clone();
+    		copy.vOld = vOld.clone();
+    		copy.uOld = uOld.clone();
+    	} catch(CloneNotSupportedException e) {}
+
+    	return copy;
+    }
     
     public void setup(int n, int m, float dt)
     {
