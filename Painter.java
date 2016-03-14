@@ -147,6 +147,7 @@ public class Painter extends PjProject implements ComponentListener {
 		init();
 		initAnimation();
 		myStart();
+		initFluidSolver();
 	}
 	
 	public void buttonClear()
@@ -182,6 +183,7 @@ public class Painter extends PjProject implements ComponentListener {
 		m_densityConst.setBounds(0.0, 600.0, 10.0, 100.0);
 		m_densityConst.setValue(300.0);
 		m_time.setValue(0);
+		m_dt.setValue(0.2f);
 		
 		m_imageHeight			= 0;
 		m_imageWidth			= 0;
@@ -219,7 +221,7 @@ public class Painter extends PjProject implements ComponentListener {
 	{
 		if (m_disp == null)
 			m_disp = getDisp();
-		//m_disp.showScenegraph(false);
+		m_disp.showScenegraph(false); // :P
 		
 		// Adjust sizes of images to dimension of display canvas
 		if (resizeImage(m_disp))
@@ -369,25 +371,22 @@ public class Painter extends PjProject implements ComponentListener {
 				m_numBlocksY = (int) Math.ceil((double)(m_imageHeight) / m_blockSize.getValue());
 
 				// Set up fluid solver
-				m_dt.setValue(0.2f);
 				if (m_fluidSolver.size == 0)
-				{
-					// PsDebug.message("create new fluidSolver");
-					m_fluidSolver = new FluidSolver();
-					m_fluidSolver.setup(m_numBlocksX - 2, m_numBlocksY - 2, (float)m_dt.getValue());
-					m_oldFluidSolver = new FluidSolver();
-					m_oldFluidSolver.setup(m_numBlocksX - 2, m_numBlocksY - 2, (float)m_dt.getValue());
-				}
+					initFluidSolver();
 				else if (m_fluidSolver.n != m_numBlocksX - 2 || m_fluidSolver.m != m_numBlocksY - 2)
 				{
 					// PsDebug.message("resize fluidSolver");
-					// m_fluidSolver.resizeArray(m_numBlocksX - 2, m_numBlocksY - 2);
+					m_fluidSolver.resizeArray(m_numBlocksX - 2, m_numBlocksY - 2);
 					// m_oldFluidSolver.resizeArray(m_numBlocksX - 2, m_numBlocksY - 2);
 					// PsDebug.message("create new fluidSolver");
-					m_fluidSolver = new FluidSolver();
-					m_fluidSolver.setup(m_numBlocksX - 2, m_numBlocksY - 2, (float)m_dt.getValue());
+
+					// m_fluidSolver = new FluidSolver();
+					// m_fluidSolver.setup(m_numBlocksX - 2, m_numBlocksY - 2, (float)m_dt.getValue());
 					// m_oldFluidSolver = new FluidSolver();
 					// m_oldFluidSolver.setup(m_numBlocksX - 2, m_numBlocksY - 2, (float)m_dt.getValue());
+					// Clone oldFluidSolver
+					try { m_oldFluidSolver = m_fluidSolver.clone(); }
+					catch (CloneNotSupportedException e) { PsDebug.warning("Clone of fluidSolver not supported!"); }
 				}
 				
 				// Reset animation
@@ -496,12 +495,6 @@ public class Painter extends PjProject implements ComponentListener {
 		
 		// Delete mouse traces
 		resetMouseTraces();
-		
-		// configure fluidSolver
-		m_fluidSolver.setDiff((float) m_diffusion.getValue() / 100000);
-		m_fluidSolver.setBuoyancy(10.0f * (float) m_buoyancy.getValue());
-		m_fluidSolver.setVorticity((float) m_vorticity.getValue());
-		m_fluidSolver.setVisc((float) m_viscosity.getValue());
 		
 		// Solve fluid
         m_fluidSolver.velocitySolver();
@@ -771,6 +764,25 @@ public class Painter extends PjProject implements ComponentListener {
 		return true;
 	}
 
+	
+	// Init and configure fluidSolver for current imageWidth, imageHeight, default constants
+	private void initFluidSolver()
+	{
+		m_fluidSolver = new FluidSolver();
+		m_fluidSolver.setup(m_numBlocksX - 2, m_numBlocksY - 2, (float)m_dt.getValue());
+
+		// configure fluidSolver
+		m_fluidSolver.setDiff((float) m_diffusion.getValue() / 100000);
+		m_fluidSolver.setBuoyancy(10.0f * (float) m_buoyancy.getValue());
+		m_fluidSolver.setVorticity((float) m_vorticity.getValue());
+		m_fluidSolver.setVisc((float) m_viscosity.getValue());
+		
+		// Clone oldFluidSolver
+		try { m_oldFluidSolver = m_fluidSolver.clone(); }
+		catch (CloneNotSupportedException e) { PsDebug.warning("Clone of fluidSolver not supported!"); }
+		
+	}
+	
     /**
      * Calculate the mouse input force for each cell
      * in the fluid grid. We add force linearly decreasing

@@ -72,11 +72,11 @@ public class Painter_IP extends PjProject_IP implements ActionListener {
 		m_pBottomButtons = new Panel();
 		m_pBottomButtons.setLayout(new FlowLayout(FlowLayout.CENTER));
 		add(m_pBottomButtons);
-		m_bReset = new Button("Reset");
+		m_bReset = new Button("Reset App");
 		m_bReset.addActionListener(this);
 		m_pBottomButtons.add(m_bReset);
 		
-		m_bClear = new Button("Clear");
+		m_bClear = new Button("Clear Canvas");
 		m_bClear.addActionListener(this);
 		m_pBottomButtons.add(m_bClear);
 	}
