@@ -81,6 +81,10 @@ public class Painter extends PjProject implements ComponentListener {
 	protected	PuInteger			m_blockSize;
 	protected	PuInteger			m_oldBlockSize;
 	
+	// Determines, whether computeImage() shall be invoked in setTime
+	private		boolean				m_readyForComputeImage;
+	private		boolean				m_currentlyResizing;
+	
 	private		PuDouble			m_time;
 //	protected	Label				m_lTime;
 	
@@ -111,24 +115,8 @@ public class Painter extends PjProject implements ComponentListener {
 		m_densityConst			= new PuDouble("Density constant");
 		m_fluidSolver			= new FluidSolver();
 		m_oldFluidSolver		= new FluidSolver();
-		// // TEST
-		// m_fluidSolver.setup(3, 3, (float)0.2);
-		// m_fluidSolver.d[1] = (float) 0.5;
-		// m_oldFluidSolver.setup(2, 3, (float)0.2);
-		// PsDebug.message(String.valueOf(m_oldFluidSolver.d[1]));
-		// m_oldFluidSolver.n = 1;
-		// PsDebug.message(String.valueOf(m_oldFluidSolver.n));
-		// try { m_oldFluidSolver = m_fluidSolver.clone(); }
-		// catch (CloneNotSupportedException e) { PsDebug.warning("Clone of fluidSolver not supported!"); }
-		// PsDebug.message(String.valueOf(m_oldFluidSolver.n));
-		// PsDebug.message(String.valueOf(m_fluidSolver.n));
-		// PsDebug.message(String.valueOf(m_oldFluidSolver.d[1]));
-		// m_fluidSolver.d[1] = (float) 5.0;
-		// PsDebug.message(String.valueOf(m_oldFluidSolver.d[1]));
-		// m_oldFluidSolver.d[1] = (float) 3.0;
-		// PsDebug.message(String.valueOf(m_oldFluidSolver.d[1]));
-		// PsDebug.message(String.valueOf(m_fluidSolver.d[1]));
-		// // TEST ENDE
+		m_currentlyResizing		= false;
+		m_readyForComputeImage	= true;
 		m_dt					= new PuDouble("Timestep");
 		m_time					= new PuDouble("Time");
 		m_blockSize				= new PuInteger("Block Size", this);
@@ -279,7 +267,9 @@ public class Painter extends PjProject implements ComponentListener {
 		}
 
 		PsAnimation anim = super.getAnimation();
+		m_readyForComputeImage = false;
 		anim.setTime(0.0);
+		m_readyForComputeImage = true;
 		anim.setTimeInterval(0., .2, .1, .1);
 
 		// try 
@@ -304,14 +294,17 @@ public class Painter extends PjProject implements ComponentListener {
 	// Start animation, if there is one
 	private void startAnimation()
 	{
+		// PsDebug.message("start Animation");
 		if (super.hasAnimation())
 			super.getAnimation().start();
 	}
 	
-	public boolean setTime(PsTimeEvent timeEvent) {
+	public boolean setTime(PsTimeEvent timeEvent)
+	{
 		// PsDebug.message("setTime");
 		m_time.setValue(Math.round(timeEvent.getTime()));
-		computeImage();
+		if (m_readyForComputeImage)
+			computeImage();
 		m_disp.update(null);
 //		m_lTime.setText(String.valueOf(m_time));
 		if (super.hasAnimation())
@@ -323,11 +316,20 @@ public class Painter extends PjProject implements ComponentListener {
 	// Adjust size of image to dimension of Display canvas.
 	private synchronized boolean resizeImage(PvDisplayIf disp) 
 	{
-		PsDebug.message("resize");
+		if (m_currentlyResizing)
+		{
+			PsDebug.message("currently resizing!");
+			return false;
+		}
+		else
+			m_currentlyResizing = true;
+
+		// PsDebug.message("resize");
 
 		if (disp == null)
 		{
 			notifyAll();
+			m_currentlyResizing = false;
 			return false;
 		}
 
@@ -349,18 +351,18 @@ public class Painter extends PjProject implements ComponentListener {
 				m_dt.setValue(0.2f);
 				if (m_fluidSolver.size == 0)
 				{
-					PsDebug.message("create new fluidSolver");
+					// PsDebug.message("create new fluidSolver");
 					m_fluidSolver = new FluidSolver();
 					m_fluidSolver.setup(m_numBlocksX - 2, m_numBlocksY - 2, (float)m_dt.getValue());
 					m_oldFluidSolver = new FluidSolver();
 					m_oldFluidSolver.setup(m_numBlocksX - 2, m_numBlocksY - 2, (float)m_dt.getValue());
 				}
-				else if (m_fluidSolver.n != m_numBlocksX || m_fluidSolver.m != m_numBlocksY)
+				else if (m_fluidSolver.n != m_numBlocksX - 2 || m_fluidSolver.m != m_numBlocksY - 2)
 				{
 					// PsDebug.message("resize fluidSolver");
 					// m_fluidSolver.resizeArray(m_numBlocksX - 2, m_numBlocksY - 2);
 					// m_oldFluidSolver.resizeArray(m_numBlocksX - 2, m_numBlocksY - 2);
-					PsDebug.message("create new fluidSolver");
+					// PsDebug.message("create new fluidSolver");
 					m_fluidSolver = new FluidSolver();
 					m_fluidSolver.setup(m_numBlocksX - 2, m_numBlocksY - 2, (float)m_dt.getValue());
 					// m_oldFluidSolver = new FluidSolver();
@@ -369,6 +371,7 @@ public class Painter extends PjProject implements ComponentListener {
 				
 				// Reset animation
 				initAnimation();
+				// ER BLEIBT HIER, BEI INITANIMATION HÄNGEN
 				startAnimation();
 				
 				// Reset mouse traces
@@ -390,9 +393,11 @@ public class Painter extends PjProject implements ComponentListener {
 			}
 
 			notifyAll();
+			m_currentlyResizing = false;
 			return resized;
 		}
 		notifyAll();
+		m_currentlyResizing = false;
 		return false;
 	}
 
@@ -505,7 +510,11 @@ public class Painter extends PjProject implements ComponentListener {
 					// PsDebug.message(String.valueOf(m_imageHeight));
 					// PsDebug.message(String.valueOf(m_blockSize.getValue()));
 					// PsDebug.message(String.valueOf(m_oldBlockSize.getValue()));
-					try { PsDebug.message("Wait"); wait(); }
+					try
+					{
+						// PsDebug.message("Wait");
+						wait();
+					}
 					catch (InterruptedException e) { PsDebug.warning("InterruptedExpeption in computeImage!"); }
 					fluidSolverChanged = true;
 					blockSize = m_blockSize.getValue();
@@ -541,14 +550,18 @@ public class Painter extends PjProject implements ComponentListener {
 			// Duplicate row column to fill blocks - only effective if blockSize > 1
 			while (! (m_density.getSize() == m_imageWidth*m_imageHeight))
 			{
-				PsDebug.message("in while");
-				PsDebug.message(String.valueOf(m_density.getSize()));
-				PsDebug.message(String.valueOf(m_fluidSolver.size));
-				PsDebug.message(String.valueOf(m_imageWidth));
-				PsDebug.message(String.valueOf(m_imageHeight));
-				PsDebug.message(String.valueOf(m_blockSize.getValue()));
-				PsDebug.message(String.valueOf(m_oldBlockSize.getValue()));
-				try { PsDebug.message("Wait later"); wait(); }
+				// PsDebug.message("in while");
+				// PsDebug.message(String.valueOf(m_density.getSize()));
+				// PsDebug.message(String.valueOf(m_fluidSolver.size));
+				// PsDebug.message(String.valueOf(m_imageWidth));
+				// PsDebug.message(String.valueOf(m_imageHeight));
+				// PsDebug.message(String.valueOf(m_blockSize.getValue()));
+				// PsDebug.message(String.valueOf(m_oldBlockSize.getValue()));
+				try
+				{
+					// PsDebug.message("Wait later");
+					wait();
+				}
 				catch (InterruptedException e) { PsDebug.warning("InterruptedExpeption in computeImage!"); }
 				fluidSolverChanged = true;
 			}
@@ -564,15 +577,15 @@ public class Painter extends PjProject implements ComponentListener {
 				try {System.arraycopy(m_density.m_data, I(0,y), m_density.m_data, I(0,y+k), m_imageWidth);}
 				catch (ArrayIndexOutOfBoundsException e)
 				{
-					PsDebug.message("I am out of bounds at arraycopy!");
-					PsDebug.message(String.valueOf(m_density.getSize()));
-					PsDebug.message(String.valueOf(I(0,y)));
-					PsDebug.message(String.valueOf(I(0,y+k)));
-					PsDebug.message(String.valueOf(m_fluidSolver.size));
-					PsDebug.message(String.valueOf(m_imageWidth));
-					PsDebug.message(String.valueOf(m_imageHeight));
-					PsDebug.message(String.valueOf(m_blockSize.getValue()));
-					PsDebug.message(String.valueOf(m_oldBlockSize.getValue()));
+					// PsDebug.message("I am out of bounds at arraycopy!");
+					// PsDebug.message(String.valueOf(m_density.getSize()));
+					// PsDebug.message(String.valueOf(I(0,y)));
+					// PsDebug.message(String.valueOf(I(0,y+k)));
+					// PsDebug.message(String.valueOf(m_fluidSolver.size));
+					// PsDebug.message(String.valueOf(m_imageWidth));
+					// PsDebug.message(String.valueOf(m_imageHeight));
+					// PsDebug.message(String.valueOf(m_blockSize.getValue()));
+					// PsDebug.message(String.valueOf(m_oldBlockSize.getValue()));
 				}
 			}
 		}
@@ -673,7 +686,7 @@ public class Painter extends PjProject implements ComponentListener {
 	private synchronized boolean changeBlockSize()
 	{
 		// PsDebug.message("changeBlockSize");
-		PsDebug.message("change blockSize from " + String.valueOf(m_oldBlockSize.getValue()) + " to " + String.valueOf(m_blockSize.getValue()));
+		// PsDebug.message("change blockSize from " + String.valueOf(m_oldBlockSize.getValue()) + " to " + String.valueOf(m_blockSize.getValue()));
 
 		// Change resolutions
 		int oldNumBlocksX = m_numBlocksX;
