@@ -90,8 +90,8 @@ public class Painter_IP extends PjProject_IP implements ActionListener {
 		setTitle("Stable Fluids");
 		m_pSlider.add(m_Project.m_blockSize.getInfoPanel());
 		m_pSlider.add(m_Project.m_densityRadius.getInfoPanel());
-		m_pSlider.add(m_Project.m_forceRadius.getInfoPanel());
 		m_pSlider.add(m_Project.m_densityConst.getInfoPanel());
+		m_pSlider.add(m_Project.m_forceRadius.getInfoPanel());
 		m_pSlider.add(m_Project.m_forceConst.getInfoPanel());
 		m_pSlider.add(m_Project.m_buoyancy.getInfoPanel());
 		m_pSlider.add(m_Project.m_diffusion.getInfoPanel());

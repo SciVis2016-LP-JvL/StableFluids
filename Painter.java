@@ -113,10 +113,10 @@ public class Painter extends PjProject implements ComponentListener {
 		m_forceTraceY			= new PiVector();
 		m_forceRadius			= new PuInteger("Force radius");
 		m_forceConst			= new PuDouble("Force constant");
-		m_buoyancy				= new PuDouble("Buoyancy force");
-		m_diffusion				= new PuDouble("Diffusion");
-		m_viscosity				= new PuDouble("Viscosity");
-		m_vorticity				= new PuDouble("Vorticity");
+		m_buoyancy				= new PuDouble("Buoyancy force", this);
+		m_diffusion				= new PuDouble("Diffusion", this);
+		m_viscosity				= new PuDouble("Viscosity", this);
+		m_vorticity				= new PuDouble("Vorticity", this);
 		m_densityTraceX			= new PiVector();
 		m_densityTraceY			= new PiVector();
 		m_densityRadius			= new PuInteger("Density radius");
@@ -269,6 +269,30 @@ public class Painter extends PjProject implements ComponentListener {
 			computeImage();
 			// m_disp.update(null);
 			
+			return true;
+		}
+		// Vorticity confinement
+		else if (event == m_vorticity)
+		{
+			m_fluidSolver.setVorticity((float) m_vorticity.getValue());
+			return true;
+		}
+		// Viscosity
+		else if (event == m_viscosity)
+		{
+			m_fluidSolver.setVisc((float) m_viscosity.getValue());
+			return true;
+		}
+		// Diffusion
+		else if (event == m_diffusion)
+		{
+			m_fluidSolver.setDiff((float) m_diffusion.getValue() / 100000);
+			return true;
+		}
+		// Buoyancy
+		else if (event == m_buoyancy)
+		{
+			m_fluidSolver.setBuoyancy(10.0f * (float) m_buoyancy.getValue());
 			return true;
 		}
 		return super.update(event);
