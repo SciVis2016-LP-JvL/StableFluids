@@ -77,6 +77,7 @@ public class Painter extends PjProject implements ComponentListener {
 	private		PiVector			m_densityTraceY;
 	protected	PuInteger			m_densityRadius;
 	protected	PuDouble			m_densityConst;
+	private final int				NUM_PARTS_DENSITY_TRACE_SPLINES = 20;
 
 	/**
 	 * Determines size of uniformly colored pixels blocks in images.
@@ -97,8 +98,6 @@ public class Painter extends PjProject implements ComponentListener {
 	private 	FluidSolver			m_oldFluidSolver;
 
     private 	PuDouble 			m_dt;
-    
-    private		PgBezierCurve		m_bezier;		
     
 	public Painter() {
 		super("Stable Fluids");
@@ -129,9 +128,6 @@ public class Painter extends PjProject implements ComponentListener {
 		m_time					= new PuDouble("Time");
 		m_blockSize				= new PuInteger("Block Size", this);
 		m_oldBlockSize			= new PuInteger("Old block size", this);
-
-		// For testing purposes
-		m_bezier				= new PgBezierCurve(0);
 		
 		// Initialize animation
 		initAnimation();
@@ -178,6 +174,7 @@ public class Painter extends PjProject implements ComponentListener {
 		m_vorticity.setValue(0.35);
 		m_densityTraceX.setSize(0);
 		m_densityTraceY.setSize(0);
+		resetMouseTraces();
 		m_densityRadius.setBounds(1, 20, 1, 5);
 		m_densityRadius.setValue(10);
 		m_densityConst.setBounds(0.0, 600.0, 10.0, 100.0);
@@ -198,13 +195,6 @@ public class Painter extends PjProject implements ComponentListener {
 		m_oldBlockSize.init();
 		m_oldBlockSize.setBounds(1, 10, 1, 2);
 		m_oldBlockSize.setValue(1);
-		
-		m_bezier.setDimOfVertices(2);
-		m_bezier.setNumControlPoints(4);
-		m_bezier.setControlPoint(0, new PdVector(5.0,5.0));
-		m_bezier.setControlPoint(1, new PdVector(200,100));
-		m_bezier.setControlPoint(2, new PdVector(180, 200));
-		m_bezier.setControlPoint(3, new PdVector(50, 220));
 	}
 
 	/**
@@ -489,7 +479,7 @@ public class Painter extends PjProject implements ComponentListener {
 		m_disp.addCameraListener(new PvCameraListenerIf()
 		{
 			@Override
-			public void pickCamera(PvCameraEvent cameraEvent) {}
+			public void pickCamera(PvCameraEvent cameraEvent) {/*PsDebug.message("pickCamera");*/}
 			@Override
 			public String getName() {return null;}
 			@Override
@@ -511,11 +501,14 @@ public class Painter extends PjProject implements ComponentListener {
 				addForce(m_forceTraceX.getEntry(i), m_forceTraceY.getEntry(i), m_forceTraceX.getEntry(i+1), m_forceTraceY.getEntry(i+1), m_forceRadius.getValue());
 
 		// Add densities on corresponding mouse trace
-		if (m_densityTraceX.getSize() == m_densityTraceY.getSize())
-			for (int i=0; i<m_densityTraceX.getSize(); i++)
-				addDensity(m_densityTraceX.getEntry(i), m_densityTraceY.getEntry(i), m_densityRadius.getValue());
-		else
-			PsDebug.warning("m_densityTraceX and ..Y have different size!");
+		// if (m_densityTraceX.getSize() == m_densityTraceY.getSize())
+		// 	for (int i=0; i<m_densityTraceX.getSize(); i++)
+		// 		// THIS NEEDS TO BE CHANGED
+		// 		addDensityPoint(m_densityTraceX.getEntry(i), m_densityTraceY.getEntry(i), m_densityRadius.getValue());
+		// else
+		// 	PsDebug.warning("m_densityTraceX and ..Y have different size!");
+		
+		addDensityTrace();
 		
 		// Delete mouse traces
 		resetMouseTraces();
@@ -588,6 +581,7 @@ public class Painter extends PjProject implements ComponentListener {
 					// 	PsDebug.message("blockSize: " + String.valueOf(m_blockSize.getValue()));
 					// 	PsDebug.message("oldBlockSize: " + String.valueOf(m_oldBlockSize.getValue()));
 					// }
+
 					m_density.setEntry(I(x+k,y), Math.max(0, m_fluidSolver.d[Id(block(x), block(y))]));
 				}
 			}
@@ -656,31 +650,31 @@ public class Painter extends PjProject implements ComponentListener {
 					m_pix.setEntry(I(x,y), PdColor.hsv2rgbAsInt(0, 0, (int)Math.round((1.0-m_density.getEntry(I(x,y)))*255)));
 //					m_pix.setEntry(I(x,y), PdColor.hsv2rgbAsInt(0, 0, 1*255));
 		
-		// For testing purposes, show bezier curve
-		final int noEvalsPerCtrlPt = 1000;
-		PdVector pointAtT = new PdVector(2);
-		pointAtT.setEntry(0, 15.0);
-		pointAtT.setEntry(1, 15.0);
-		for (int j=0; j<noEvalsPerCtrlPt; ++j)
-		{
-			// PsDebug.message("no control points == " + String.valueOf(m_bezier.getNumControlPoints()));
-			// PsDebug.message("m_dim == " + String.valueOf(m_bezier.getDimOfVertices()));
-			// PsDebug.message("Try to evaluate for t=" + String.valueOf((double)(j)/noEvalsPerCtrlPt) + "...");
-			// for (int k=0; k<m_bezier.getNumControlPoints(); ++k)
-				// PsDebug.message("x: " + String.valueOf((int)Math.round(m_bezier.getControlPoint()[k].getEntry(0))) + ", y: " + String.valueOf((int)Math.round(m_bezier.getControlPoint()[k].getEntry(1))));
+		// // For testing purposes, show bezier curve
+		// final int noEvalsPerCtrlPt = 1000;
+		// PdVector pointAtT = new PdVector(2);
+		// pointAtT.setEntry(0, 15.0);
+		// pointAtT.setEntry(1, 15.0);
+		// for (int j=0; j<noEvalsPerCtrlPt; ++j)
+		// {
+		// 	// PsDebug.message("no control points == " + String.valueOf(m_bezier.getNumControlPoints()));
+		// 	// PsDebug.message("m_dim == " + String.valueOf(m_bezier.getDimOfVertices()));
+		// 	// PsDebug.message("Try to evaluate for t=" + String.valueOf((double)(j)/noEvalsPerCtrlPt) + "...");
+		// 	// for (int k=0; k<m_bezier.getNumControlPoints(); ++k)
+		// 		// PsDebug.message("x: " + String.valueOf((int)Math.round(m_bezier.getControlPoint()[k].getEntry(0))) + ", y: " + String.valueOf((int)Math.round(m_bezier.getControlPoint()[k].getEntry(1))));
 
-			m_bezier.eval(pointAtT, (double)(j)/noEvalsPerCtrlPt);
-			// PsDebug.message("x: " + String.valueOf((int)Math.round(pointAtT.getEntry(0))) + ", y: " + String.valueOf((int)Math.round(pointAtT.getEntry(1))));
+		// 	m_bezier.eval(pointAtT, (double)(j)/noEvalsPerCtrlPt);
+		// 	// PsDebug.message("x: " + String.valueOf((int)Math.round(pointAtT.getEntry(0))) + ", y: " + String.valueOf((int)Math.round(pointAtT.getEntry(1))));
 
-			if (pointAtT.getSize() != 0)
-				m_pix.setEntry(I((int)Math.round(pointAtT.getEntry(0)), (int)Math.round(pointAtT.getEntry(1))), PdColor.hsv2rgbAsInt(0, 1*255, 1*255));
-			else
-			{
-				PsDebug.message("Size == 0. No. of control points: " + String.valueOf(m_bezier.getNumControlPoints()));
-				for (int k=0; k<m_bezier.getNumControlPoints(); ++k)
-					m_pix.setEntry(I((int)Math.round(m_bezier.getControlPoint()[k].getEntry(0)), (int)Math.round(m_bezier.getControlPoint()[k].getEntry(1))), PdColor.hsv2rgbAsInt(0, 1*255, 1*255));
-			}
-		}
+		// 	if (pointAtT.getSize() != 0)
+		// 		m_pix.setEntry(I((int)Math.round(pointAtT.getEntry(0)), (int)Math.round(pointAtT.getEntry(1))), PdColor.hsv2rgbAsInt(0, 1*255, 1*255));
+		// 	else
+		// 	{
+		// 		PsDebug.message("Size == 0. No. of control points: " + String.valueOf(m_bezier.getNumControlPoints()));
+		// 		for (int k=0; k<m_bezier.getNumControlPoints(); ++k)
+		// 			m_pix.setEntry(I((int)Math.round(m_bezier.getControlPoint()[k].getEntry(0)), (int)Math.round(m_bezier.getControlPoint()[k].getEntry(1))), PdColor.hsv2rgbAsInt(0, 1*255, 1*255));
+		// 	}
+		// }
 	}
 	
 	/**
@@ -691,6 +685,7 @@ public class Painter extends PjProject implements ComponentListener {
 	 */
 	public void pickInitial(PvPickEvent pickEvent)
 	{
+		// PsDebug.message("pickInitial");
 		if (pickEvent.getSource() == m_disp)
 		{
 			Point loc = pickEvent.getLocation();
@@ -714,6 +709,7 @@ public class Painter extends PjProject implements ComponentListener {
 	 */
 	private void painterDragCamera(PvCameraEvent cameraEvent)
 	{
+		// PsDebug.message("painterDragCamera");
 		if (cameraEvent.getSource() == m_disp && m_disp.getMajorMode() == PvDisplayIf.MODE_SCALE)
 		{
 			Point loc = cameraEvent.getLocation();
@@ -875,17 +871,121 @@ public class Painter extends PjProject implements ComponentListener {
 //			PsDebug.warning("vOld/uOld war nicht null!");
     }
     
+    /**
+     * Add density splines according to the current mouse trace
+     */
+    private void addDensityTrace()
+    {
+    	// Security check
+    	if (m_densityTraceX.getSize() <= 1 && m_densityTraceX.getSize() <= 1)
+    	{
+			PsDebug.warning("m_densityTraces do not have enough entries! return...");
+			return;
+    	}
+
+    	PgBezierCurve bezier;
+    	PdVector p0, p1, a, b, c, d;
+    	PdVector pointAtT;
+
+    	// Security check
+		if (m_densityTraceX.getSize() != m_densityTraceY.getSize())
+		{
+    		PsDebug.warning("Density traces do not have same size! return...");
+    		return;
+		}
+
+    	// For all: mouse points in the trace
+		for (int k = 1; k <= m_densityTraceX.getSize() - 2; ++k)
+		{
+			// Step 1: Calculate some points
+			a = new PdVector(m_densityTraceX.getEntry(k), m_densityTraceY.getEntry(k));
+			b = new PdVector(m_densityTraceX.getEntry(k+1), m_densityTraceY.getEntry(k+1));
+			c = new PdVector(m_densityTraceX.getEntry(k-1), m_densityTraceY.getEntry(k-1));
+			d = new PdVector(2);
+			if (k < m_densityTraceX.getSize() - 2)
+				d = new PdVector(m_densityTraceX.getEntry(k+2), m_densityTraceY.getEntry(k+2));
+			p0 = (PdVector) a.clone();
+			p0.sub(c);
+			p0.multScalar((double)(2.0)/5 * a.dist(b) / a.dist(c));
+			p0.add(a);
+			p1 = (PdVector) b.clone();
+			p1.sub(d);
+			p1.multScalar((double)(2.0)/5 * a.dist(b) / b.dist(d));
+			p1.add(b);
+			bezier = new PgBezierCurve(0);
+			bezier.setDimOfVertices(2);
+
+			// Step 2: Construct the bezier curve from the control points
+			// If there is just one single new point without other information...
+			if (a.getEntry(0) == -1 && a.getEntry(1) == -1)
+			{
+				// ...make control polygon with 1 control point
+				bezier.setNumControlPoints(1);
+				bezier.setControlPoint(0, b);
+			}
+			// Otherwise, if there is information where the curve comes from...
+			else if (c.getEntry(0) != -1 && c.getEntry(1) != -1)
+			{
+				// ...and if there is information where the curve goes to...
+				if (k < m_densityTraceX.getSize() - 2)
+				{
+					// ...make control polygon with 4 control points
+					bezier.setNumControlPoints(4);
+					bezier.setControlPoint(0, a);
+					bezier.setControlPoint(1, p0);
+					bezier.setControlPoint(2, p1);
+					bezier.setControlPoint(3, b);
+				}
+				// ...but no information, where the curve goes to...
+				else
+				{
+					// ...make control polygon with 3 control points
+					bezier.setNumControlPoints(3);
+					bezier.setControlPoint(0, a);
+					bezier.setControlPoint(1, p0);
+					bezier.setControlPoint(2, b);
+				}
+			}
+			// ...but if there is no information, where the curve comes from...
+			else
+			{
+				// ...and if there is information where the curve goes to...
+				if (k < m_densityTraceX.getSize() - 2)
+				{
+					// ...make control polygon with 3 control points
+					bezier.setNumControlPoints(3);
+					bezier.setControlPoint(0, a);
+					bezier.setControlPoint(1, p1);
+					bezier.setControlPoint(2, b);
+				}
+				// ...and no information, where the curve goes to...
+				else
+				{
+					// ...make control polygon with 2 control points
+					bezier.setNumControlPoints(2);
+					bezier.setControlPoint(0, a);
+					bezier.setControlPoint(1, b);
+				}
+			}
+			
+			// Step 3: Add density along bezier curve
+			pointAtT = new PdVector(2);
+			for (int i = 0; i <= NUM_PARTS_DENSITY_TRACE_SPLINES; ++i)
+			{
+				bezier.eval(pointAtT, (double)(i)/NUM_PARTS_DENSITY_TRACE_SPLINES);
+				addDensityPoint((int)Math.round(pointAtT.getEntry(0)), (int)Math.round(pointAtT.getEntry(1)), m_densityRadius.getValue());
+			}
+		}
+    }
     
     /**
-     * Calculate the mouse input density in the fluid grid. We add density linearly decreasing
-     * in circles around the old mouse position (m_MouseXOld, m_MouseYOld).
+     * Add density linearly decreasing in circles around the mouse position (m_MouseXOld, m_MouseYOld).
      *
-     * @param pX: density is added ad point with first coordinate pX.
-     * @param pY: density is added ad point with first coordinate pY.
-     * @param radius: density is added up to radius around
-     * old mouse position.
+     * @param pX: density is added at point with first coordinate pX.
+     * @param pY: density is added at point with first coordinate pY.
+     * @param radius: density is added up to radius around mouse position.
      **/
-    private void addDensity(int pX, int pY, int radius)
+    private void addDensityPoint(int pX, int pY, int radius)
     {
 //    	PsDebug.message("addForce to x: " + String.valueOf(m_mouseX_Old) + ", y: " + String.valueOf(m_mouseY_Old));
 //    	PsDebug.message("new x: " + String.valueOf(m_mouseX) + ", new y: " + String.valueOf(m_mouseY));
@@ -953,11 +1053,31 @@ public class Painter extends PjProject implements ComponentListener {
 		m_forceTraceY = new PiVector();
 		m_forceTraceY.setSize(0);
 		
-		// Density traces
-		m_densityTraceX = new PiVector();
-		m_densityTraceX.setSize(0);
-		m_densityTraceY = new PiVector();
-		m_densityTraceY.setSize(0);
+		// Density traces - the last two entries are saved for being able to draw C2-splines.
+		// If there is no new mouse point, set everything to (-1, -1).
+		if (m_densityTraceX.getSize() == m_densityTraceY.getSize() && m_densityTraceX.getSize() > 2)
+		{
+			m_densityTraceX.setEntry(0, m_densityTraceX.getEntry(m_densityTraceX.getSize()-2));
+			m_densityTraceX.setEntry(1, m_densityTraceX.getLastEntry());
+			m_densityTraceX.setSize(2);
+			m_densityTraceY.setEntry(0, m_densityTraceY.getEntry(m_densityTraceY.getSize()-2));
+			m_densityTraceY.setEntry(1, m_densityTraceY.getLastEntry());
+			m_densityTraceY.setSize(2);
+		}
+		else
+		{
+			if (m_densityTraceX.getSize() != m_densityTraceY.getSize())
+				PsDebug.warning("m_densityTraceX and ..Y have different size! Reset them to {(-1,-1), (-1,-1)}...");
+
+			m_densityTraceX = new PiVector();
+			m_densityTraceX.setSize(2);
+			m_densityTraceX.setEntry(0, -1);
+			m_densityTraceX.setEntry(1, -1);
+			m_densityTraceY = new PiVector();
+			m_densityTraceY.setSize(2);
+			m_densityTraceY.setEntry(0, -1);
+			m_densityTraceY.setEntry(1, -1);
+		}
 	}
 	
 
