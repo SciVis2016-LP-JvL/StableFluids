@@ -12,6 +12,7 @@ import jv.object.PsDebug;
 
 public class FluidSolver implements Cloneable
 {
+	boolean colorON = false;
     int n; //width of grid point array
     int m; //height of grid point array
     int size; //number of all grid points
@@ -31,6 +32,8 @@ public class FluidSolver implements Cloneable
     float[] u, uOld; //x-component of the velocity vector field
     float[] v, vOld; //y-component of the velocity vector field
     
+    float[] d2, d3, d2Old, d3Old;
+    
     float[] tmp;
     float[] curl;
     
@@ -46,13 +49,21 @@ public class FluidSolver implements Cloneable
     		copy.dOld = dOld.clone();
     		copy.vOld = vOld.clone();
     		copy.uOld = uOld.clone();
+    		if(colorON)
+    		{
+	    		copy.d2 = d2.clone();
+	    		copy.d2Old = d2Old.clone();
+	    		copy.d3 = d3.clone();
+	    		copy.d3Old = d3Old.clone();
+    		}
     	} catch(CloneNotSupportedException e) {}
 
     	return copy;
     }
     
-    public void setup(int n, int m, float dt)
+    public void setup(int n, int m, float dt, boolean colorON)
     {
+    	this.colorON = colorON;
         this.n = n;
         this.m = m;
         this.dt = dt;
@@ -70,6 +81,13 @@ public class FluidSolver implements Cloneable
         v    = new float[size];
         vOld = new float[size];
         
+        if(colorON) {
+        	d2    = new float[size];
+            d2Old = new float[size];
+            d3    = new float[size];
+            d3Old = new float[size];
+        }
+        
         curl = new float[size];
         tmp = new float[size];
                         
@@ -78,6 +96,13 @@ public class FluidSolver implements Cloneable
         {
             u[i] = uOld[i] = v[i] = vOld[i] = 0.0f;
             d[i] = dOld[i] = 0.0f;
+        }
+        if(colorON) {
+        	for (int i = 0; i < size; i++)
+            {
+        		d2[i] = d2Old[i] = 0.0f;
+            	d3[i] = d3Old[i] = 0.0f; 
+            }
         }
     }
     
@@ -147,6 +172,10 @@ public class FluidSolver implements Cloneable
     	float[] uOldT = new float[size];
     	float[] vOldT = new float[size];
     	float[] dOldT = new float[size];
+    	float[] d2OldT = new float[size];
+   		float[] d3OldT = new float[size];
+   		float[] d2T = new float[size];
+   		float[] d3T = new float[size];
     	
     	//store the current value of u, v, d, uOld, vOld, dOld
     	for (int i = 1; i <= Math.min(n, width); i++)
@@ -161,6 +190,18 @@ public class FluidSolver implements Cloneable
             	dOldT[I(i,j)] = dOld[I(i,j)];
             }
         }
+    	if(colorON) {
+    		for (int i = 1; i <= Math.min(n, width); i++)
+            {
+                for (int j = 1; j <= Math.min(m, height); j++)
+                {
+                	d2OldT[I(i,j)] = d2Old[I(i,j)];
+            		d3OldT[I(i,j)] = d3Old[I(i,j)];
+            		d2T[I(i,j)] = d2[I(i,j)];
+            		d3T[I(i,j)] = d3[I(i,j)];
+                }
+            }
+    	}
     	//resize the array u,v,d
     	size = (width +2) * (height +2);
     	nOld = n;
@@ -170,6 +211,10 @@ public class FluidSolver implements Cloneable
     	u = new float[size];
     	v = new float[size];
     	d = new float[size];
+    	if(colorON) {
+    		d2 = new float[size];
+    		d3 = new float[size];
+    	}
     	uOld = new float[size];
     	vOld = new float[size];
     	dOld = new float[size];
@@ -186,6 +231,18 @@ public class FluidSolver implements Cloneable
             	dOld[I(i,j)] = dOldT[i + (nOld + 2) * j];
             }
         }
+    	if(colorON) {
+    		for (int i = 1; i <= Math.min(nOld, n); i++)
+            {
+                for (int j = 1; j <= Math.min(mOld, m); j++)
+                {
+                	d2[I(i,j)] = d2T[i + (nOld + 2) * j];
+            		d3[I(i,j)] = d3T[i + (nOld + 2) * j];
+            		d2Old[I(i,j)] = d2OldT[i + (nOld + 2) * j];
+            		d3Old[I(i,j)] = d3OldT[i + (nOld + 2) * j];
+                }
+            }
+    	}
     }
     
     public void clearArray()
@@ -202,6 +259,18 @@ public class FluidSolver implements Cloneable
             	dOld[I(i,j)] = 0;
             }
         }
+    	if(colorON) {
+    		for (int i = 1; i <= n; i++)
+            {
+                for (int j = 1; j <= m; j++)
+                {
+                	d2[I(i,j)] = 0;
+            		d3[I(i,j)] = 0;
+            		d2Old[I(i,j)] = 0;
+            		d3Old[I(i,j)] = 0;
+                }
+            }
+    	}
     }
        
 
@@ -517,6 +586,10 @@ public class FluidSolver implements Cloneable
 		neu = new float[size];
         // add density inputed by mouse
         inputData(d, dOld);
+        if(colorON) {
+        	inputData(d2, d2Old);
+        	inputData(d3, d3Old);
+        }
         
         //let the density diffuse
         float factor = diff * dt * m * m ;
@@ -532,6 +605,40 @@ public class FluidSolver implements Cloneable
     		}    		
     	} 
         dOld = neu;
+        
+        if(colorON) {
+    		neu = new float[size];
+            
+            //let the density diffuse
+            neu = d2Old;
+            for (int k = 1;k<= 20; k++)
+        	{
+        		for (int i = 1;i<=n; i++)
+        		{
+        			for (int j = 1;j<=m; j++)
+        			{
+        				neu[I(i,j)] = ( d2[I(i,j)] +factor*neu[I(i+1,j)] +factor*neu[I(i,j+1)] +factor*neu[I(i-1,j)] +factor*neu[I(i,j-1)] ) / ( 1 + 4 * factor);
+        			}
+        		}    		
+        	} 
+            d2Old = neu;
+            
+    		neu = new float[size];
+            
+            //let the density diffuse
+            neu = d3Old;
+            for (int k = 1;k<= 20; k++)
+        	{
+        		for (int i = 1;i<=n; i++)
+        		{
+        			for (int j = 1;j<=m; j++)
+        			{
+        				neu[I(i,j)] = ( d3[I(i,j)] +factor*neu[I(i+1,j)] +factor*neu[I(i,j+1)] +factor*neu[I(i-1,j)] +factor*neu[I(i,j-1)] ) / ( 1 + 4 * factor);
+        			}
+        		}    		
+        	} 
+            d3Old = neu;
+        }
         
         //let the density advect
         float x, y, f1, f2, f3, f4 = 0;
@@ -565,9 +672,74 @@ public class FluidSolver implements Cloneable
     		}
     		boundaryCondition(0, d);
     	}      
+    	
+    	if(colorON) {
+    		for (int i = 1; i<=n; i++)
+        	{
+        		for (int j = 1; j<=m; j++)
+        		{
+        			//go backwards through the velocity field
+        			x = i - u[I(i,j)] * dt * m;
+        			y = j - v[I(i,j)] * dt * m;
+        			
+        			//interpolate the corresponding velocity vector at the position P(x,-\delta t)
+        			//catch boundary overshooting
+        			if (x > n + 0.5) x = n + 0.5f;
+                    if (x < 0.5)     x = 0.5f;
+                    if (y > m + 0.5) y = m + 0.5f;
+                    if (y < 0.5)     y = 0.5f;
+                    //compute convex-combination to get the weights                
+        			xI = (int) x;
+        			yI = (int) y;
+        			
+        			f1 = x - xI;
+        			f2 = 1 - f1;
+        			f3 = y - yI;
+        			f4 = 1 - f3;
+        			
+        			//assign the resulting vector to the output array
+        			d2[I(i,j)] = f2 * ( f4 * d2Old[I(xI,yI)] + f3 * d2Old[I(xI,yI+1)])
+        				  + f1 * ( f4 * d2Old[I(xI+1,yI)] + f3 * d2Old[I(xI+1,yI+1)]);
+        		}
+        		boundaryCondition(0, d2);
+        	}
+    		for (int i = 1; i<=n; i++)
+        	{
+        		for (int j = 1; j<=m; j++)
+        		{
+        			//go backwards through the velocity field
+        			x = i - u[I(i,j)] * dt * m;
+        			y = j - v[I(i,j)] * dt * m;
+        			
+        			//interpolate the corresponding velocity vector at the position P(x,-\delta t)
+        			//catch boundary overshooting
+        			if (x > n + 0.5) x = n + 0.5f;
+                    if (x < 0.5)     x = 0.5f;
+                    if (y > m + 0.5) y = m + 0.5f;
+                    if (y < 0.5)     y = 0.5f;
+                    //compute convex-combination to get the weights                
+        			xI = (int) x;
+        			yI = (int) y;
+        			
+        			f1 = x - xI;
+        			f2 = 1 - f1;
+        			f3 = y - yI;
+        			f4 = 1 - f3;
+        			
+        			//assign the resulting vector to the output array
+        			d3[I(i,j)] = f2 * ( f4 * d3Old[I(xI,yI)] + f3 * d3Old[I(xI,yI+1)])
+        				  + f1 * ( f4 * d3Old[I(xI+1,yI)] + f3 * d3Old[I(xI+1,yI+1)]);
+        		}
+        		boundaryCondition(0, d3);
+        	}
+    	}
 
         // clear input density array for next frame
         for (int i = 0; i < size; i++) dOld[i] = 0;
+        if(colorON) {
+        	for (int i = 0; i < size; i++) d2Old[i] = 0;
+        	for (int i = 0; i < size; i++) d3Old[i] = 0;
+        }
     }
 
     

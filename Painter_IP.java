@@ -32,6 +32,7 @@ public class Painter_IP extends PjProject_IP implements ActionListener {
 	protected	Panel				m_pBottomButtons;
 	protected	Button				m_bReset;
 	protected	Button				m_bClear;
+	protected 	Button				m_bFlipColor;
 	protected	PsPanel				m_lTime;
 	
 	protected final String notice	= "Drag mouse:\n"
@@ -79,6 +80,10 @@ public class Painter_IP extends PjProject_IP implements ActionListener {
 		m_bClear = new Button("Clear Canvas");
 		m_bClear.addActionListener(this);
 		m_pBottomButtons.add(m_bClear);
+		
+		m_bFlipColor = new Button("Flip Color");
+		m_bFlipColor.addActionListener(this);
+		m_pBottomButtons.add(m_bFlipColor);
 	}
 	
 	/**
@@ -128,6 +133,10 @@ public class Painter_IP extends PjProject_IP implements ActionListener {
 		}
 		if (source == m_bClear) {
 			m_Project.buttonClear();
+			m_Project.update(m_Project);
+		}
+		if (source == m_bFlipColor) {
+			m_Project.buttonFlipColor();
 			m_Project.update(m_Project);
 		}
 	}
