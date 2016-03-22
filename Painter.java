@@ -3,16 +3,11 @@ package StableFluids;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-// import java.awt.GridLayout;
 import java.awt.Image;
-//import java.awt.Label;
-// import java.awt.Panel;
 import java.awt.Point;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.image.MemoryImageSource;
-//import java.awt.event.MouseEvent;
-//import java.awt.event.MouseListener;
 
 import jv.anim.PsAnimation;
 import jv.anim.PsTimeEvent;
@@ -75,14 +70,13 @@ public class Painter extends PjProject implements ComponentListener {
 	protected	PuDouble			m_vorticity;
 	private		PiVector			m_densityTraceX;
 	private		PiVector			m_densityTraceY;
+	private		PdVector			m_oldInputDensity;
 	protected	PuInteger			m_densityRadius;
 	protected	PuDouble			m_densityConst;
 	private final int				NUM_PARTS_DENSITY_TRACE_SPLINES = 20;
 
-	/**
-	 * Determines size of uniformly colored pixels blocks in images.
-	 * Using discr==1 leads to highest resolution where each image pixel is really computed.
-	 */
+	// Determines size of uniformly colored pixels blocks in images.
+	// Using m_blockSize == 1 leads to highest resolution where each image pixel is really computed.
 	protected	PuInteger			m_blockSize;
 	protected	PuInteger			m_oldBlockSize;
 	
@@ -91,7 +85,6 @@ public class Painter extends PjProject implements ComponentListener {
 	private		boolean				m_currentlyResizing;
 	
 	private		PuDouble			m_time;
-//	protected	Label				m_lTime;
 	
 	// Calculates the simulation data
 	private 	FluidSolver			m_fluidSolver;
@@ -118,6 +111,7 @@ public class Painter extends PjProject implements ComponentListener {
 		m_vorticity				= new PuDouble("Vorticity", this);
 		m_densityTraceX			= new PiVector();
 		m_densityTraceY			= new PiVector();
+		m_oldInputDensity		= new PdVector();
 		m_densityRadius			= new PuInteger("Density radius");
 		m_densityConst			= new PuDouble("Density constant");
 		m_fluidSolver			= new FluidSolver();
@@ -138,7 +132,7 @@ public class Painter extends PjProject implements ComponentListener {
 	}
 
 	// Called, when reset-Button is pressed
-	public void buttonReset()
+	public synchronized void buttonReset()
 	{
 		init();
 		initAnimation();
@@ -172,6 +166,7 @@ public class Painter extends PjProject implements ComponentListener {
 		m_viscosity.setValue(0.0);
 		m_vorticity.setBounds(0.0, 1.0, 0.01, 0.1);
 		m_vorticity.setValue(0.35);
+		m_oldInputDensity.setSize(0);
 		m_densityTraceX.setSize(0);
 		m_densityTraceY.setSize(0);
 		resetMouseTraces();
@@ -308,24 +303,6 @@ public class Painter extends PjProject implements ComponentListener {
 		anim.setTime(0.0);
 		m_readyForComputeImage = true;
 		anim.setTimeInterval(0., .2, .1, .1);
-
-		// try 
-		// {
-			// Panel closeButtonPanel = (Panel) anim.getAnimationPanel().getComponent(1);
-			// closeButtonPanel.remove(0);
-			// anim.getAnimationPanel().remove(0);
-			// Panel pArea = new Panel();
-			// pArea.setLayout(new GridLayout(1, 2));
-			// pArea.add(new Label("Time"));
-			// m_lTime = new Label();
-			// pArea.add(m_lTime);
-			// anim.getAnimationPanel().add(pArea, new FlowLayout(FlowLayout.LEADING));
-		// } catch(ArrayIndexOutOfBoundsException e){}
-		
-		// anim.stop();
-		// anim.getAnimationPanel().setVisible(false);
-		// anim.getAnimationPanel().setLocation(100, 350);
-		// anim.setAnimationPanel(null);
 	}
 	
 	// Start animation, if there is one
@@ -343,7 +320,6 @@ public class Painter extends PjProject implements ComponentListener {
 		if (m_readyForComputeImage)
 			computeImage();
 		m_disp.update(null);
-//		m_lTime.setText(String.valueOf(m_time));
 		if (super.hasAnimation())
 			super.getAnimation().setTimeInterval(0., super.getAnimation().getMaxTime() + 1.);
 		return super.update(this);				// Update info panel of this project
@@ -381,6 +357,8 @@ public class Painter extends PjProject implements ComponentListener {
 				// Set resolution
 				m_imageHeight = dim.height;
 				m_imageWidth = dim.width;
+				int oldNumBlocksX = m_numBlocksX;
+				int oldNumBlocksY = m_numBlocksY;
 				m_numBlocksX = (int) Math.ceil((double)(m_imageWidth) / m_blockSize.getValue());
 				m_numBlocksY = (int) Math.ceil((double)(m_imageHeight) / m_blockSize.getValue());
 
@@ -391,21 +369,17 @@ public class Painter extends PjProject implements ComponentListener {
 				{
 					// PsDebug.message("resize fluidSolver");
 					m_fluidSolver.resizeArray(m_numBlocksX - 2, m_numBlocksY - 2);
-					// m_oldFluidSolver.resizeArray(m_numBlocksX - 2, m_numBlocksY - 2);
-					// PsDebug.message("create new fluidSolver");
 
-					// m_fluidSolver = new FluidSolver();
-					// m_fluidSolver.setup(m_numBlocksX - 2, m_numBlocksY - 2, (float)m_dt.getValue());
-					// m_oldFluidSolver = new FluidSolver();
-					// m_oldFluidSolver.setup(m_numBlocksX - 2, m_numBlocksY - 2, (float)m_dt.getValue());
 					// Clone oldFluidSolver
 					try { m_oldFluidSolver = m_fluidSolver.clone(); }
 					catch (CloneNotSupportedException e) { PsDebug.warning("Clone of fluidSolver not supported!"); }
 				}
 				
+				// Resize mouse input to current size m_numBlocksX * m_numBlocksY in a convenient way
+				resizeOldInputDensity(oldNumBlocksX, oldNumBlocksY);
+				
 				// Reset animation
 				initAnimation();
-				// ER BLEIBT HIER, BEI INITANIMATION HÄNGEN
 				startAnimation();
 				
 				// Reset mouse traces
@@ -531,8 +505,8 @@ public class Painter extends PjProject implements ComponentListener {
 				fsWidth = m_fluidSolver.n + 2;
 				fsHeight = m_fluidSolver.m + 2;
 
-				// If blockSize or canvas size were changed in the user interface,
-				// we first need to wait, until size of fluidSolver is adjusted in changeBlockSize or resizeImage
+				// If blockSize or canvas size were changed in the user interface, we first need to wait,
+				// until size of fluidSolver is adjusted in changeBlockSize or resizeImage
 				while (! (blockSize == m_oldBlockSize.getValue()
 						&& fsWidth * blockSize >= m_imageWidth
 						&& fsHeight * blockSize >= m_imageHeight
@@ -540,25 +514,13 @@ public class Painter extends PjProject implements ComponentListener {
 						&& (fsHeight - 1) * blockSize <= m_imageHeight)
 						&& m_density.getSize() == m_imageWidth*m_imageHeight)
 				{
-					// PsDebug.message(String.valueOf(m_fluidSolver.size));
-					// PsDebug.message(String.valueOf(fsWidth));
-					// PsDebug.message(String.valueOf(fsHeight));
-					// PsDebug.message(String.valueOf(m_imageWidth));
-					// PsDebug.message(String.valueOf(m_imageHeight));
-					// PsDebug.message(String.valueOf(m_blockSize.getValue()));
-					// PsDebug.message(String.valueOf(m_oldBlockSize.getValue()));
-					try
-					{
-						// PsDebug.message("Wait");
-						wait();
-					}
+					try { wait(); }
 					catch (InterruptedException e) { PsDebug.warning("InterruptedExpeption in computeImage!"); }
 					fluidSolverChanged = true;
 					blockSize = m_blockSize.getValue();
 					fsWidth = m_fluidSolver.n + 2;
 					fsHeight = m_fluidSolver.m + 2;
 				}
-				// PsDebug.message("done with waiting");
 				// After changing the sized of the fluidSolver, start double-loop from beginning
 				if (fluidSolverChanged)
 				{
@@ -571,37 +533,28 @@ public class Painter extends PjProject implements ComponentListener {
 				// Otherwise, we can copy contend from fluidSolver into our pixelwise density-Array
 				blockRemain = Math.min(m_blockSize.getValue(), m_imageWidth-x);
 				for (int k=0; k<blockRemain; k++)
-				{
-					// try { m_density.setEntry(I(x+k,y), Math.max(0, m_fluidSolver.d[Id(block(x), block(y))])); }
-					// catch(ArrayIndexOutOfBoundsException e)
-					// {
-					// 	PsDebug.message(String.valueOf(Id(block(x), block(y))) + " goes out of bounds!");
-					// 	PsDebug.message("oldFluidSolverSize: " + String.valueOf(m_oldFluidSolver.size));
-					// 	PsDebug.message("fluidSolverSize: " + String.valueOf(m_fluidSolver.size));
-					// 	PsDebug.message("blockSize: " + String.valueOf(m_blockSize.getValue()));
-					// 	PsDebug.message("oldBlockSize: " + String.valueOf(m_oldBlockSize.getValue()));
-					// }
-
 					m_density.setEntry(I(x+k,y), Math.max(0, m_fluidSolver.d[Id(block(x), block(y))]));
-				}
 			}
-			// Duplicate row column to fill blocks - only effective if blockSize > 1
-			while (! (m_density.getSize() == m_imageWidth*m_imageHeight))
+
+			blockSize = m_blockSize.getValue();
+			fsWidth = m_fluidSolver.n + 2;
+			fsHeight = m_fluidSolver.m + 2;
+
+			// If blockSize or canvas size were changed in the user interface, we first need to wait,
+			// until size of fluidSolver is adjusted in changeBlockSize or resizeImage
+			while (! (blockSize == m_oldBlockSize.getValue()
+					&& fsWidth * blockSize >= m_imageWidth
+					&& fsHeight * blockSize >= m_imageHeight
+					&& (fsWidth - 1) * blockSize <= m_imageWidth
+					&& (fsHeight - 1) * blockSize <= m_imageHeight)
+					&& m_density.getSize() == m_imageWidth*m_imageHeight)
 			{
-				// PsDebug.message("in while");
-				// PsDebug.message(String.valueOf(m_density.getSize()));
-				// PsDebug.message(String.valueOf(m_fluidSolver.size));
-				// PsDebug.message(String.valueOf(m_imageWidth));
-				// PsDebug.message(String.valueOf(m_imageHeight));
-				// PsDebug.message(String.valueOf(m_blockSize.getValue()));
-				// PsDebug.message(String.valueOf(m_oldBlockSize.getValue()));
-				try
-				{
-					// PsDebug.message("Wait later");
-					wait();
-				}
+				try { wait(); }
 				catch (InterruptedException e) { PsDebug.warning("InterruptedExpeption in computeImage!"); }
 				fluidSolverChanged = true;
+				blockSize = m_blockSize.getValue();
+				fsWidth = m_fluidSolver.n + 2;
+				fsHeight = m_fluidSolver.m + 2;
 			}
 			if (fluidSolverChanged)
 			{
@@ -609,6 +562,7 @@ public class Painter extends PjProject implements ComponentListener {
 				y = -m_blockSize.getValue();
 				continue;
 			}
+			// Duplicate row column to fill blocks - only effective if blockSize > 1
 			blockRemain = Math.min(m_blockSize.getValue(), m_imageHeight-y)-1;
 			for (int k=1; k<=blockRemain; k++)
 			{
@@ -691,17 +645,11 @@ public class Painter extends PjProject implements ComponentListener {
 			Point loc = pickEvent.getLocation();
 			m_densityTraceX.addEntry(loc.x);
 			m_densityTraceY.addEntry(loc.y);
-//			m_mouseX = loc.x;
-//			m_mouseY = loc.y;
 			loc.x = Math.floorDiv(loc.x, m_blockSize.getValue()) * m_blockSize.getValue();
 			loc.y = Math.floorDiv(loc.y, m_blockSize.getValue()) * m_blockSize.getValue();
-//	    	PsDebug.message("pickInitial x: " + String.valueOf(m_mouseX) + ", y: " + String.valueOf(m_mouseY));
-			
-//			PsDebug.message("dOld size:" + String.valueOf(m_fluidSolver.dOld.length));
-//			m_fluidSolver.dOld[I(loc.x, loc.y)] = 100;
-//			addDensity(10);
 		}
 	}
+
 	/**
 	 * Method is called from display when a drags picks into the display in scale mode.
 	 * @param		cameraEvent		Camera event issued by the display on right mouse drag.
@@ -715,11 +663,8 @@ public class Painter extends PjProject implements ComponentListener {
 			Point loc = cameraEvent.getLocation();
 			m_forceTraceX.addEntry(loc.x);
 			m_forceTraceY.addEntry(loc.y);
-//			m_mouseX = loc.x;
-//			m_mouseY = loc.y;
 			loc.x = Math.floorDiv(loc.x, m_blockSize.getValue()) * m_blockSize.getValue();
 			loc.y = Math.floorDiv(loc.y, m_blockSize.getValue()) * m_blockSize.getValue();
-//	    	PsDebug.message("dragCamera x: " + String.valueOf(m_mouseX) + ", y: " + String.valueOf(m_mouseY));
 		}
 	}
 
@@ -733,43 +678,55 @@ public class Painter extends PjProject implements ComponentListener {
 		m_numBlocksX = (int) Math.ceil((double)(m_imageWidth) / m_blockSize.getValue());
 		m_numBlocksY = (int) Math.ceil((double)(m_imageHeight) / m_blockSize.getValue());
 
-		// BE CAREFUL NOT TO OVERWRITE IT WITH SOMETHING I ALREADY DID IN RESIZEIMAGE!
 		// Save current fluidSolver
 		try { m_oldFluidSolver = m_fluidSolver.clone(); }
 		catch (CloneNotSupportedException e) { PsDebug.warning("Clone of fluidSolver not supported!"); }
 
 		// Change resolution from fluidSolver
 		m_fluidSolver.setup(m_numBlocksX - 2, m_numBlocksY - 2, (float)m_dt.getValue());
+		
+		// Save current oldInputDensity
+    	PdVector oidOld = (PdVector) m_oldInputDensity.clone();
 
-		// testoutputs
-		// PsDebug.message("oldFluidSolverSize: " + String.valueOf(m_oldFluidSolver.size));
-		// PsDebug.message("fluidSolverSize: " + String.valueOf(m_fluidSolver.size));
+    	// Resize oldInputDensity-Array to current size
+    	m_oldInputDensity = new PdVector(m_numBlocksX * m_numBlocksY);
 
 		// Average colors from blocks
 		int oldSize = m_oldBlockSize.getValue();
 		int newSize = m_blockSize.getValue();
+		double temp, addThis;
 		for (int x = 0; x < m_imageWidth; ++x)
 		{
 			for (int y = 0; y < m_imageHeight; ++y)
 			{
+				// FluidSolver
 				m_fluidSolver.d[Id(block(x), block(y))] += m_oldFluidSolver.d[Id(block(x, oldSize), block(y, oldSize), oldNumBlocksX)];
 				m_fluidSolver.u[Id(block(x), block(y))] += m_oldFluidSolver.u[Id(block(x, oldSize), block(y, oldSize), oldNumBlocksX)];
 				m_fluidSolver.v[Id(block(x), block(y))] += m_oldFluidSolver.v[Id(block(x, oldSize), block(y, oldSize), oldNumBlocksX)];
 				m_fluidSolver.dOld[Id(block(x), block(y))] += m_oldFluidSolver.dOld[Id(block(x, oldSize), block(y, oldSize), oldNumBlocksX)];
 				m_fluidSolver.uOld[Id(block(x), block(y))] += m_oldFluidSolver.uOld[Id(block(x, oldSize), block(y, oldSize), oldNumBlocksX)];
 				m_fluidSolver.vOld[Id(block(x), block(y))] += m_oldFluidSolver.vOld[Id(block(x, oldSize), block(y, oldSize), oldNumBlocksX)];
+
+				// Old input density
+				temp = m_oldInputDensity.getEntry(Id(block(x), block(y)));
+				addThis = oidOld.getEntry(Id(block(x, oldSize), block(y, oldSize), oldNumBlocksX));
+				m_oldInputDensity.setEntry(Id(block(x), block(y)), temp + addThis);
 			}
 		}
 		for (int x = 0; x < m_numBlocksX; ++x)
 		{
 			for (int y = 0; y < m_numBlocksY; ++y)
 			{
+				// FluidSolver
 				m_fluidSolver.d[Id(x, y)] /= (newSize*newSize);
 				m_fluidSolver.u[Id(x, y)] /= (newSize*newSize);
 				m_fluidSolver.v[Id(x, y)] /= (newSize*newSize);
 				m_fluidSolver.dOld[Id(x, y)] /= (newSize*newSize);
 				m_fluidSolver.uOld[Id(x, y)] /= (newSize*newSize);
 				m_fluidSolver.vOld[Id(x, y)] /= (newSize*newSize);
+				
+				// Old input density
+				m_oldInputDensity.setEntry(Id(x, y), m_oldInputDensity.getEntry(Id(x, y)) / (newSize * newSize));
 			}
 		}
 		
@@ -874,7 +831,7 @@ public class Painter extends PjProject implements ComponentListener {
     /**
      * Add density splines according to the current mouse trace
      */
-    private void addDensityTrace()
+    private synchronized void addDensityTrace()
     {
     	// Security check
     	if (m_densityTraceX.getSize() <= 1 && m_densityTraceX.getSize() <= 1)
@@ -976,41 +933,39 @@ public class Painter extends PjProject implements ComponentListener {
 				addDensityPoint((int)Math.round(pointAtT.getEntry(0)), (int)Math.round(pointAtT.getEntry(1)), m_densityRadius.getValue());
 			}
 		}
+		
+		// Save this state of the mouse input density
+		for (int x=0; x<m_numBlocksX; ++x)
+			for (int y=0; y<m_numBlocksY; ++y)
+				m_oldInputDensity.setEntry(Id(x, y), m_fluidSolver.dOld[Id(x, y)]);
     }
     
     /**
-     * Add density linearly decreasing in circles around the mouse position (m_MouseXOld, m_MouseYOld).
+     * Add density linearly decreasing in circles around the pixel position (pX, pY).
      *
-     * @param pX: density is added at point with first coordinate pX.
-     * @param pY: density is added at point with first coordinate pY.
+     * @param pX: density is added in the block with first pixel coordinate pX.
+     * @param pY: density is added in the block with second pixel coordinate pY.
      * @param radius: density is added up to radius around mouse position.
      **/
     private void addDensityPoint(int pX, int pY, int radius)
     {
 //    	PsDebug.message("addForce to x: " + String.valueOf(m_mouseX_Old) + ", y: " + String.valueOf(m_mouseY_Old));
-//    	PsDebug.message("new x: " + String.valueOf(m_mouseX) + ", new y: " + String.valueOf(m_mouseY));
+
     	float[] lowerDbound = new float[m_numBlocksX*m_numBlocksY];
     	PdVector mousePos = new PdVector((double)pX, (double)pY);
     	final float densityNormConst = 3/(float)(radius*radius)/(float)Math.PI;
-//    	boolean wasZero = true;
+    	double temp;
     	
     	// Add densities to lower bound, linearly decreasing from center
 		for (int x=Math.max(0, pX-radius); x<Math.min(m_imageWidth, pX+radius); x++)
 		{
 			for (int y=Math.max(0, pY-radius); y<Math.min(m_imageHeight, pY+radius); y++)
 			{
-//				if (m_fluidSolver.dOld[I(x, y)] != 0)
-//					wasZero = false;
-//		    	PsDebug.message("dist == " + String.valueOf(mousePos.dist(new PdVector((double)x, (double)y))));
 				double lambda = Math.max(0.0, (radius - mousePos.dist(new PdVector((double)x, (double)y))) / (double)radius);
-				
-//				PsDebug.message("x: " + String.valueOf(x) + ", y: " + String.valueOf(y)
-//							+ ", lambda: " + String.valueOf(lambda));
-
-				// m_fluidSolver.dOld[I(x, y)] = Math.max((float)(lambda * m_densityConst.getValue() * densityNormConst), m_fluidSolver.dOld[I(x, y)]);
 				lowerDbound[Id(block(x), block(y))] += (float)(lambda * m_densityConst.getValue() * densityNormConst);
 			}
 		}
+		// Loop over all blocks in the square of the added density cone
 		for (int x=Math.max(0, block(pX-radius)); x<Math.min(m_numBlocksX, block(pX+radius)); ++x)
 		{
 			for (int y=Math.max(0, block(pY-radius)); y<Math.min(m_numBlocksY, block(pY+radius)); ++y)
@@ -1018,13 +973,12 @@ public class Painter extends PjProject implements ComponentListener {
 				// Average
 				lowerDbound[Id(x, y)] /= (m_blockSize.getValue() * m_blockSize.getValue());
 
-				// Put maximum of input force that is already there and new forcecone into fluidSolver
-				m_fluidSolver.dOld[Id(x, y)] = Math.max(lowerDbound[Id(x, y)], m_fluidSolver.dOld[Id(x, y)]);
+				// Put maximum of input force that is already there, that was there last frame
+				// and new forcecone into fluidSolver
+				temp = m_fluidSolver.dOld[Id(x,y)];
+				m_fluidSolver.dOld[Id(x, y)] = (float) Math.max(temp, Math.max(0.0, Math.max(lowerDbound[Id(x, y)], temp) - (float) m_oldInputDensity.getEntry(Id(x, y))));
 			}
 		}
-		
-//		if (!wasZero)
-//			PsDebug.warning("dOld war nicht null!");
     }
     
     /**
@@ -1033,21 +987,7 @@ public class Painter extends PjProject implements ComponentListener {
      **/
     private void resetMouseTraces()
     {
-		// Force traces
-//    	int size = m_forceTraceX.getSize();
-//    	if (size != m_forceTraceY.getSize())
-//    		PsDebug.warning("m_forceTraceX and m_forceTraceX have different sizes!");
-//    	else if (size > 0)
-//    	{
-//			int tempX = m_forceTraceX.getEntry(size-1);
-//			int tempY = m_forceTraceY.getEntry(size-1);
-//			m_forceTraceX = new PiVector();
-//			m_forceTraceX.setSize(1);
-//			m_forceTraceX.setEntry(0, tempX);
-//			m_forceTraceY = new PiVector();
-//			m_forceTraceY.setSize(1);
-//			m_forceTraceY.setEntry(0, tempY);
-//    	}
+    	// Force traces
 		m_forceTraceX = new PiVector();
 		m_forceTraceX.setSize(0);
 		m_forceTraceY = new PiVector();
@@ -1079,6 +1019,21 @@ public class Painter extends PjProject implements ComponentListener {
 			m_densityTraceY.setEntry(1, -1);
 		}
 	}
+    
+    // Cuts off or expands by some zeros the array m_oldInputDensity. Shall be invoked in resizeImage.
+    private void resizeOldInputDensity(int oldNumBlocksX, int oldNumBlocksY)
+    {
+    	// Clone array
+    	PdVector temp = (PdVector) m_oldInputDensity.clone();
+    	
+    	// Resize oldInputDensity-Array to current size
+    	m_oldInputDensity = new PdVector(m_numBlocksX * m_numBlocksY);
+    	
+    	// Copy old values back
+    	for (int x=0; x<Math.min(oldNumBlocksX, m_numBlocksX); ++x)
+    		for (int y=0; y<Math.min(oldNumBlocksY, m_numBlocksY); ++y)
+    			m_oldInputDensity.setEntry(Id(x,y), temp.getEntry(Id(x,y,oldNumBlocksX)));
+    }
 	
 
 	/* Utility indexing functions */
@@ -1103,42 +1058,5 @@ public class Painter extends PjProject implements ComponentListener {
 	// Same as above, but for "custom" (parameter) blockSize
 	private int cornerPix(int block, int blockSize) {return block * blockSize;}
 	
-	// Just used for debugging:
-	// DOES NOT YET WORK WITH BLOCKSIZE
-	// private void checkWhetherduvOldEqualsZero()
-	// {
-	// 	// Debugging: Checken, ob uOld, vOld == 0 sind
-	// 	for (int x=0; x<m_imageWidth; x+=m_blockSize.getValue())
-	// 	{
-	// 		boolean breakThis = false;
-	// 		for (int y=0; y<m_imageHeight; y+=m_blockSize.getValue())
-	// 		{
-	// 			if (m_fluidSolver.uOld[I(x,y)] != 0)
-	// 			{
-	// 				PsDebug.warning("uOld nicht 0 am Beginn eines Frames!");
-	// 				breakThis = true;
-	// 			}
-	// 			else if (m_fluidSolver.vOld[I(x,y)] != 0)
-	// 			{
-	// 				PsDebug.warning("vOld nicht 0 am Beginn eines Frames!");
-	// 				breakThis = true;
-	// 			}
-	// 			else if (m_fluidSolver.dOld[I(x,y)] != 0)
-	// 			{
-	// 				PsDebug.warning("dOld nicht 0 am Beginn eines Frames!");
-	// 				breakThis = true;
-	// 			}
-	// 			
-	// 			if (breakThis)
-	// 				break;
-	// 		}
-	// 		if (breakThis)
-	// 			break;
-	// 	}
-	// }
-	
-	public PuDouble getTime()
-	{
-		return m_time;
-	}
+	public PuDouble getTime() { return m_time; }
 }
