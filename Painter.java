@@ -24,6 +24,7 @@ import jv.project.PvCameraEvent;
 import jv.project.PvViewerIf;
 import jv.vecmath.PdVector;
 import jv.vecmath.PiVector;
+import jv.objectGui.PsImage;
 
 import jvx.curve.PgBezierCurve;
 
@@ -35,7 +36,7 @@ import jvx.curve.PgBezierCurve;
  */
 @SuppressWarnings("serial")
 public class Painter extends PjProject implements ComponentListener {
-	boolean colorON = true;
+	boolean colorON = false;
 	int whichColor = 1;
 	// Display of main window
 	protected	PvDisplayIf			m_disp;
@@ -157,6 +158,33 @@ public class Painter extends PjProject implements ComponentListener {
 		} else {
 			whichColor = 1;
 		}
+	}
+	
+	public void buttonImportImage()
+	{
+		PsImage bild;
+		bild = new PsImage("mysource/StableFluids/defaultFoto.jpg");
+		//bild.setSize(m_numBlocksX, m_numBlocksY);
+		int[] pixelBild;
+		Image bild2 = bild.getImage();
+		pixelBild = new int[(bild.getHeight()+2) * (bild.getWidth()+2)];
+		pixelBild = PsImage.getPixels( bild2 );
+		int[] red, green, blue;
+		red = new int[(m_numBlocksX+2) * (m_numBlocksY+2)];
+		green = new int[(m_numBlocksX+2) * (m_numBlocksY+2)];
+		blue = new int[(m_numBlocksX+2) * (m_numBlocksY+2)];
+		
+		for(int i=1;i<=m_numBlocksX; i++) {
+			for(int j=1;j<=m_numBlocksY; j++) {
+				Color farbe = new Color( pixelBild[I(i,j)] );
+				red[I(i,j)] = farbe.getRed();
+				green[I(i,j)] = farbe.getGreen();
+				blue[I(i,j)] = farbe.getBlue();
+			}
+		}
+	
+		//set density in the fluidsolver
+		m_fluidSolver.setDensity(red,green,blue);
 	}
 
 	public void init()

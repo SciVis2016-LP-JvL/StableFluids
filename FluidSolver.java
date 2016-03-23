@@ -218,6 +218,10 @@ public class FluidSolver implements Cloneable
     	uOld = new float[size];
     	vOld = new float[size];
     	dOld = new float[size];
+    	if(colorON) {
+    		d2Old = new float[size];
+    		d3Old = new float[size];
+    	}
     	//copy the values back
     	for (int i = 1; i <= Math.min(nOld, n); i++)
         {
@@ -266,6 +270,30 @@ public class FluidSolver implements Cloneable
                 {
                 	d2[I(i,j)] = 0;
             		d3[I(i,j)] = 0;
+            		d2Old[I(i,j)] = 0;
+            		d3Old[I(i,j)] = 0;
+                }
+            }
+    	}
+    }
+    
+    public void setDensity(int[] red, int[] green, int[] blue)
+    {
+    	for (int i = 1; i <= n; i++)
+        {
+            for (int j = 1; j <= m; j++)
+            {
+            	d[I(i,j)] = red[I(i,j)];
+            	dOld[I(i,j)] = 0;
+            }
+        }
+    	if(colorON) {
+    		for (int i = 1; i <= n; i++)
+            {
+                for (int j = 1; j <= m; j++)
+                {
+                	d2[I(i,j)] = green[I(i,j)];
+            		d3[I(i,j)] = blue[I(i,j)];
             		d2Old[I(i,j)] = 0;
             		d3Old[I(i,j)] = 0;
                 }
