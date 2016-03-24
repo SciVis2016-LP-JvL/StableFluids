@@ -36,7 +36,7 @@ import jvx.curve.PgBezierCurve;
  */
 @SuppressWarnings("serial")
 public class Painter extends PjProject implements ComponentListener {
-	boolean colorON = false;
+	boolean colorON = true;
 	int whichColor = 1;
 	// Display of main window
 	protected	PvDisplayIf			m_disp;
@@ -738,20 +738,49 @@ public class Painter extends PjProject implements ComponentListener {
 	// Compute color array from an array of scalar integer values
 	private void computeColors()
 	{
+		int red, green, blue;
 		// Compute greyscale values according to density
 		for (int x=0; x<m_imageWidth; x++)
+		{
 			for (int y=0; y<m_imageHeight; y++)
-				if ((int)Math.round(m_density.getEntry(I(x,y))*255) > 255)
-//					PsDebug.warning("Color out of bounds!");
-					m_pix.setEntry(I(x,y), PdColor.hsv2rgbAsInt(0, 0, 0));
-				else if ((int)Math.round(m_density.getEntry(I(x,y))*255) < 0)
-					m_pix.setEntry(I(x,y), PdColor.hsv2rgbAsInt(0, 0, 255));
-				else
-					if(colorON) {
-						m_pix.setEntry(I(x,y), PdColor.getColor(255, (int)Math.round((1.0-m_density.getEntry(I(x,y)))*255), (int)Math.round((1.0-m_density2.getEntry(I(x,y)))*255), (int)Math.round((1.0-m_density3.getEntry(I(x,y)))*255)) );
+			{
+				if(colorON) {
+					if ((int)Math.round(m_density.getEntry(I(x,y))*255) > 255) {
+						red = 0;
+					} else if ((int)Math.round(m_density.getEntry(I(x,y))*255) < 0) {
+						red = 255;
+					} else {
+						red = (int)Math.round((1.0-m_density.getEntry(I(x,y)))*255);
+					}
+					
+					if ((int)Math.round(m_density2.getEntry(I(x,y))*255) > 255) {
+						green = 0;
+					} else if ((int)Math.round(m_density2.getEntry(I(x,y))*255) < 0) {
+						green = 255;
+					} else {
+						green = (int)Math.round((1.0-m_density2.getEntry(I(x,y)))*255);
+					}
+					
+					if ((int)Math.round(m_density3.getEntry(I(x,y))*255) > 255) {
+						blue = 0;
+					} else if ((int)Math.round(m_density3.getEntry(I(x,y))*255) < 0) {
+						blue = 255;
+					} else {
+						blue = (int)Math.round((1.0-m_density3.getEntry(I(x,y)))*255);
+					}
+					m_pix.setEntry(I(x,y), PdColor.getColor(255, red, green, blue) );
+				} else {
+					if ((int)Math.round(m_density.getEntry(I(x,y))*255) > 255) {
+						m_pix.setEntry(I(x,y), PdColor.hsv2rgbAsInt(0, 0, 0));
+					} else if ((int)Math.round(m_density.getEntry(I(x,y))*255) < 0) {
+						m_pix.setEntry(I(x,y), PdColor.hsv2rgbAsInt(0, 0, 255));
 					} else {
 						m_pix.setEntry(I(x,y), PdColor.hsv2rgbAsInt(0, 0, (int)Math.round((1.0-m_density.getEntry(I(x,y)))*255)));
 					}
+				}
+			}
+		}
+			
 //					m_pix.setEntry(I(x,y), PdColor.hsv2rgbAsInt(0, 0, 1*255));
 		
 		// // For testing purposes, show bezier curve
