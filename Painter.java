@@ -37,6 +37,7 @@ import jvx.curve.PgBezierCurve;
 @SuppressWarnings("serial")
 public class Painter extends PjProject implements ComponentListener {
 	boolean colorON = true;
+	boolean isFrozen = false;
 	int whichColor = 1;
 	// Display of main window
 	protected	PvDisplayIf			m_disp;
@@ -185,6 +186,17 @@ public class Painter extends PjProject implements ComponentListener {
 	
 		//set density in the fluidsolver
 		m_fluidSolver.setDensity(red,green,blue);
+	}
+	
+	public void buttonFreeze()
+	{
+		if(isFrozen) {
+			isFrozen = false;
+			m_fluidSolver.setVisc( 0.0f);
+		} else {
+			isFrozen = true;
+			m_fluidSolver.setVisc( 0.1f);
+		}
 	}
 
 	public void init()
@@ -637,6 +649,51 @@ public class Painter extends PjProject implements ComponentListener {
 					// PsDebug.message(String.valueOf(m_blockSize.getValue()));
 					// PsDebug.message(String.valueOf(m_oldBlockSize.getValue()));
 				}
+				
+				fluidSolverChanged = false;
+				// Duplicate row column to fill blocks - only effective if blockSize > 1
+				while (! (m_density.getSize() == m_imageWidth*m_imageHeight))
+				{
+					// PsDebug.message("in while");
+					// PsDebug.message(String.valueOf(m_density.getSize()));
+					// PsDebug.message(String.valueOf(m_fluidSolver.size));
+					// PsDebug.message(String.valueOf(m_imageWidth));
+					// PsDebug.message(String.valueOf(m_imageHeight));
+					// PsDebug.message(String.valueOf(m_blockSize.getValue()));
+					// PsDebug.message(String.valueOf(m_oldBlockSize.getValue()));
+					try
+					{
+						// PsDebug.message("Wait later");
+						wait();
+					}
+					catch (InterruptedException e) { PsDebug.warning("InterruptedExpeption in computeImage!"); }
+					fluidSolverChanged = true;
+				}
+				if (fluidSolverChanged)
+				{
+					fluidSolverChanged = false;
+					y = -m_blockSize.getValue();
+					continue;
+				}
+				blockRemain = Math.min(m_blockSize.getValue(), m_imageHeight-y)-1;
+				for (k=1; k<=blockRemain; k++)
+				{
+					try {System.arraycopy(m_density.m_data, I(0,y), m_density.m_data, I(0,y+k), m_imageWidth);}
+					catch (ArrayIndexOutOfBoundsException e)
+					{
+						// PsDebug.message("I am out of bounds at arraycopy!");
+						// PsDebug.message(String.valueOf(m_density.getSize()));
+						// PsDebug.message(String.valueOf(I(0,y)));
+						// PsDebug.message(String.valueOf(I(0,y+k)));
+						// PsDebug.message(String.valueOf(m_fluidSolver.size));
+						// PsDebug.message(String.valueOf(m_imageWidth));
+						// PsDebug.message(String.valueOf(m_imageHeight));
+						// PsDebug.message(String.valueOf(m_blockSize.getValue()));
+						// PsDebug.message(String.valueOf(m_oldBlockSize.getValue()));
+					}
+				}
+				
+				
 				if(colorON) {
 					fluidSolverChanged = false;
 					// Duplicate row column to fill blocks - only effective if blockSize > 1
@@ -771,7 +828,7 @@ public class Painter extends PjProject implements ComponentListener {
 					check[0] = 255 - red;
 					check[1] = 255 - green;
 					check[2] = 255 - blue;
-					m_pix.setEntry(I(x,y), PdColor.getColor(255, check) );
+					m_pix.setEntry(I(x,y), PdColor.getDimmedColor( PdColor.getColor(255, check), (double) 2.0f)  );
 					//if(x == 1 && y ==1)
 					//PsDebug.message("Rot:" + String.valueOf(check[0]) + "Grün" + String.valueOf(check[1]) + "Blau" + String.valueOf(check[2]) );
 					//m_pix.setEntry(I(x,y), PdColor.getColor(255, 0, 0, 255) );
