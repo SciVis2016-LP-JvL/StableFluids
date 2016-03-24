@@ -739,7 +739,6 @@ public class Painter extends PjProject implements ComponentListener {
 	private void computeColors()
 	{
 		int red, green, blue;
-		// Compute greyscale values according to density
 		for (int x=0; x<m_imageWidth; x++)
 		{
 			for (int y=0; y<m_imageHeight; y++)
@@ -768,7 +767,14 @@ public class Painter extends PjProject implements ComponentListener {
 					} else {
 						blue = (int)Math.round((1.0-m_density3.getEntry(I(x,y)))*255);
 					}
-					m_pix.setEntry(I(x,y), PdColor.getColor(255, red, green, blue) );
+					int[] check = new int[3];
+					check[0] = 255 - red;
+					check[1] = 255 - green;
+					check[2] = 255 - blue;
+					m_pix.setEntry(I(x,y), PdColor.getColor(255, check) );
+					//if(x == 1 && y ==1)
+					//PsDebug.message("Rot:" + String.valueOf(check[0]) + "Grün" + String.valueOf(check[1]) + "Blau" + String.valueOf(check[2]) );
+					//m_pix.setEntry(I(x,y), PdColor.getColor(255, 0, 0, 255) );
 				} else {
 					if ((int)Math.round(m_density.getEntry(I(x,y))*255) > 255) {
 						m_pix.setEntry(I(x,y), PdColor.hsv2rgbAsInt(0, 0, 0));
@@ -1169,11 +1175,11 @@ public class Painter extends PjProject implements ComponentListener {
 				temp = m_fluidSolver.dOld[Id(x,y)];
 				if(whichColor == 1) {
 					m_fluidSolver.dOld[Id(x, y)] = Math.max(lowerDbound[Id(x, y)], m_fluidSolver.dOld[Id(x, y)]);
-					} else if(whichColor == 2) {
+				} else if(whichColor == 2) {
 					m_fluidSolver.d2Old[Id(x, y)] = Math.max(lowerDbound[Id(x, y)], m_fluidSolver.d2Old[Id(x, y)]);
-					} else if(whichColor == 3) {
+				} else if(whichColor == 3) {
 					m_fluidSolver.d3Old[Id(x, y)] = Math.max(lowerDbound[Id(x, y)], m_fluidSolver.d3Old[Id(x, y)]);
-					}
+				}
 			}
 		}
     }

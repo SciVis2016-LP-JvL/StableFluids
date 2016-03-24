@@ -379,6 +379,20 @@ public class FluidSolver implements Cloneable
         {
             for (int j = 1; j <= m; j++)
             {
+            	if(colorON) {
+            		if(d2[I(i, j)] <= 255)
+	        		{
+	            		Tamb += d2[I(i, j)];
+	        		} else {
+	        			Tamb = Tamb + 255;
+	        		}
+            		if(d3[I(i, j)] <= 255)
+	        		{
+	            		Tamb += d3[I(i, j)];
+	        		} else {
+	        			Tamb = Tamb + 255;
+	        		}
+            	}
             	if(d[I(i, j)] <= 255)
         		{
             		Tamb += d[I(i, j)];
@@ -390,19 +404,36 @@ public class FluidSolver implements Cloneable
         Tamb = Tamb / (n * m);
 
         //hot smoke goes up, heavy smoke goes down
-        for (int i = 1; i <= n; i++)
-        {
-            for (int j = 1; j <= m; j++)
-            {
-                //v[I(i, j)] = v[I(i, j)] + dt * (heat * (d[I(i, j)]) - weight * (d[I(i, j)] - Tamb));
-            	if(d[I(i, j)] <= 255)
-        		{
-            		// v = v + dt * Auftrieb - dt * Gewicht;
-            		v[I(i, j)] = v[I(i, j)] - factor * dt * ( Tamb/255 * weightSmoke + (1-Tamb/255) * weightAir) + factor * dt * (d[I(i,j)]/255 * weightSmoke + (1-d[I(i,j)]/255) * weightAir);
-        		} else {
-        			v[I(i, j)] = v[I(i, j)] - factor * dt * ( Tamb/255 * weightSmoke + (1-Tamb/255) * weightAir) + factor * dt * (1 * weightSmoke);
-        		}
-            }
+        if(colorON) {
+        	for (int i = 1; i <= n; i++)
+	        {
+	            for (int j = 1; j <= m; j++)
+	            {
+	                //v[I(i, j)] = v[I(i, j)] + dt * (heat * (d[I(i, j)]) - weight * (d[I(i, j)] - Tamb));
+	            	if(d[I(i, j)] + d2[I(i, j)] + d3[I(i, j)] <= 255 + 255 + 255)
+	        		{
+	            		// v = v + dt * Auftrieb - dt * Gewicht;
+	            		v[I(i, j)] = v[I(i, j)] - factor * dt * ( Tamb/255 * weightSmoke + (1-Tamb/255) * weightAir) + factor * dt * ((d[I(i, j)] + d2[I(i, j)] + d3[I(i, j)])/255 * weightSmoke + (1-(d[I(i, j)] + d2[I(i, j)] + d3[I(i, j)])/255) * weightAir);
+	        		} else {
+	        			v[I(i, j)] = v[I(i, j)] - factor * dt * ( Tamb/255 * weightSmoke + (1-Tamb/255) * weightAir) + factor * dt * (1 * weightSmoke);
+	        		}
+	            }
+	        }
+        } else {
+	        for (int i = 1; i <= n; i++)
+	        {
+	            for (int j = 1; j <= m; j++)
+	            {
+	                //v[I(i, j)] = v[I(i, j)] + dt * (heat * (d[I(i, j)]) - weight * (d[I(i, j)] - Tamb));
+	            	if(d[I(i, j)] <= 255)
+	        		{
+	            		// v = v + dt * Auftrieb - dt * Gewicht;
+	            		v[I(i, j)] = v[I(i, j)] - factor * dt * ( Tamb/255 * weightSmoke + (1-Tamb/255) * weightAir) + factor * dt * (d[I(i,j)]/255 * weightSmoke + (1-d[I(i,j)]/255) * weightAir);
+	        		} else {
+	        			v[I(i, j)] = v[I(i, j)] - factor * dt * ( Tamb/255 * weightSmoke + (1-Tamb/255) * weightAir) + factor * dt * (1 * weightSmoke);
+	        		}
+	            }
+	        }
         }
     }
     
