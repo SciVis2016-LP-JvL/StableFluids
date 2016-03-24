@@ -164,23 +164,23 @@ public class Painter extends PjProject implements ComponentListener {
 	public void buttonImportImage()
 	{
 		PsImage bild;
-		bild = new PsImage("mysource/StableFluids/defaultFoto.jpg");
+		bild = new PsImage("mysource/StableFluids/test.png");
 		//bild.setSize(m_numBlocksX, m_numBlocksY);
 		int[] pixelBild;
 		Image bild2 = bild.getImage();
-		pixelBild = new int[(bild.getHeight()+2) * (bild.getWidth()+2)];
+		pixelBild = new int[(bild.getHeight()) * (bild.getWidth())];
 		pixelBild = PsImage.getPixels( bild2 );
 		int[] red, green, blue;
 		red = new int[(m_numBlocksX+2) * (m_numBlocksY+2)];
 		green = new int[(m_numBlocksX+2) * (m_numBlocksY+2)];
 		blue = new int[(m_numBlocksX+2) * (m_numBlocksY+2)];
 		
-		for(int i=1;i<=m_numBlocksX; i++) {
-			for(int j=1;j<=m_numBlocksY; j++) {
-				Color farbe = new Color( pixelBild[I(i,j)] );
-				red[I(i,j)] = farbe.getRed();
-				green[I(i,j)] = farbe.getGreen();
-				blue[I(i,j)] = farbe.getBlue();
+		for(int i=0;i<m_numBlocksX; i++) {
+			for(int j=0;j<m_numBlocksY; j++) {
+				Color farbe = new Color( pixelBild[ i + bild.getWidth() * (j) ] );
+				red[Id(i,j)] = farbe.getRed();
+				green[Id(i,j)] = farbe.getGreen();
+				blue[Id(i,j)] = farbe.getBlue();
 			}
 		}
 	
@@ -192,10 +192,8 @@ public class Painter extends PjProject implements ComponentListener {
 	{
 		if(isFrozen) {
 			isFrozen = false;
-			m_fluidSolver.setVisc( 0.0f);
 		} else {
 			isFrozen = true;
-			m_fluidSolver.setVisc( 0.1f);
 		}
 	}
 
@@ -548,8 +546,10 @@ public class Painter extends PjProject implements ComponentListener {
 		resetMouseTraces();
 		
 		// Solve fluid
-        m_fluidSolver.velocitySolver();
-        m_fluidSolver.densitySolver();
+		if(isFrozen) {} else {
+			m_fluidSolver.velocitySolver();
+			m_fluidSolver.densitySolver();
+		}
 
 		try { m_oldFluidSolver = m_fluidSolver.clone(); }
 		catch (CloneNotSupportedException e) { PsDebug.warning("Clone of fluidSolver not supported!"); }
@@ -828,7 +828,7 @@ public class Painter extends PjProject implements ComponentListener {
 					check[0] = 255 - red;
 					check[1] = 255 - green;
 					check[2] = 255 - blue;
-					m_pix.setEntry(I(x,y), PdColor.getDimmedColor( PdColor.getColor(255, check), (double) 2.0f)  );
+					m_pix.setEntry(I(x,y), PdColor.getDimmedColor( PdColor.getColor(255, check), (double) 1.0f)  );
 					//if(x == 1 && y ==1)
 					//PsDebug.message("Rot:" + String.valueOf(check[0]) + "Grün" + String.valueOf(check[1]) + "Blau" + String.valueOf(check[2]) );
 					//m_pix.setEntry(I(x,y), PdColor.getColor(255, 0, 0, 255) );

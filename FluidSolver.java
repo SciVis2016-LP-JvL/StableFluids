@@ -279,18 +279,18 @@ public class FluidSolver implements Cloneable
     
     public void setDensity(int[] red, int[] green, int[] blue)
     {
-    	for (int i = 1; i <= n; i++)
+    	for (int i = 0; i <= n+1; i++)
         {
-            for (int j = 1; j <= m; j++)
+            for (int j = 0; j <= m+1; j++)
             {
             	d[I(i,j)] = red[I(i,j)];
             	dOld[I(i,j)] = 0;
             }
         }
     	if(colorON) {
-    		for (int i = 1; i <= n; i++)
+    		for (int i = 0; i <= n+1; i++)
             {
-                for (int j = 1; j <= m; j++)
+                for (int j = 0; j <= m+1; j++)
                 {
                 	d2[I(i,j)] = green[I(i,j)];
             		d3[I(i,j)] = blue[I(i,j)];
