@@ -154,7 +154,7 @@ public class Painter extends PjProject implements ComponentListener {
 	
 	public void buttonFlipColor()
 	{
-		if(whichColor <=2) {
+		if(whichColor <=7) {
 			whichColor = whichColor + 1;
 		} else {
 			whichColor = 1;
@@ -1193,11 +1193,11 @@ public class Painter extends PjProject implements ComponentListener {
 		{
 			for (int y=0; y<m_numBlocksY; ++y)
 			{
-				if (whichColor == 1)
+				if (whichColor == 1 || whichColor == 5)
 					m_oldInputDensity.setEntry(Id(x, y), m_fluidSolver.dOld[Id(x, y)]);
 				else if (whichColor == 2)
 					m_oldInputDensity.setEntry(Id(x, y), m_fluidSolver.d2Old[Id(x, y)]);
-				else if (whichColor == 3)
+				else if (whichColor == 3 || whichColor == 4 || whichColor == 6 || whichColor == 7 || whichColor == 8)
 					m_oldInputDensity.setEntry(Id(x, y), m_fluidSolver.d3Old[Id(x, y)]);
 			}
 		}
@@ -1250,7 +1250,49 @@ public class Painter extends PjProject implements ComponentListener {
 					// m_fluidSolver.d3Old[Id(x, y)] = Math.max(lowerDbound[Id(x, y)], m_fluidSolver.d3Old[Id(x, y)]);
 					temp = m_fluidSolver.d3Old[Id(x,y)];
 					m_fluidSolver.d3Old[Id(x, y)] = (float) Math.max(temp, Math.max(0.0, Math.max(lowerDbound[Id(x, y)], temp) - (float) m_oldInputDensity.getEntry(Id(x, y)))); 
+				} else if(whichColor == 4) {
+					// m_fluidSolver.d3Old[Id(x, y)] = Math.max(lowerDbound[Id(x, y)], m_fluidSolver.d3Old[Id(x, y)]);
+					temp = m_fluidSolver.d3Old[Id(x,y)];
+					m_fluidSolver.d3Old[Id(x, y)] = (float) Math.max(temp, Math.max(0.0, Math.max(lowerDbound[Id(x, y)], temp) - (float) m_oldInputDensity.getEntry(Id(x, y)))); 
+					// m_fluidSolver.d2Old[Id(x, y)] = Math.max(lowerDbound[Id(x, y)], m_fluidSolver.d2Old[Id(x, y)]);
+					temp = m_fluidSolver.d2Old[Id(x,y)];
+					m_fluidSolver.d2Old[Id(x, y)] = (float) Math.max(temp, Math.max(0.0, Math.max(lowerDbound[Id(x, y)], temp) - (float) m_oldInputDensity.getEntry(Id(x, y)))); 
+				} else if(whichColor == 5) {
+					// m_fluidSolver.dOld[Id(x, y)] = Math.max(lowerDbound[Id(x, y)], m_fluidSolver.dOld[Id(x, y)]);
+					temp = m_fluidSolver.dOld[Id(x,y)];
+					m_fluidSolver.dOld[Id(x, y)] = (float) Math.max(temp, Math.max(0.0, Math.max(lowerDbound[Id(x, y)], temp) - (float) m_oldInputDensity.getEntry(Id(x, y)))); 
+					// m_fluidSolver.d2Old[Id(x, y)] = Math.max(lowerDbound[Id(x, y)], m_fluidSolver.d2Old[Id(x, y)]);
+					temp = m_fluidSolver.d2Old[Id(x,y)];
+					m_fluidSolver.d2Old[Id(x, y)] = (float) Math.max(temp, Math.max(0.0, Math.max(lowerDbound[Id(x, y)], temp) - (float) m_oldInputDensity.getEntry(Id(x, y)))); 
+				} else if(whichColor == 6) {
+					// m_fluidSolver.dOld[Id(x, y)] = Math.max(lowerDbound[Id(x, y)], m_fluidSolver.dOld[Id(x, y)]);
+					temp = m_fluidSolver.dOld[Id(x,y)];
+					m_fluidSolver.dOld[Id(x, y)] = (float) Math.max(temp, Math.max(0.0, Math.max(lowerDbound[Id(x, y)], temp) - (float) m_oldInputDensity.getEntry(Id(x, y)))); 
+					// m_fluidSolver.d3Old[Id(x, y)] = Math.max(lowerDbound[Id(x, y)], m_fluidSolver.d3Old[Id(x, y)]);
+					temp = m_fluidSolver.d3Old[Id(x,y)];
+					m_fluidSolver.d3Old[Id(x, y)] = (float) Math.max(temp, Math.max(0.0, Math.max(lowerDbound[Id(x, y)], temp) - (float) m_oldInputDensity.getEntry(Id(x, y)))); 
 				}
+				// else if(whichColor == 7) {
+				// 	// m_fluidSolver.d3Old[Id(x, y)] = Math.max(lowerDbound[Id(x, y)], m_fluidSolver.d3Old[Id(x, y)]);
+				// 	temp = m_fluidSolver.d3Old[Id(x,y)];
+				// 	m_fluidSolver.d3Old[Id(x, y)] = (float) Math.max(temp, Math.max(0.0, Math.max(lowerDbound[Id(x, y)], temp) - (float) m_oldInputDensity.getEntry(Id(x, y)))); 
+				// 	// m_fluidSolver.d2Old[Id(x, y)] = Math.max(lowerDbound[Id(x, y)], m_fluidSolver.d2Old[Id(x, y)]);
+				// 	temp = m_fluidSolver.d2Old[Id(x,y)];
+				// 	m_fluidSolver.d2Old[Id(x, y)] = (float) Math.max(temp, Math.max(0.0, Math.max(lowerDbound[Id(x, y)], temp) - (float) m_oldInputDensity.getEntry(Id(x, y)))); 
+				// 	// m_fluidSolver.dOld[Id(x, y)] = Math.max(lowerDbound[Id(x, y)], m_fluidSolver.dOld[Id(x, y)])/2;
+				// 	temp = m_fluidSolver.dOld[Id(x,y)];
+				// 	m_fluidSolver.dOld[Id(x, y)] = (float) Math.max(temp, Math.max(0.0, Math.max(lowerDbound[Id(x, y)], temp) - (float) (m_oldInputDensity.getEntry(Id(x, y))/2)))/2;
+				// } else if(whichColor == 8) {
+				// 	// m_fluidSolver.d3Old[Id(x, y)] = Math.max(lowerDbound[Id(x, y)], m_fluidSolver.d3Old[Id(x, y)]);
+				// 	temp = m_fluidSolver.d3Old[Id(x,y)];
+				// 	m_fluidSolver.d3Old[Id(x, y)] = (float) Math.max(temp, Math.max(0.0, Math.max(lowerDbound[Id(x, y)], temp) - (float) m_oldInputDensity.getEntry(Id(x, y)))); 
+				// 	// m_fluidSolver.d2Old[Id(x, y)] = Math.max(lowerDbound[Id(x, y)], m_fluidSolver.d2Old[Id(x, y)])/2;
+				// 	temp = m_fluidSolver.d2Old[Id(x,y)];
+				// 	m_fluidSolver.d2Old[Id(x, y)] = (float) Math.max(temp, Math.max(0.0, Math.max(lowerDbound[Id(x, y)], temp) - (float) m_oldInputDensity.getEntry(Id(x, y))/2))/2;
+				// 	// m_fluidSolver.dOld[Id(x, y)] = Math.max(lowerDbound[Id(x, y)], m_fluidSolver.dOld[Id(x, y)])/2;
+				// 	temp = m_fluidSolver.dOld[Id(x,y)];
+				// 	m_fluidSolver.dOld[Id(x, y)] = (float) Math.max(temp, Math.max(0.0, Math.max(lowerDbound[Id(x, y)], temp) - (float) m_oldInputDensity.getEntry(Id(x, y))/2))/2;
+				// }
 			}
 		}
     }

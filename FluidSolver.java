@@ -552,7 +552,7 @@ public class FluidSolver implements Cloneable
     
     private void diffuse()
     {
-		float factor = visc * dt * m * m;
+		float factor = visc * dt * m * m / 1000;
 		// PsDebug.message("factor:"+ Float.toString(factor));
 		float[] neu;
 		float[] neu2;
