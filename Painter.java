@@ -154,7 +154,7 @@ public class Painter extends PjProject implements ComponentListener {
 	
 	public void buttonFlipColor()
 	{
-		if(whichColor <=7) {
+		if(whichColor <=5) {
 			whichColor = whichColor + 1;
 		} else {
 			whichColor = 1;
