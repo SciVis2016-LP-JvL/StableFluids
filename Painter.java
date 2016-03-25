@@ -165,6 +165,7 @@ public class Painter extends PjProject implements ComponentListener {
 	{
 		PsImage bild;
 		bild = new PsImage("mysource/StableFluids/test.png");
+		// bild = new PsImage("myProjects/StableFluids/test.png");
 		//bild.setSize(m_numBlocksX, m_numBlocksY);
 		int[] pixelBild;
 		Image bild2 = bild.getImage();
@@ -302,7 +303,6 @@ public class Painter extends PjProject implements ComponentListener {
 		else if (event == m_blockSize) 
 		{
 			// Update resolution-values and fluidSolver to new blockSize
-			// waitUntilNotWriting();
 			changeBlockSize();
 
 			computeImage();
@@ -565,7 +565,7 @@ public class Painter extends PjProject implements ComponentListener {
 				fsWidth = m_fluidSolver.n + 2;
 				fsHeight = m_fluidSolver.m + 2;
 
-				// If blockSize or canvas size were changed in the user interface, we first need to wait,
+				// If blockSize or canvas size was changed in the user interface, we first need to wait,
 				// until size of fluidSolver is adjusted in changeBlockSize or resizeImage
 				while (! (blockSize == m_oldBlockSize.getValue()
 						&& fsWidth * blockSize >= m_imageWidth
@@ -583,7 +583,7 @@ public class Painter extends PjProject implements ComponentListener {
 					fsWidth = m_fluidSolver.n + 2;
 					fsHeight = m_fluidSolver.m + 2;
 				}
-				// After changing the sized of the fluidSolver, start double-loop from beginning
+				// After changing the size of the fluidSolver, start double-loop from beginning
 				if (fluidSolverChanged)
 				{
 					fluidSolverChanged = false;
@@ -608,7 +608,7 @@ public class Painter extends PjProject implements ComponentListener {
 			fsWidth = m_fluidSolver.n + 2;
 			fsHeight = m_fluidSolver.m + 2;
 
-			// If blockSize or canvas size were changed in the user interface, we first need to wait,
+			// If blockSize or canvas size was changed in the user interface, we first need to wait,
 			// until size of fluidSolver is adjusted in changeBlockSize or resizeImage
 			while (! (blockSize == m_oldBlockSize.getValue()
 					&& fsWidth * blockSize >= m_imageWidth
@@ -1190,8 +1190,17 @@ public class Painter extends PjProject implements ComponentListener {
 		
 		// Save this state of the mouse input density
 		for (int x=0; x<m_numBlocksX; ++x)
+		{
 			for (int y=0; y<m_numBlocksY; ++y)
-				m_oldInputDensity.setEntry(Id(x, y), m_fluidSolver.dOld[Id(x, y)]);
+			{
+				if (whichColor == 1)
+					m_oldInputDensity.setEntry(Id(x, y), m_fluidSolver.dOld[Id(x, y)]);
+				else if (whichColor == 2)
+					m_oldInputDensity.setEntry(Id(x, y), m_fluidSolver.d2Old[Id(x, y)]);
+				else if (whichColor == 3)
+					m_oldInputDensity.setEntry(Id(x, y), m_fluidSolver.d3Old[Id(x, y)]);
+			}
+		}
     }
     
     /**
@@ -1228,14 +1237,19 @@ public class Painter extends PjProject implements ComponentListener {
 				lowerDbound[Id(x, y)] /= (m_blockSize.getValue() * m_blockSize.getValue());
 
 				// Put maximum of input force that is already there, that was there last frame
-				// and new forcecone into fluidSolver
-				temp = m_fluidSolver.dOld[Id(x,y)];
+				// and new density cone into fluidSolver
 				if(whichColor == 1) {
-					m_fluidSolver.dOld[Id(x, y)] = Math.max(lowerDbound[Id(x, y)], m_fluidSolver.dOld[Id(x, y)]);
+					// m_fluidSolver.dOld[Id(x, y)] = Math.max(lowerDbound[Id(x, y)], m_fluidSolver.dOld[Id(x, y)]);
+					temp = m_fluidSolver.dOld[Id(x,y)];
+					m_fluidSolver.dOld[Id(x, y)] = (float) Math.max(temp, Math.max(0.0, Math.max(lowerDbound[Id(x, y)], temp) - (float) m_oldInputDensity.getEntry(Id(x, y)))); 
 				} else if(whichColor == 2) {
-					m_fluidSolver.d2Old[Id(x, y)] = Math.max(lowerDbound[Id(x, y)], m_fluidSolver.d2Old[Id(x, y)]);
+					// m_fluidSolver.d2Old[Id(x, y)] = Math.max(lowerDbound[Id(x, y)], m_fluidSolver.d2Old[Id(x, y)]);
+					temp = m_fluidSolver.d2Old[Id(x,y)];
+					m_fluidSolver.d2Old[Id(x, y)] = (float) Math.max(temp, Math.max(0.0, Math.max(lowerDbound[Id(x, y)], temp) - (float) m_oldInputDensity.getEntry(Id(x, y)))); 
 				} else if(whichColor == 3) {
-					m_fluidSolver.d3Old[Id(x, y)] = Math.max(lowerDbound[Id(x, y)], m_fluidSolver.d3Old[Id(x, y)]);
+					// m_fluidSolver.d3Old[Id(x, y)] = Math.max(lowerDbound[Id(x, y)], m_fluidSolver.d3Old[Id(x, y)]);
+					temp = m_fluidSolver.d3Old[Id(x,y)];
+					m_fluidSolver.d3Old[Id(x, y)] = (float) Math.max(temp, Math.max(0.0, Math.max(lowerDbound[Id(x, y)], temp) - (float) m_oldInputDensity.getEntry(Id(x, y)))); 
 				}
 			}
 		}
