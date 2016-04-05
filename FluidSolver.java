@@ -384,7 +384,7 @@ public class FluidSolver implements Cloneable
 	            for (int j = 1; j <= m; j++)
 	            {
 	                //v[I(i, j)] = v[I(i, j)] + dt * (heat * (d[I(i, j)]) - weight * (d[I(i, j)] - Tamb));
-	            	if(index <= 255)
+	            	if(d[index]<= 255)
 	        		{
 	            		// v = v + dt * Auftrieb - dt * Gewicht;
 	            		v[index] = v[index] - factor * dt * ( Tamb/255 * weightSmoke + (1-Tamb/255) * weightAir) + factor * dt * (d[index]/255 * weightSmoke + (1-d[index]/255) * weightAir);
@@ -393,8 +393,8 @@ public class FluidSolver implements Cloneable
 	        		}
 	            	index += n+2;
 	            }
+	            index += shift;
 	        }
-	        index += shift;
         }
     }
     
