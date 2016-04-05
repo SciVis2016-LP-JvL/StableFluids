@@ -166,7 +166,9 @@ public class Painter extends PjProject implements ComponentListener {
 	public void buttonImportImage()
 	{
 		PsImage bild;
-		bild = new PsImage("mysource/StableFluids/test.png");
+		float factor = 0.00392156863f;
+		float alpha;
+		bild = new PsImage("mysource/StableFluids/test.jpg");
 		// bild = new PsImage("myProjects/StableFluids/test.png");
 		//bild.setSize(m_numBlocksX, m_numBlocksY);
 		int[] pixelBild;
@@ -180,10 +182,26 @@ public class Painter extends PjProject implements ComponentListener {
 		
 		for(int i=0;i<m_numBlocksX; i++) {
 			for(int j=0;j<m_numBlocksY; j++) {
-				Color farbe = new Color( pixelBild[ i + bild.getWidth() * (j) ] );
-				red[Id(i,j)] = farbe.getRed();
-				green[Id(i,j)] = farbe.getGreen();
-				blue[Id(i,j)] = farbe.getBlue();
+				Color farbe = new Color( pixelBild[ i + bild.getWidth() * (j) ], false );
+				//alpha = Math.round( farbe.getAlpha() ) / 255;
+				alpha = 1;
+				/**
+				red[Id(i,j)] = Math.round( (255 - farbe.getRed())*factor / alpha );
+				green[Id(i,j)] = Math.round( (255 - farbe.getGreen())*factor / alpha );
+				blue[Id(i,j)] = Math.round( (255 - farbe.getBlue())*factor/ alpha );
+				*/
+				
+				
+				red[Id(i,j)] = 255 - farbe.getRed();
+				green[Id(i,j)] = 255 - farbe.getGreen();
+				blue[Id(i,j)] = 255 - farbe.getBlue();
+				
+				
+				/**
+				red[Id(i,j)] = 255;
+				green[Id(i,j)] = 200;
+				blue[Id(i,j)] = 0;
+				*/
 			}
 		}
 	
@@ -216,7 +234,8 @@ public class Painter extends PjProject implements ComponentListener {
 		m_forceConst.setBounds(0.0, 0.6, 0.01, 0.1);
 		m_forceConst.setValue(0.3);
 		m_buoyancy.setBounds(0.0, 1.0, 0.01, 0.1);
-		m_buoyancy.setValue(0.1);
+		//m_buoyancy.setValue(0.1);
+		m_buoyancy.setValue(0.0);
 		m_diffusion.setBounds(0.0, 1.0, 0.01, 0.1);
 		m_diffusion.setValue(0.0);
 		m_viscosity.setBounds(0.0, 1.0, 0.01, 0.1);
@@ -827,9 +846,9 @@ public class Painter extends PjProject implements ComponentListener {
 						blue = (int)Math.round((1.0-m_density3.getEntry(I(x,y)))*255);
 					}
 					int[] check = new int[3];
-					check[0] = 255 - red;
-					check[1] = 255 - green;
-					check[2] = 255 - blue;
+					check[0] = red;
+					check[1] = green;
+					check[2] = blue;
 					m_pix.setEntry(I(x,y), PdColor.getDimmedColor( PdColor.getColor(255, check), (double) 1.0f)  );
 					//if(x == 1 && y ==1)
 					//PsDebug.message("Rot:" + String.valueOf(check[0]) + "Grün" + String.valueOf(check[1]) + "Blau" + String.valueOf(check[2]) );

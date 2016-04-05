@@ -278,6 +278,18 @@ public class FluidSolver implements Cloneable
         		d3Old[index] = 0;
             }
     	}
+    	int r = 255;
+    	int g = 100;
+    	int b = 255;
+    	for (int index = 0; index <  size; index++)
+        {
+    		d[index] = ((float)red[index]) / 255;
+    		d2[index] =  ((float)green[index]) / 255;
+    		d3[index] =  ((float)blue[index]) / 255;
+    		dOld[index] = 0;
+    		d2Old[index] = 0;
+    		d3Old[index] = 0;
+        }
     }
        
 
