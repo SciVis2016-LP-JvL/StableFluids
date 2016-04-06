@@ -36,7 +36,7 @@ import jvx.curve.PgBezierCurve;
  */
 @SuppressWarnings("serial")
 public class Painter extends PjProject implements ComponentListener {
-	boolean colorON = true;
+	boolean colorON = false;
 	boolean isFrozen = false;
 	int whichColor = 1;
 	// Display of main window
@@ -234,8 +234,8 @@ public class Painter extends PjProject implements ComponentListener {
 		m_forceConst.setBounds(0.0, 0.6, 0.01, 0.1);
 		m_forceConst.setValue(0.3);
 		m_buoyancy.setBounds(0.0, 1.0, 0.01, 0.1);
-		//m_buoyancy.setValue(0.1);
-		m_buoyancy.setValue(0.0);
+		m_buoyancy.setValue(0.1);
+		//m_buoyancy.setValue(0.0);
 		m_diffusion.setBounds(0.0, 1.0, 0.01, 0.1);
 		m_diffusion.setValue(0.0);
 		m_viscosity.setBounds(0.0, 1.0, 0.01, 0.1);

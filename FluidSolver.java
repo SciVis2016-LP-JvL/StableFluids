@@ -313,7 +313,7 @@ public class FluidSolver implements Cloneable
 
         //add buoyancy force (Auftriebskraft)
         buoyancy();
-
+        
         //project();
         
     	diffuse();
@@ -326,6 +326,7 @@ public class FluidSolver implements Cloneable
         // clear all input velocities for next frame
         for (int i = 0; i < size; i++){ uOld[i] = 0; vOld[i] = 0; }
     }
+
     
     /**
      * Hot smoke goes up, heavy smoke goes down.
@@ -497,6 +498,12 @@ public class FluidSolver implements Cloneable
     			y = j - vOld[index] * dt * m;
     			
     			//interpolate the corresponding velocity vector at the position P(x,-\delta t)
+    			//implement reflections at the boundary
+    			if (x > n + 0.5) { x = n - (x-n); }
+				if (x < 0.5) { x = -x; }
+				if (y > m + 0.5 ) { y = m - (y-m); }
+				if (y < 0.5) { y = -y ; x = x*1.5f;}
+    			
     			//catch boundary overshooting
     			if (x > n + 0.5) x = n + 0.5f;
                 if (x < 0.5)     x = 0.5f;
@@ -715,6 +722,12 @@ public class FluidSolver implements Cloneable
     			y = j - v[index] * dt * m;
     			
     			//interpolate the corresponding velocity vector at the position P(x,-\delta t)
+    			//implement reflection at the boundary
+    			if (x > n + 0.5) { x = n - (x-n); }
+				if (x < 0.5) { x = -x; }
+				if (y > m + 0.5 ) { y = m - (y-m); }
+				if (y < 0.5) { y = -y ; x = x*1.5f;}
+    			
     			//catch boundary overshooting
     			if (x > n + 0.5) x = n + 0.5f;
                 if (x < 0.5)     x = 0.5f;
@@ -749,6 +762,12 @@ public class FluidSolver implements Cloneable
         			y = j - v[index] * dt * m;
         			
         			//interpolate the corresponding velocity vector at the position P(x,-\delta t)
+        			//implement reflection at the boundary
+        			if (x > n + 0.5) { x = n - (x-n); }
+    				if (x < 0.5) { x = -x; }
+    				if (y > m + 0.5 ) { y = m - (y-m); }
+    				if (y < 0.5) { y = -y ; x = x*1.5f;}
+    				
         			//catch boundary overshooting
         			if (x > n + 0.5) x = n + 0.5f;
                     if (x < 0.5)     x = 0.5f;
@@ -781,6 +800,12 @@ public class FluidSolver implements Cloneable
         			y = j - v[index] * dt * m;
         			
         			//interpolate the corresponding velocity vector at the position P(x,-\delta t)
+        			//implement reflection at the boundary
+        			if (x > n + 0.5) { x = n - (x-n); }
+    				if (x < 0.5) { x = -x; }
+    				if (y > m + 0.5 ) { y = m - (y-m); }
+    				if (y < 0.5) { y = -y ; x = x*1.5f;}
+    				
         			//catch boundary overshooting
         			if (x > n + 0.5) x = n + 0.5f;
                     if (x < 0.5)     x = 0.5f;
