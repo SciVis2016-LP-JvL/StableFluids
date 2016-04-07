@@ -81,12 +81,10 @@ public class FluidSolver implements Cloneable
         v    = new float[size];
         vOld = new float[size];
         
-        if(colorON) {
-        	d2    = new float[size];
-            d2Old = new float[size];
-            d3    = new float[size];
-            d3Old = new float[size];
-        }
+    	d2    = new float[size];
+        d2Old = new float[size];
+        d3    = new float[size];
+        d3Old = new float[size];
         
         curl = new float[size];
         tmp = new float[size];
@@ -502,7 +500,7 @@ public class FluidSolver implements Cloneable
     			if (x > n + 0.5) { x = n - (x-n); }
 				if (x < 0.5) { x = -x; }
 				if (y > m + 0.5 ) { y = m - (y-m); }
-				if (y < 0.5) { y = -y ; x = x*1.5f;}
+				if (y < 0.5 ) { y = -y ; x = x*1.5f;}
     			
     			//catch boundary overshooting
     			if (x > n + 0.5) x = n + 0.5f;
@@ -726,7 +724,7 @@ public class FluidSolver implements Cloneable
     			if (x > n + 0.5) { x = n - (x-n); }
 				if (x < 0.5) { x = -x; }
 				if (y > m + 0.5 ) { y = m - (y-m); }
-				if (y < 0.5) { y = -y ; x = x*1.5f;}
+				if (y < 0.5 ) { y = -y ; x = x*1.5f;}
     			
     			//catch boundary overshooting
     			if (x > n + 0.5) x = n + 0.5f;
