@@ -1,0 +1,383 @@
+%_______________________________________________________________________________
+%class
+%_______________________________________________________________________________
+%\documentclass[a4paper,11pt,onecolumn,final,german,openbib]{scrbook}
+\documentclass[a4paper,10pt,oneside,final,german,openbib,pdftex,titlepage]{scrbook}
+%_______________________________________________________________________________
+% page borders
+%_______________________________________________________________________________
+\addtolength{\headheight}{2cm}
+%\addtolength{\topmargin}{2cm}
+\setlength{\oddsidemargin}{1.0cm}
+\setlength{\evensidemargin}{0.5cm}
+\setlength{\textwidth}{14.3cm}
+\setlength{\parindent}{0mm}
+
+%_______________________________________________________________________________
+% packages
+%_______________________________________________________________________________
+\usepackage{german}
+\usepackage{amsmath, amssymb}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{enumerate}
+\usepackage{multirow}
+\usepackage{subfigure}
+\usepackage{dsfont}
+\usepackage{slashed}
+\usepackage{textcomp}
+\usepackage{url}
+\usepackage{mathtools}
+\usepackage{chngcntr}
+\usepackage{MnSymbol}
+\usepackage{wasysym}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{graphicx}
+\usepackage{MnSymbol}
+\usepackage{hyperref}
+\usepackage{setspace}
+\usepackage{framed} 
+\usepackage{xcolor} 
+\usepackage{blindtext}
+\usepackage{float}
+%_______________________________________________________________________________
+% bold fonts for headings
+%_______________________________________________________________________________
+\font\afont=cmssbx10 scaled \magstep5     % for the title
+\font\bfont=cmssbx10 scaled \magstep4     % for chapter headings
+\font\cfont=cmssbx10 scaled \magstep3
+\font\dfont=cmssbx10 scaled \magstep2     % for section headings and author name
+\font\efont=cmssbx10 scaled \magstephalf
+
+%_______________________________________________________________________________
+% index depth
+%_______________________________________________________________________________
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}
+
+%_______________________________________________________________________________
+% new commands
+%_______________________________________________________________________________
+\newcommand{\demi}{\frac{1}{2}}
+
+%_______________________________________________________________________________
+% renewed commands
+%_______________________________________________________________________________
+% \renewcommand{\topfraction}{1.}       % this is important for figure placement
+% \renewcommand{\bottomfraction}{1.}
+\makeatletter
+\renewcommand\paragraph{\@startsection{paragraph}{4}{\z@}%
+  {-3.25ex\@plus -1ex \@minus -.2ex}%
+  {1.5ex \@plus .2ex}%
+  {\normalfont\normalsize\bfseries}
+}
+\makeatother
+
+
+
+%_______________________________________________________________________________
+% special words, hyphenation
+%_______________________________________________________________________________
+\hyphenation{Ba-che-lor-ar-beit}
+
+\pagestyle{empty}
+\pagestyle{headings}
+%for changing the style on a specific page use \thispagestyle{e.g., empty}
+
+
+\renewcommand*{\chapterheadstartvskip}{\vspace*{-25pt}}	
+%\renewcommand*{\chapterheadstartvskip}{\vspace*{.0\baselineskip}}%
+% Abstand einstellen
+
+
+%_______________________________________________________________________________
+%_______________________________________________________________________________
+
+\usepackage{scrpage2} 
+%\deftripstyle{default}{}{\leftmark\ -- \rightmark}{}{}\thepage{}{} 
+%\pagestyle{default} 
+\automark[section]{section}
+
+
+
+\begin{document}
+
+\colorlet{shadecolor}{gray!25} 
+
+\pagenumbering{roman}
+\linespread{0.9}
+
+%_______________________________________________________________________________
+\begin{titlepage}
+
+  \vspace*{6mm}
+  \begin{center}
+     {\afont Stable Fluids}
+     \\[3.5cm]
+     {\large by}
+     \\[3.5cm]
+     {\dfont Lukas Polthier, Johannes von Lindheim}\\
+     {based on Stam, 1999}
+     \\[2cm]
+     {\large Scientific Visualization, winter 15/16\/\\
+}
+   \end{center}
+   \vfill
+   Supervisor: Prof. Dr. Konrad Polthier\\	
+   %Zweitgutachter: n.n.  \\
+   \vfill
+   
+   
+\end{titlepage}
+
+\newpage
+\mbox{}
+\thispagestyle{empty}
+
+\newpage
+\thispagestyle{empty}
+Ich versichere, dass ich die Arbeit selbstst\"andig verfasst und keine 
+anderen als die angegebenen Quellen und Hilfsmittel benutzt sowie 
+Zitate kenntlich gemacht habe. Diese Arbeit hat in gleicher oder ähnlicher Form noch keiner Prüfungsbehörde vorgelegen.
+\\
+\\[3.5cm] 
+Berlin, den \today
+\vfill
+\noindent 
+Lukas Polthier\\
+Johannes von Lindheim\\
+Institut f\"ur Mathematik\\
+Arnimallee 6\\
+Freie Universit\"at Berlin\\
+14195 Berlin\\
+{\tt info@lukas-polthier.de\\
+\tt jovoli@gmx.de}
+
+%_______________________________________________________________________________
+\thispagestyle{empty}
+\renewcommand\contentsname{Table of Contents}
+\thispagestyle{empty}
+\renewcommand\figurename{Figure}
+\renewcommand\tablename{Tabelle}
+\thispagestyle{empty}
+\tableofcontents
+\thispagestyle{empty}
+\clearpage
+\thispagestyle{empty}
+
+\mainmatter
+\sloppy
+
+\newtheoremstyle{test333}% name
+    {\topsep}             % Space above
+    {5pt}             % Space below
+    {\itshape}         % Body font
+    {\parindent}       % Indent amount (empty = no indent, \parindent = para indent)
+    {\bfseries}        % Thm head font
+    {:}                % Punctuation after thm head
+    {.5em}             % Space after thm head: " " = normal interword space; \newline = linebreak
+    {}                 % Thm head spec (can be left empty, meaning `normal')
+
+\theoremstyle{test333}
+\newtheorem{test333}{TEST}
+\newtheorem{thm}{Theorem}
+
+
+\theoremstyle{theorem}% default
+\newtheorem{Lem}[thm]{Lemma}
+\newtheorem{Cor}[thm]{Corollary}
+\newtheorem{Def}[thm]{Definition}
+
+\theoremstyle{definition}
+\newtheorem{Rem}[thm]{Remark}
+\newtheorem{State}[subsection]{\#}
+
+
+
+\makeatletter
+\g@addto@macro{\thm@space@setup}{\thm@headpunct{:}}
+\makeatother
+
+%_______________________________________________________________________________
+\setcounter{chapter}{-1}
+\chapter{Abstract}
+\chapter{Introduction}
+\chapter{Mathematical Modelling}
+\section{Basic Equations}
+Let $\Omega \subset \mathbb{R}^2$ be the domain of interest, e.g. $\Omega = (0,1)^2$. Now let $u \in C^2(\mathbb{R} \times \Omega,\mathbb{R}^2)$ denote the velocity vector field and $p\in C^2(\mathbb{R} \times \Omega,\mathbb{R})$ denote the pressure field. Both fields depend on the time $t\in \mathbb{R}$ and the position in space $x\in \Omega$. The evolution of these fields is given by the Navier-Stokes equations
+\begin{align}
+	&\text{div } u = 0 \label{NavierStokes1}
+	\\
+	&\frac{\partial u}{\partial t} = - (u \cdot \nabla)u - \frac{1}{\rho}\nabla p + \nu \Delta u + f, \label{NavierStokes2}
+\end{align}
+where $\nu, \rho$ are constants that determine the viscosity of the fluid and the density respectively.
+In $\mathbb{R}^2$, equation \ref{NavierStokes2} can be written out as
+\begin{align*}
+	\left( \begin{matrix}
+	\frac{\partial u_1}{\partial t} \\ \frac{\partial u_2}{\partial t}
+	\end{matrix} \right) = - \left(\begin{matrix}
+	u_1 \frac{\partial u_1}{\partial x_1} + u_2 \frac{\partial u_1}{\partial x_2} \\ u_1 \frac{\partial u_2}{\partial x_1} + u_2 \frac{\partial u_2}{\partial x_2}
+	\end{matrix} \right)  - \frac{1}{\rho} \left( \begin{matrix}
+	\frac{\partial p}{\partial x_1} \\ \frac{\partial p}{\partial x_2}
+\end{matrix}\right)	 + \nu \left( \begin{matrix}
+	\frac{\partial^2 u_1}{\partial x_1^2} + \frac{\partial^2 u_1}{\partial x_2^2} \\ \frac{\partial^2 u_2}{\partial x_1^2} + \frac{\partial^2 u_2}{\partial x_2^2}
+	\end{matrix} \right) + \left( \begin{matrix}
+	f_1 \\ f_2
+	\end{matrix} \right).
+\end{align*}
+The pressure and velocity field that appears in the Navier-Stokes equations, are related. By combining equation \ref{NavierStokes1} and \ref{NavierStokes2} we obtain a singe equation as follows.\\
+
+By the Helmholtz-Hodge decomposition theorem we have that any vector field $w = u + \nabla q + \text{res}$ uniquely decomposes into a divergence-free part $u$, a gradient field $\nabla q$ and a residual term depending on the genus of the surface. In our case, the residual term vanishes.\\
+
+Let $P : C^2(\Omega,\mathbb{R}^2) \rightarrow \{f\in C^2(\Omega, \mathbb{R}^2), \text{div} f = 0\}$ denote the projection operator onto the divergence free part. Obviously, the operator $P$ is implicitly defined by 
+\begin{align}
+	\text{div } w = \Delta q. \label{Poisson-1}
+\end{align}
+With Neumann boundary condition ($\frac{\partial q}{\partial n} = 0$ on $\partial \Omega$, $n$ is the outward normal), equation \ref{Poisson-1} is a Poisson equation. Let $q$ denote the solution, then $P$ is defined by $Pw = w - \nabla q$. 
+If we now apply $P$ to both sides of \ref{NavierStokes2}, the Navier-Stokes equation compress into our fundamental equation \ref{FundamentalEquation}.
+\begin{align}
+	\frac{\partial u}{\partial t} = P \left(- (u \cdot \nabla)u - \frac{1}{\rho}\nabla p + \nu \Delta u + f \right) \label{FundamentalEquation}
+\end{align}
+\section{Method of Solution and Discretization}
+Equation \ref{FundamentalEquation} consists of four parts, the \textbf{add force} term $f$, the \textbf{advection} term $(u\cdot \nabla )u$, the \textbf{diffusion} term $\nu \Delta u$ and the \textbf{projection} operator $P$. The equation is solved from an initial state $u^0 = u(0,x)$. Both time and space are discretized with time step $\Delta T$ and some equidistant grid points of distance $h= \frac{1}{n}$.
+Each of the four terms in equation \ref{FundamentalEquation} is applied successively to the initial state $u^0 \in C^2(\Omega,\mathbb{R})$. The general procedure is
+\begin{align*}
+	u^0 ~\overset{\text{add force}}{\longrightarrow}~ u^1 ~ \overset{\text{advect}}{\longrightarrow}~ u^2 ~\overset{\text{diffuse}}{\longrightarrow} ~u^3~ \overset{\text{project}}{\longrightarrow} ~u^4
+\end{align*}
+The solution at time $t+\Delta t$ is then given by $u(x,t+\Delta t) = u^4(x)$.
+\subsection{Add force}
+The add force step incorporates additional force by the user, or buoyancy force due to uplift of lighter gases and downlift of heavier gases.
+\begin{align*}
+	u^1(x) = u^0(x) + \Delta t~ f(t,x)
+\end{align*}
+The buoyancy force is computed using Archimedes' principle. In a simplified approach, heaviness is equal to the density of the smoke. After computing the average temperature of the fluid, the upward force is determined for each pixel separately depending on the difference with respect to the average temperature.
+\subsection{Advect}
+The advect step accounts for the advection or convection of the fluid itself, i.e. this step lets the fluid \glqq flow\grqq ~a little.
+The advection step is fundamental to this particular fluid solver. Thats why the solver is called \glqq Stable\grqq Fluids, as this solver will never blow up, independent of the size of the time step $\Delta t$. 
+
+The method can be understood intuitively: All particles in the fluid are moved by the velocity of the fluid itself. To obtain the velocity at the point $x$ at time $t + \Delta t$ we backtrace the the point $x$ through the velocity field at time $t$. This defines a path $p: (-\delta,\delta) \times \Omega \rightarrow \Omega$ corresponding to a streamline of the fluid. The velocity $u^2(x)$ is the set to be the velocity of $u^1(p(-\Delta t,x))$ at the previous time step:
+\begin{align*}
+	u^2(x) = u^1(p(-\Delta t,x)).
+\end{align*}
+[tba] include a figure that illustrates the approach. [tba]
+[tba] include a comparison to other solvers of the advect step. [tba]
+\subsection{Diffuse}
+This step solves the diffusion of the fluid itself, i.e. the \glqq friction\grqq ~between parts of the fluid with different velocity. This effect is equivalent to the diffusion equation 
+\begin{align}
+	\frac{\partial u^2}{\partial t} = \nu \Delta u^2. \label{Diffusion}
+\end{align}
+The most straightforward way would be to discretize the Laplacian and solve the resulting sparse linear system. However, this approach is unstable when the viscosity is large. For our implicit approach we proceed as follows, by approximating $\frac{\partial u}{\partial t}$ with the backward difference quotient:
+\begin{align}
+	\frac{u(t+\Delta t,x) - u(x,t)}{\Delta t} = \nu \Delta u(t-\Delta t,x) \nonumber
+	\shortintertext{finally, this gives}
+	(I - \nu \Delta t) u^3(x) = u^2(x). \label{Diffusion2}
+\end{align}
+We now discretize \ref{Diffusion2} using the finite difference method and obtain
+\begin{align*}
+	\left(\begin{matrix}
+		1 - \nu \Delta t & & & \\\
+		
+	\end{matrix}\right) u^3 = u^2
+\end{align*}
+\subsection{Project}
+\section{Moving substances through the Fluid}
+\section{Vorticity Confinement}
+
+\
+\begin{align*}
+	\left(\begin{matrix}
+	g & f & f\\
+	g & f & f\\
+	g & f & f
+	\end{matrix}\right)
+\end{align*}
+
+\chapter{Implementation}
+\chapter{Results}
+\chapter{Extensions}
+\chapter{Outlook}
+
+
+%_______________________________________________________________________________
+\begin{appendix}
+
+
+%_______________________________________________________________________________
+%\chapter{Reference list}
+\renewcommand{\bibname}{\bfont Reference List} 
+\bibliographystyle{h-physrev3}
+\begin{thebibliography}{99}
+%\cite{thepnews}
+
+\bibitem{Alt}
+H. Alt: ``Lineare Funktionalanalysis'', fifth edition, Springer, 2006.
+
+\bibitem{Apel}
+T. Apel: ``Variationsrechnung'', script, Institut für Mathematik und Bauinformatik
+Fakultät für Bauingenieurwesen und Umweltwissenschaften, Universität der Bundeswehr München, 2013.
+
+\bibitem{Caratheodory}
+C. Carathéodory: ``Gesammelte Mathematische Schriften'', second volume, C.H. Beck'sche Verlagsbuchhandlung München, 1955.
+
+\bibitem{Coleman}
+R. Coleman: ``A Detailed Dnalysis of the Brachistochrone Problem'', $<$hal-00446767v2$>$, 2012. \url{https://hal.archives-ouvertes.fr/hal-00446767v2}
+
+\bibitem{CoddingtonLevinson}
+E. A. Coddington, N. Levinson: ``Theory of Ordinary Differential Equations'', first edition, McGraw-Hill, 1955.
+
+\bibitem{Euler}
+L. Euler: ``Methodus inveniendi lineas curvas maximi minimive proprietate gaudentes sive solutio problematis isoperimetrici latissimio sensu accepti'', Lausanne, Geneva, 1774.
+
+
+\bibitem{Forst}
+W. Forst, D. Hoffmann: ``Gewöhnliche Differentialgleichungen: Theorie und Praxis'', second edition, Springer Spektrum, 2013.
+
+\bibitem{Forster2}
+O. Forster: ``Analysis 2'', eighth edition, Vieweg+Teubner, 2008.
+
+\bibitem{Forster3}
+O. Forster: ``Analysis 3'', seventh edition, Springer Spektrum, 2012.
+
+\bibitem{Funk}
+P. Funk: ``Variationsrechnung und ihre Anwendung in der Technik'', second edition, Springer, 1970.
+
+\bibitem{Gelfand}
+I. M. Gelfand, S. V. Fomin: ``Calculus of Variations'', Rev. Engl. ed. / Transl. and ed. by Richard A. Silverman, Englewood Cliffs, N.J. : Prentice-Hall, 1963.
+
+\bibitem{KelleyPeterson}
+W. G. Kelley, A. C. Peterson: `` The Theory of Differential Equations'', second edition, Springer, 2010.
+
+\bibitem{Kornhuber}
+R. Kornhuber, C. Schütte: ``Computerorientierte Mathematik'', script, Freie Universität Berlin, 2011.
+
+\bibitem{Marrero}
+P. V. Negrón-Marrero, B. L. Santiago-Figueroa: ``The Nonlinear Brachistochrone Problem with Friction'', University of Puerto Rico, 2005.
+\url{http://mate.uprh.edu/~urmaa/reports/brach.pdf}
+
+\bibitem{Oberle}
+H. J. Oberle: ``Variationsrechnung u. Optimale Steuerung'',  \url{http://www.math.uni-hamburg.de/home/oberle/skripte/varopt.html}, 24.09.2015.
+
+\bibitem{Rousseau}
+C. Rousseau, Y. Saint-Aubin: ``Calculus of Variations
+and Applications'', Springer Science+Business Media, LLC 2008. \url{https://math.berkeley.edu/~strain/170.S13/cov.pdf}
+
+\bibitem{Sasane}
+A. Sasane: ``Calculus of Variations and Optimal Control'', University of Virginia, U.S.A, 2004. \url{https://math.berkeley.edu/~strain/170.S13/cov.optimal.control.pdf}
+
+\bibitem{Stoer1}
+J. Stoer: ``Numerische Mathematik 1'', ninth edition, Springer, 2005.
+
+\bibitem{StoerBulirsch2}
+J. Stoer, R. Bulirsch: ``Numerische Mathematik 2'', fifth edition, Springer, 2005.
+
+\bibitem{Walter}
+W. Walter: ``Ordinary Differential Equations'', Transl. by Russel Thompson, Springer 1998.
+
+\end{thebibliography}
+\end{appendix}
+
+\end{document} 
+        
+        
