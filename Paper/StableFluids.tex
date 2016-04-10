@@ -140,12 +140,10 @@
 
 \newpage
 \thispagestyle{empty}
-Ich versichere, dass ich die Arbeit selbstst\"andig verfasst und keine 
-anderen als die angegebenen Quellen und Hilfsmittel benutzt sowie 
-Zitate kenntlich gemacht habe. Diese Arbeit hat in gleicher oder ähnlicher Form noch keiner Prüfungsbehörde vorgelegen.
+We hereby declare that this article is based on our work, unless stated otherwise. No other person’s work has been used without due acknowledgement in this thesis. All references and verbatim extracts have been quoted, and all sources of information have been specifically acknowledged. 
 \\
 \\[3.5cm] 
-Berlin, den \today
+Berlin, \today
 \vfill
 \noindent 
 Lukas Polthier\\
@@ -206,7 +204,18 @@ Freie Universit\"at Berlin\\
 \setcounter{chapter}{-1}
 \chapter{Abstract}
 \chapter{Introduction}
-\chapter{Mathematical Modelling}
+
+The concept of this solver is based on \cite{Stam}. The method of solution has been implemented in this article.
+The program runs in the framework of JavaView \cite{JavaView}.
+
+We added\\
+ ->Colors\\
+ ->Fotoimport\\
+ ->nice user interface\\
+ ->Insertion in the framework of JavaView.
+ 
+\chapter{Mathematical Modelling} \label{Section:Mathematical Modelling}
+
 \section{Basic Equations}
 Let $\Omega \subset \mathbb{R}^2$ be the domain of interest, e.g. $\Omega = (0,1)^2$. Now let $u \in C^2(\mathbb{R} \times \Omega,\mathbb{R}^2)$ denote the velocity vector field and $p\in C^2(\mathbb{R} \times \Omega,\mathbb{R})$ denote the pressure field. Both fields depend on the time $t\in \mathbb{R}$ and the position in space $x\in \Omega$. The evolution of these fields is given by the Navier-Stokes equations
 \begin{align}
@@ -359,23 +368,80 @@ As in equation \ref{Diffuse} we need to solve a sparse linear system.
 
 \section{Moving substances through the Fluid}
 Our solver enables us to compute the ambient fluid. However, we need to visualize the vector field. A substance, that is injected in the fluid and does not interact with it, will be advected by the vector field and diffuse at the same time. Let $d \in C^2(\mathbb{R}^+\times\Omega, \mathbb{R})$ denote the density field of such a substance. The evolution of this scalar field is given by
-\begin{align*}
-	\frac{\partial d}{\partial t} = - u \cdot \nabla a + \kappa \Delta - \alpha  a + S
-\end{align*}
-where $\kappa$ is the diffusion constant, $\alpha$ the dissipation term and $S$ is a source term. The dissipation term, which will be dropped in our modelling, describes the effect that kinetic energy is converted in thermal energy. The diffusion constant determines the effect of diffusion. 
+\begin{align}
+	\frac{\partial d}{\partial t} = - u \cdot \nabla a + \kappa \Delta a - \alpha  a + S \label{Density}
+\end{align}
+where $\kappa$ is the diffusion constant, $\alpha$ the dissipation term and $S$ is a source term. The dissipation term, which will be dropped in our modelling, describes the effect that kinetic energy is converted in thermal energy. The diffusion constant determines the effect of diffusion, i.e. the effect that density \glqq interfuses\grqq ~with nearby density and the overall picture becomes \glqq  softer\grqq .\\
+
+The terms in equation \ref{Density} are quite similar to the terms in our fundamental equation \ref{FundamentalEquation}. Thus the evolution of the density field can be computed analogously to the computation of the velocity field. In particular we need to perform the advect step and the diffuse step, which correspond to the movement of the density along the velocity field and the diffusion of the density itself.
 
 \section{Vorticity Confinement}
+For sufficiently number of grid points, the steps in the previous section \ref{Section:Mathematical Modelling} give the fluid a realistic behaviour, quite similar to the real life experience. In practice, computational power is limited and we have to use a relatively small number of grid points to provide real-time computation. It turns out that small scale details, in particular rotational turbulences are lost due to numerical dissipation.
 
-\
+The key idea of Vorticity Confinement is to add these details artificially in a way that the properties of a fluid are preserved and the effect of numerical dissipation is damped. In a follow-up paper \cite{Stam2}, Stam proposes this idea based on previous work of Steinhoff \cite{Steinhoff}.\\
+
+The vorticity of a 3d vector field $u$ is defined as
 \begin{align*}
-	\left(\begin{matrix}
-	g & f & f\\
-	g & f & f\\
-	g & f & f
-	\end{matrix}\right)
+	\omega = \nabla \times u,
 \end{align*}
+i.e. in our two dimensional case, we have
+\begin{align*}
+	\omega = \left( \begin{matrix}
+	\frac{\partial}{\partial x_1} \\ \frac{\partial}{\partial x_2} \\ \frac{\partial}{\partial x_3}
+	\end{matrix} \right) \times 
+	\left( \begin{matrix}
+	u^1 \\ u^2 \\ 0
+	\end{matrix} \right) = \left( \begin{matrix}
+	 0\\ 0 \\ \frac{\partial}{\partial x_1} u^2 - \frac{\partial}{\partial x_2} u^1 
+	\end{matrix} \right).
+\end{align*}
+We identify $\omega$ with a 1d scalar field on $\Omega$. The vorticity measures the amount of small scale detail of the fluid. The normalized gradient of the absolute vorticity
+\begin{align*}
+	N = \frac{\nabla |\omega |}{|\nabla  |\omega ||}
+\end{align*}
+is a vector field on $\Omega$ that points from regions of low to high vorticity.\\
+Finally the small scale detail is added as follows
+\begin{align}
+	f = \epsilon h (N\times \omega ) = \left( \begin{matrix}
+	N^1\\ N^2 \\0
+	\end{matrix}  \right) \times \left( \begin{matrix} 0\\ 0\\ \omega \end{matrix} \right) = \left( \begin{matrix}
+	N^2 \omega \\ -N^1 \omega \\ 0
+	\end{matrix} \right) \label{VorticityConfinement}
+\end{align}
+Again in equation \ref{VorticityConfinement} we identify 2d vector fields with 3d vector fields that are constant in the with respect to the direction of the $x^3$-axis.
+Here $\epsilon >0$ is a factor that determines the effect of vorticity confinement. The dependence on $h$ gives that small scale detail is added proportional to the grid size, i.e. to the numerical dissipation. Hence the convergence of the solver is preserved.\\
+In fact the construction provides that small scale detail is added, exactly where it is needed.
 
-\chapter{Implementation}
+\begin{figure}[H]
+ \centering
+ \includegraphics[scale=0.30]{Vorticity.png}
+ \caption{The left picture shows the fluid solver without vorticity confinement, whereas the right picture shows the same setting with medium vorticity confinement. Both pictures where computed with the same grid size and initial configuration. One can see clearly how the left picture misses small scale rotational turbulences. The right picture provides a more gaseous behaviour of the fluid.}
+ \label{VorticityOnOff}
+\end{figure}
+
+\section{Dependence on the Parameters}
+The solver is compatible with a wide range of parameters. Thus we can simulate different kinds of fluids, depending on viscosity, buoyancy force, diffusion, etc.
+
+\begin{figure}[H]
+ \centering
+ \includegraphics[scale=0.30]{Viscosity-2.png}
+ \caption{The left picture shows a fluid with high viscosity, e.g. honey or very thick water. The right picture shows a more liquid fluid like thin water or some gas. The left picture preserBoth pictures where created with identical initial condition and vary only in the viscosity constant. In both pictures there is no vorticity confinement to emphasize the effect of viscosity.}
+ \label{ViscosityOnOff}
+\end{figure}
+
+\begin{figure}[H]
+ \centering
+ \includegraphics[scale=0.30]{Diffusion.png}
+ \caption{In the left picture there is no diffusion, whereas in the right picture we can clearly see how diffusion influences the nature of the fluid. There are less details and the picture looks overall smoother. Again both simulations vary only in the effect of diffusion and are computed with the same resolution.}
+ \label{ViscosityOnOff}
+\end{figure}
+
+\section{Colors and Fotoimport}
+There are several ways to represent colors. One of the most common priciples are RGB or CMY color schemes. In the black and white solver there is only one density array which evolves according to the velocity field. To represent colors, we use three separate density fields, each represents cyan, magenta or yellow respectively and evolves according to the velocity field.\\
+We are now able to import picture, which behave like liquid or smoke, i.e. the picture can be manipulated interactively and behaves like the ambient fluid.\\
+One can experiment with different kinds of buoyancy forces, e.g. only specific colors generate an uplift. However 
+
+\chapter{Implementation and Framework}
 \chapter{Results}
 \chapter{Extensions}
 \chapter{Outlook}
@@ -395,66 +461,26 @@ where $\kappa$ is the diffusion constant, $\alpha$ the dissipation term and $S$ 
 \bibitem{Alt}
 H. Alt: ``Lineare Funktionalanalysis'', fifth edition, Springer, 2006.
 
-\bibitem{Apel}
-T. Apel: ``Variationsrechnung'', script, Institut für Mathematik und Bauinformatik
-Fakultät für Bauingenieurwesen und Umweltwissenschaften, Universität der Bundeswehr München, 2013.
+\bibitem{Stam}
+J. Stam: ``Stable Fluids'', Siggraph, 1999.
 
-\bibitem{Caratheodory}
-C. Carathéodory: ``Gesammelte Mathematische Schriften'', second volume, C.H. Beck'sche Verlagsbuchhandlung München, 1955.
+\bibitem{Stam2}
+R. Fedkiw, J. Stam, H. W. Jensen: Visual Simulation of Smoke, Siggraph, 2001.
 
-\bibitem{Coleman}
-R. Coleman: ``A Detailed Dnalysis of the Brachistochrone Problem'', $<$hal-00446767v2$>$, 2012. \url{https://hal.archives-ouvertes.fr/hal-00446767v2}
+\bibitem{JavaView}
+K. Polthier: JavaView, program refer to javaview.de.
 
-\bibitem{CoddingtonLevinson}
-E. A. Coddington, N. Levinson: ``Theory of Ordinary Differential Equations'', first edition, McGraw-Hill, 1955.
-
-\bibitem{Euler}
-L. Euler: ``Methodus inveniendi lineas curvas maximi minimive proprietate gaudentes sive solutio problematis isoperimetrici latissimio sensu accepti'', Lausanne, Geneva, 1774.
-
-
-\bibitem{Forst}
-W. Forst, D. Hoffmann: ``Gewöhnliche Differentialgleichungen: Theorie und Praxis'', second edition, Springer Spektrum, 2013.
-
-\bibitem{Forster2}
-O. Forster: ``Analysis 2'', eighth edition, Vieweg+Teubner, 2008.
-
-\bibitem{Forster3}
-O. Forster: ``Analysis 3'', seventh edition, Springer Spektrum, 2012.
-
-\bibitem{Funk}
-P. Funk: ``Variationsrechnung und ihre Anwendung in der Technik'', second edition, Springer, 1970.
-
-\bibitem{Gelfand}
-I. M. Gelfand, S. V. Fomin: ``Calculus of Variations'', Rev. Engl. ed. / Transl. and ed. by Richard A. Silverman, Englewood Cliffs, N.J. : Prentice-Hall, 1963.
-
-\bibitem{KelleyPeterson}
-W. G. Kelley, A. C. Peterson: `` The Theory of Differential Equations'', second edition, Springer, 2010.
-
-\bibitem{Kornhuber}
-R. Kornhuber, C. Schütte: ``Computerorientierte Mathematik'', script, Freie Universität Berlin, 2011.
-
-\bibitem{Marrero}
-P. V. Negrón-Marrero, B. L. Santiago-Figueroa: ``The Nonlinear Brachistochrone Problem with Friction'', University of Puerto Rico, 2005.
-\url{http://mate.uprh.edu/~urmaa/reports/brach.pdf}
-
-\bibitem{Oberle}
-H. J. Oberle: ``Variationsrechnung u. Optimale Steuerung'',  \url{http://www.math.uni-hamburg.de/home/oberle/skripte/varopt.html}, 24.09.2015.
-
-\bibitem{Rousseau}
-C. Rousseau, Y. Saint-Aubin: ``Calculus of Variations
-and Applications'', Springer Science+Business Media, LLC 2008. \url{https://math.berkeley.edu/~strain/170.S13/cov.pdf}
-
-\bibitem{Sasane}
-A. Sasane: ``Calculus of Variations and Optimal Control'', University of Virginia, U.S.A, 2004. \url{https://math.berkeley.edu/~strain/170.S13/cov.optimal.control.pdf}
+\bibitem{Steinhoff}
+J. Steinhoff, D. Underhill. Modification of the euler equations
+for “vorticity confinement”: Application to the computation
+of interacting vortex rings. Physics of Fluids, 6(8):2738–
+2744, 1994.
 
 \bibitem{Stoer1}
 J. Stoer: ``Numerische Mathematik 1'', ninth edition, Springer, 2005.
 
 \bibitem{StoerBulirsch2}
 J. Stoer, R. Bulirsch: ``Numerische Mathematik 2'', fifth edition, Springer, 2005.
-
-\bibitem{Walter}
-W. Walter: ``Ordinary Differential Equations'', Transl. by Russel Thompson, Springer 1998.
 
 \end{thebibliography}
 \end{appendix}
