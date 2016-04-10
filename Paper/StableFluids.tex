@@ -42,6 +42,8 @@
 \usepackage{xcolor} 
 \usepackage{blindtext}
 \usepackage{float}
+\usepackage{tikz}
+\usetikzlibrary{matrix}
 %_______________________________________________________________________________
 % bold fonts for headings
 %_______________________________________________________________________________
@@ -274,15 +276,94 @@ The most straightforward way would be to discretize the Laplacian and solve the 
 	\shortintertext{finally, this gives}
 	(I - \nu \Delta t) u^3(x) = u^2(x). \label{Diffusion2}
 \end{align}
-We now discretize \ref{Diffusion2} using the finite difference method and obtain
-\begin{align*}
-	\left(\begin{matrix}
-		1 - \nu \Delta t & & & \\\
-		
-	\end{matrix}\right) u^3 = u^2
-\end{align*}
+We now discretize \ref{Diffusion2} using a finite difference method and obtain
+\begin{equation}
+	(\begin{tikzpicture}[baseline=(current bounding box.center)]
+		\matrix (m) [matrix of math nodes,nodes in empty cells,right 	delimiter={]},left delimiter={[} ]{
+		1  &  &   &  & &   \\
+	  	& & & & &  \\
+	 	& & & & &    \\
+	   	& & & & &   \\
+	  	& & & & &  \\
+	 	& & &  &  & 1\\
+		} ;
+		\draw[loosely dotted] (m-1-1)-- (m-6-6);
+	\end{tikzpicture} - \begin{tikzpicture}[baseline=(current bounding box.center)]
+	\matrix (m) [matrix of math nodes,nodes in empty cells,right delimiter={]},left delimiter={[} ] {
+		-4  & 1 &   & 1 & &   \\
+		 1 & & & & &  \\
+		 & & & & & 1   \\
+		  1 & & & & &   \\
+		  & & & & & 1 \\
+		 & & 1 &  & 1 & -4\\
+		} ;
+		\draw[loosely dotted] (m-1-1)-- (m-6-6);
+		\draw[loosely dotted] (m-1-2)-- (m-5-6);
+		\draw[loosely dotted] (m-2-1)-- (m-6-5);
+		\draw[loosely dotted] (m-4-1)-- (m-6-3);
+		\draw[loosely dotted] (m-1-4)-- (m-3-6);
+	\end{tikzpicture} ~\nu\frac{\Delta t}{h^2} )u^3 = u^2.\label{Diffuse}
+\end{equation}
+The resulting square matrix has $n*m$ rows and columns, where $n, m$ denote the number of pixels in the x- and y-axis respectively. Solving such a system can be done efficiently by iterative schemes, e.g. Gauß-Seidel.
+
 \subsection{Project}
+The last step makes the vectorfield mass preserving, i.e. divergence free. We already discussed in the derivation of our fundamental equation that the projection is obtained by solving
+\begin{align*}
+	\text{div }u = \Delta q.
+\end{align*}
+When discretized, this equation becomes
+\begin{equation}
+\frac{1}{2h}
+	\begin{tikzpicture}[baseline=(current bounding box.center)]
+		\matrix (m) [matrix of math nodes,nodes in empty cells,right 	delimiter={]},left delimiter={[} ]{
+		0 & 1 & & &   &   \\
+	  	1 &   & & &   &   \\
+	 	  &   & & &   &   \\
+	   	  &   & & &   &   \\
+	  	  &   & & &   & 1 \\
+	 	  &   & & & 1 & 0 \\
+		} ;
+		\draw[loosely dotted] (m-1-1)-- (m-6-6);
+		\draw[loosely dotted] (m-1-2)-- (m-5-6);
+		\draw[loosely dotted] (m-2-1)-- (m-6-5);
+	\end{tikzpicture} u^3_1 + \frac{1}{2h} \begin{tikzpicture}[baseline=(current bounding box.center)]
+		\matrix (m) [matrix of math nodes,nodes in empty cells,right 	delimiter={]},left delimiter={[} ]{
+		0  &  &   & 1 & &   \\
+	  	& & & & &  \\
+	 	& & & & & 1  \\
+	   	1& & & & &   \\
+	  	& & & & &  \\
+	 	& & 1&  &  & 0\\
+		} ;
+		\draw[loosely dotted] (m-1-4)-- (m-3-6);
+		\draw[loosely dotted] (m-4-1)-- (m-6-3);
+		\draw[loosely dotted] (m-1-1)-- (m-6-6);
+	\end{tikzpicture} u^3_2 = 
+	\begin{tikzpicture}[baseline=(current bounding box.center)]
+	\matrix (m) [matrix of math nodes,nodes in empty cells,right delimiter={]},left delimiter={[} ] {
+		-4  & 1 &   & 1 & &   \\
+		 1 & & & & &  \\
+		 & & & & & 1   \\
+		  1 & & & & &   \\
+		  & & & & & 1 \\
+		 & & 1 &  & 1 & -4\\
+		} ;
+		\draw[loosely dotted] (m-1-1)-- (m-6-6);
+		\draw[loosely dotted] (m-1-2)-- (m-5-6);
+		\draw[loosely dotted] (m-2-1)-- (m-6-5);
+		\draw[loosely dotted] (m-4-1)-- (m-6-3);
+		\draw[loosely dotted] (m-1-4)-- (m-3-6);
+	\end{tikzpicture} ~q.\label{Project}
+\end{equation}
+As in equation \ref{Diffuse} we need to solve a sparse linear system.
+
 \section{Moving substances through the Fluid}
+Our solver enables us to compute the ambient fluid. However, we need to visualize the vector field. A substance, that is injected in the fluid and does not interact with it, will be advected by the vector field and diffuse at the same time. Let $d \in C^2(\mathbb{R}^+\times\Omega, \mathbb{R})$ denote the density field of such a substance. The evolution of this scalar field is given by
+\begin{align*}
+	\frac{\partial d}{\partial t} = - u \cdot \nabla a + \kappa \Delta - \alpha  a + S
+\end{align*}
+where $\kappa$ is the diffusion constant, $\alpha$ the dissipation term and $S$ is a source term. The dissipation term, which will be dropped in our modelling, describes the effect that kinetic energy is converted in thermal energy. The diffusion constant determines the effect of diffusion. 
+
 \section{Vorticity Confinement}
 
 \
