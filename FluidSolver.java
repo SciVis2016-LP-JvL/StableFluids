@@ -12,7 +12,7 @@ import jv.object.PsDebug;
 
 public class FluidSolver implements Cloneable
 {
-	boolean colorON = false;
+	boolean colorON = true;
     int n; //width of grid point array
     int m; //height of grid point array
     int size; //number of all grid points
