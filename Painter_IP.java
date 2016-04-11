@@ -35,6 +35,7 @@ public class Painter_IP extends PjProject_IP implements ActionListener {
 	protected 	Button				m_bFlipColor;
 	protected 	Button				m_bFreeze;
 	protected 	Button				m_bImportImage;
+	protected 	Button				m_bcolorOnOff;
 	protected	PsPanel				m_lTime;
 	
 	protected final String notice	= "Drag mouse:\n"
@@ -94,6 +95,10 @@ public class Painter_IP extends PjProject_IP implements ActionListener {
 		m_bFreeze = new Button("Freeze");
 		m_bFreeze.addActionListener(this);
 		m_pBottomButtons.add(m_bFreeze);
+		
+		m_bcolorOnOff = new Button("Color On/Off");
+		m_bcolorOnOff.addActionListener(this);
+		m_pBottomButtons.add(m_bcolorOnOff);
 	}
 	
 	/**
@@ -155,6 +160,10 @@ public class Painter_IP extends PjProject_IP implements ActionListener {
 		}
 		if (source == m_bFreeze) {
 			m_Project.buttonFreeze();
+			m_Project.update(m_Project);
+		}
+		if (source == m_bcolorOnOff) {
+			m_Project.buttonColorOnOff();
 			m_Project.update(m_Project);
 		}
 	}
