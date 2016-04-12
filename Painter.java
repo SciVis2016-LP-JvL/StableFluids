@@ -241,12 +241,16 @@ public class Painter extends PjProject implements ComponentListener {
 		m_density.setSize(0);
 		m_density2.setSize(0);
 		m_density3.setSize(0);
+		m_densityRadius.setBounds(1, 40, 1, 5);
+		m_densityRadius.setValue(15);
+		m_densityConst.setBounds(0.0, 1000.0, 10.0, 100.0);
+		m_densityConst.setValue(500.0);
 		m_forceTraceX.setSize(0);
 		m_forceTraceY.setSize(0);
-		m_forceRadius.setBounds(1, 40, 1, 5);
-		m_forceRadius.setValue(20);
-		m_forceConst.setBounds(0.0, 0.6, 0.01, 0.1);
-		m_forceConst.setValue(0.3);
+		m_forceRadius.setBounds(1, 100, 1, 5);
+		m_forceRadius.setValue(40);
+		m_forceConst.setBounds(0.0, 1.0, 0.01, 0.1);
+		m_forceConst.setValue(0.4);
 		m_buoyancy.setBounds(-0.5, 0.5, 0.01, 0.1);
 		m_buoyancy.setValue(0.1);
 		//m_buoyancy.setValue(0.0);
@@ -260,10 +264,6 @@ public class Painter extends PjProject implements ComponentListener {
 		m_densityTraceX.setSize(0);
 		m_densityTraceY.setSize(0);
 		resetMouseTraces();
-		m_densityRadius.setBounds(1, 20, 1, 5);
-		m_densityRadius.setValue(10);
-		m_densityConst.setBounds(0.0, 600.0, 10.0, 100.0);
-		m_densityConst.setValue(300.0);
 		m_time.setValue(0);
 		m_dt.setValue(0.2f);
 		
@@ -569,13 +569,6 @@ public class Painter extends PjProject implements ComponentListener {
 					addForce(m_forceTraceX.getEntry(i), m_forceTraceY.getEntry(i), m_forceTraceX.getEntry(i+1), m_forceTraceY.getEntry(i+1), m_forceRadius.getValue());
 	
 			// Add densities on corresponding mouse trace
-			// if (m_densityTraceX.getSize() == m_densityTraceY.getSize())
-			// 	for (int i=0; i<m_densityTraceX.getSize(); i++)
-			// 		// THIS NEEDS TO BE CHANGED
-			// 		addDensityPoint(m_densityTraceX.getEntry(i), m_densityTraceY.getEntry(i), m_densityRadius.getValue());
-			// else
-			// 	PsDebug.warning("m_densityTraceX and ..Y have different size!");
-			
 			addDensityTrace();
 			
 			// Delete mouse traces
@@ -673,35 +666,14 @@ public class Painter extends PjProject implements ComponentListener {
 				for (int k=1; k<=blockRemain; k++)
 				{
 					try {System.arraycopy(m_density.m_data, I(0,y), m_density.m_data, I(0,y+k), m_imageWidth);}
-					catch (ArrayIndexOutOfBoundsException e)
-					{
-						// PsDebug.message("I am out of bounds at arraycopy!");
-						// PsDebug.message(String.valueOf(m_density.getSize()));
-						// PsDebug.message(String.valueOf(I(0,y)));
-						// PsDebug.message(String.valueOf(I(0,y+k)));
-						// PsDebug.message(String.valueOf(m_fluidSolver.size));
-						// PsDebug.message(String.valueOf(m_imageWidth));
-						// PsDebug.message(String.valueOf(m_imageHeight));
-						// PsDebug.message(String.valueOf(m_blockSize.getValue()));
-						// PsDebug.message(String.valueOf(m_oldBlockSize.getValue()));
-					}
+					catch (ArrayIndexOutOfBoundsException e) {}
 					
 					fluidSolverChanged = false;
+
 					// Duplicate row column to fill blocks - only effective if blockSize > 1
 					while (! (m_density.getSize() == m_imageWidth*m_imageHeight))
 					{
-						// PsDebug.message("in while");
-						// PsDebug.message(String.valueOf(m_density.getSize()));
-						// PsDebug.message(String.valueOf(m_fluidSolver.size));
-						// PsDebug.message(String.valueOf(m_imageWidth));
-						// PsDebug.message(String.valueOf(m_imageHeight));
-						// PsDebug.message(String.valueOf(m_blockSize.getValue()));
-						// PsDebug.message(String.valueOf(m_oldBlockSize.getValue()));
-						try
-						{
-							// PsDebug.message("Wait later");
-							wait();
-						}
+						try { wait(); }
 						catch (InterruptedException e) { PsDebug.warning("InterruptedExpeption in computeImage!"); }
 						fluidSolverChanged = true;
 					}
@@ -715,38 +687,15 @@ public class Painter extends PjProject implements ComponentListener {
 					for (k=1; k<=blockRemain; k++)
 					{
 						try {System.arraycopy(m_density.m_data, I(0,y), m_density.m_data, I(0,y+k), m_imageWidth);}
-						catch (ArrayIndexOutOfBoundsException e)
-						{
-							// PsDebug.message("I am out of bounds at arraycopy!");
-							// PsDebug.message(String.valueOf(m_density.getSize()));
-							// PsDebug.message(String.valueOf(I(0,y)));
-							// PsDebug.message(String.valueOf(I(0,y+k)));
-							// PsDebug.message(String.valueOf(m_fluidSolver.size));
-							// PsDebug.message(String.valueOf(m_imageWidth));
-							// PsDebug.message(String.valueOf(m_imageHeight));
-							// PsDebug.message(String.valueOf(m_blockSize.getValue()));
-							// PsDebug.message(String.valueOf(m_oldBlockSize.getValue()));
-						}
+						catch (ArrayIndexOutOfBoundsException e) {}
 					}
-					
 					
 					if(colorON) {
 						fluidSolverChanged = false;
 						// Duplicate row column to fill blocks - only effective if blockSize > 1
 						while (! (m_density2.getSize() == m_imageWidth*m_imageHeight))
 						{
-							// PsDebug.message("in while");
-							// PsDebug.message(String.valueOf(m_density.getSize()));
-							// PsDebug.message(String.valueOf(m_fluidSolver.size));
-							// PsDebug.message(String.valueOf(m_imageWidth));
-							// PsDebug.message(String.valueOf(m_imageHeight));
-							// PsDebug.message(String.valueOf(m_blockSize.getValue()));
-							// PsDebug.message(String.valueOf(m_oldBlockSize.getValue()));
-							try
-							{
-								// PsDebug.message("Wait later");
-								wait();
-							}
+							try { wait(); }
 							catch (InterruptedException e) { PsDebug.warning("InterruptedExpeption in computeImage!"); }
 							fluidSolverChanged = true;
 						}
@@ -760,37 +709,15 @@ public class Painter extends PjProject implements ComponentListener {
 						for (k=1; k<=blockRemain; k++)
 						{
 							try {System.arraycopy(m_density2.m_data, I(0,y), m_density2.m_data, I(0,y+k), m_imageWidth);}
-							catch (ArrayIndexOutOfBoundsException e)
-							{
-								// PsDebug.message("I am out of bounds at arraycopy!");
-								// PsDebug.message(String.valueOf(m_density.getSize()));
-								// PsDebug.message(String.valueOf(I(0,y)));
-								// PsDebug.message(String.valueOf(I(0,y+k)));
-								// PsDebug.message(String.valueOf(m_fluidSolver.size));
-								// PsDebug.message(String.valueOf(m_imageWidth));
-								// PsDebug.message(String.valueOf(m_imageHeight));
-								// PsDebug.message(String.valueOf(m_blockSize.getValue()));
-								// PsDebug.message(String.valueOf(m_oldBlockSize.getValue()));
-							}
+							catch (ArrayIndexOutOfBoundsException e) {}
 						}
 						
-						
 						fluidSolverChanged = false;
+
 						// Duplicate row column to fill blocks - only effective if blockSize > 1
 						while (! (m_density3.getSize() == m_imageWidth*m_imageHeight))
 						{
-							// PsDebug.message("in while");
-							// PsDebug.message(String.valueOf(m_density.getSize()));
-							// PsDebug.message(String.valueOf(m_fluidSolver.size));
-							// PsDebug.message(String.valueOf(m_imageWidth));
-							// PsDebug.message(String.valueOf(m_imageHeight));
-							// PsDebug.message(String.valueOf(m_blockSize.getValue()));
-							// PsDebug.message(String.valueOf(m_oldBlockSize.getValue()));
-							try
-							{
-								// PsDebug.message("Wait later");
-								wait();
-							}
+							try { wait(); }
 							catch (InterruptedException e) { PsDebug.warning("InterruptedExpeption in computeImage!"); }
 							fluidSolverChanged = true;
 						}
@@ -804,18 +731,7 @@ public class Painter extends PjProject implements ComponentListener {
 						for (k=1; k<=blockRemain; k++)
 						{
 							try {System.arraycopy(m_density3.m_data, I(0,y), m_density3.m_data, I(0,y+k), m_imageWidth);}
-							catch (ArrayIndexOutOfBoundsException e)
-							{
-								// PsDebug.message("I am out of bounds at arraycopy!");
-								// PsDebug.message(String.valueOf(m_density.getSize()));
-								// PsDebug.message(String.valueOf(I(0,y)));
-								// PsDebug.message(String.valueOf(I(0,y+k)));
-								// PsDebug.message(String.valueOf(m_fluidSolver.size));
-								// PsDebug.message(String.valueOf(m_imageWidth));
-								// PsDebug.message(String.valueOf(m_imageHeight));
-								// PsDebug.message(String.valueOf(m_blockSize.getValue()));
-								// PsDebug.message(String.valueOf(m_oldBlockSize.getValue()));
-							}
+							catch (ArrayIndexOutOfBoundsException e) {}
 						}
 					}
 				}
@@ -887,34 +803,6 @@ public class Painter extends PjProject implements ComponentListener {
 				}
 			}
 		}
-			
-//					m_pix.setEntry(I(x,y), PdColor.hsv2rgbAsInt(0, 0, 1*255));
-		
-		// // For testing purposes, show bezier curve
-		// final int noEvalsPerCtrlPt = 1000;
-		// PdVector pointAtT = new PdVector(2);
-		// pointAtT.setEntry(0, 15.0);
-		// pointAtT.setEntry(1, 15.0);
-		// for (int j=0; j<noEvalsPerCtrlPt; ++j)
-		// {
-		// 	// PsDebug.message("no control points == " + String.valueOf(m_bezier.getNumControlPoints()));
-		// 	// PsDebug.message("m_dim == " + String.valueOf(m_bezier.getDimOfVertices()));
-		// 	// PsDebug.message("Try to evaluate for t=" + String.valueOf((double)(j)/noEvalsPerCtrlPt) + "...");
-		// 	// for (int k=0; k<m_bezier.getNumControlPoints(); ++k)
-		// 		// PsDebug.message("x: " + String.valueOf((int)Math.round(m_bezier.getControlPoint()[k].getEntry(0))) + ", y: " + String.valueOf((int)Math.round(m_bezier.getControlPoint()[k].getEntry(1))));
-
-		// 	m_bezier.eval(pointAtT, (double)(j)/noEvalsPerCtrlPt);
-		// 	// PsDebug.message("x: " + String.valueOf((int)Math.round(pointAtT.getEntry(0))) + ", y: " + String.valueOf((int)Math.round(pointAtT.getEntry(1))));
-
-		// 	if (pointAtT.getSize() != 0)
-		// 		m_pix.setEntry(I((int)Math.round(pointAtT.getEntry(0)), (int)Math.round(pointAtT.getEntry(1))), PdColor.hsv2rgbAsInt(0, 1*255, 1*255));
-		// 	else
-		// 	{
-		// 		PsDebug.message("Size == 0. No. of control points: " + String.valueOf(m_bezier.getNumControlPoints()));
-		// 		for (int k=0; k<m_bezier.getNumControlPoints(); ++k)
-		// 			m_pix.setEntry(I((int)Math.round(m_bezier.getControlPoint()[k].getEntry(0)), (int)Math.round(m_bezier.getControlPoint()[k].getEntry(1))), PdColor.hsv2rgbAsInt(0, 1*255, 1*255));
-		// 	}
-		// }
 	}
 	
 	/**
