@@ -61,7 +61,7 @@ public class App extends PsApplet {
 		add(project.getInfoPanel(), BorderLayout.CENTER);
 		PsPanel pDisplay = new PsPanel(new GridLayout(1, 2));
 		{
-			pDisplay.setPreferredSize(512, 256);
+			pDisplay.setPreferredSize(512, 512);
 			pDisplay.add(project.getDisp().getCanvas());
 //			pDisplay.add(project.getDispMandelbrot().getCanvas());
 		}

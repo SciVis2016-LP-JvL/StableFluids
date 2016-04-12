@@ -12,3 +12,6 @@
 hs_err_pid*
 test.psd
 *.psd
+Paper/StableFluids.toc
+Paper/StableFluids.out
+Paper/StableFluids.blg

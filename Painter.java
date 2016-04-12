@@ -171,7 +171,7 @@ public class Painter extends PjProject implements ComponentListener {
 		PsImage bild;
 		float factor = 0.00392156863f;
 		float alpha;
-		bild = new PsImage("mysource/StableFluids/test.jpg");
+		bild = new PsImage("mysource/StableFluids/test.png");
 		// bild = new PsImage("myProjects/StableFluids/test.png");
 		//bild.setSize(m_numBlocksX, m_numBlocksY);
 		int[] pixelBild;
