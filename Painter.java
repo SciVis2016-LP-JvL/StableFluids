@@ -171,8 +171,8 @@ public class Painter extends PjProject implements ComponentListener {
 		PsImage bild;
 		float factor = 0.00392156863f;
 		float alpha;
-		bild = new PsImage("mysource/StableFluids/test.png");
-		// bild = new PsImage("myProjects/StableFluids/test.png");
+		//bild = new PsImage("mysource/StableFluids/test.png");
+		bild = new PsImage("myProjects/StableFluids/test.png");
 		//bild.setSize(m_numBlocksX, m_numBlocksY);
 		int[] pixelBild;
 		Image bild2 = bild.getImage();
@@ -1027,7 +1027,7 @@ public class Painter extends PjProject implements ComponentListener {
     	}
 
     	PgBezierCurve bezier;
-    	PdVector p0, p1, a, b, c, d;
+    	PdVector p0, p1, a, b, c, d, temp;
     	PdVector pointAtT;
 
     	// Security check
@@ -1044,16 +1044,27 @@ public class Painter extends PjProject implements ComponentListener {
 			a = new PdVector(m_densityTraceX.getEntry(k), m_densityTraceY.getEntry(k));
 			b = new PdVector(m_densityTraceX.getEntry(k+1), m_densityTraceY.getEntry(k+1));
 			c = new PdVector(m_densityTraceX.getEntry(k-1), m_densityTraceY.getEntry(k-1));
-			d = new PdVector(2);
+			d = temp = new PdVector(2);
 			if (k < m_densityTraceX.getSize() - 2)
 				d = new PdVector(m_densityTraceX.getEntry(k+2), m_densityTraceY.getEntry(k+2));
+
+			// Calculation of (possible) control points
 			p0 = (PdVector) a.clone();
 			p0.sub(c);
-			p0.multScalar((double)(2.0)/5 * a.dist(b) / a.dist(c));
+			p0.normalize();
+			temp = (PdVector) b.clone();
+			temp.sub(a);
+			temp.normalize();
+			p0.add(temp);
+			p0.normalize();
+			p0.multScalar((double)(2.0)/5 * a.dist(b));
 			p0.add(a);
 			p1 = (PdVector) b.clone();
 			p1.sub(d);
-			p1.multScalar((double)(2.0)/5 * a.dist(b) / b.dist(d));
+			p1.normalize();
+			p1.sub(temp);
+			p1.normalize();
+			p1.multScalar((double)(2.0)/5 * a.dist(b));
 			p1.add(b);
 			bezier = new PgBezierCurve(0);
 			bezier.setDimOfVertices(2);
