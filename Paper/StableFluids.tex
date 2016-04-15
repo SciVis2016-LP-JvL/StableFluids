@@ -459,13 +459,33 @@ We want to give a brief overview over the features of JavaView that were used in
 \end{itemize}
 %
 \section{Splines}\label{splinesChapter}
-		Purpose
-		Formula
-		Image
+As mentioned above, the user is able to \grqq draw\grqq~smoke with the left mouse button like with a pen, even though JavaView just provides a handful of input points. If we just would add smoke there, just some single pixels would be provided with some smoke.\\
 
+\begin{figure}[H]
+ \centering
+ \includegraphics[scale=0.8]{SmokeTrace.png}
+ \caption{Some smoke drawn into the display by the user with the mouse.}
+ \label{SmokeTrace}
+\end{figure}
+To be able to achieve this, we connected the mouse input points from between two frames with a spline curve consisting of mostly cubic bezier curves or lower degree at the start or end where less information is available about the continuation of the curve. The resulting spline curve is $C^1$-continuous.\\
+
+We also show the formula for the control points in the general case of cubic curves.
+\begin{figure}[H]
+ \centering
+ \includegraphics[scale=0.3]{SplinesScheme.png}
+ \caption{Scheme how control points are computed.}
+ \label{SplinesScheme}
+\end{figure}
+Then we compute the control points of the connecting cubic bezier curve to be
+\begin{align*}
+q_{i0} & = p_i + \alpha |p_i-p_{i+1}| \cdot \left((p_i-p_{i-1})^{\star} + (p_{i+1}-p_i)^{\star}\right)^{\star} \\
+q_{i1} & = p_{i+1} + \alpha |p_i-p_{i+1}| \cdot \left((p_i-p_{i+1})^{\star} + (p_{i+1}-p_{i+2})^{\star}\right)^{\star}
+\end{align*}
+where $p^{\star}$ is a notation for $\frac{p}{|p|}$. In our case we chose $\alpha = \frac{2}{5}$. 
 \section{Block-Size}
-		Purpose
-		Changing BlockSize in real time
+Since for a large enough canvas sizes interaction with the smoke in real time is not possible because of the large amount of computations, the user should be able to choose lower resolutions on the same canvas size to make the application run faster. The corresponding (larger) pixels are called \emph{blocks}.\\
+
+If the user wants to change the size of a block, the color value of the new blocks are taken to be the average of the previous color of all pixels, that lie in that block.
 
 %
 %
