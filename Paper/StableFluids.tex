@@ -35,7 +35,7 @@
 \usepackage{amssymb}
 \usepackage{amsthm}
 \usepackage{graphicx}
-\usepackage{MnSymbol}
+%\usepackage{MnSymbol}
 \usepackage{hyperref}
 \usepackage{setspace}
 \usepackage{framed} 
@@ -140,7 +140,7 @@
 
 \newpage
 \thispagestyle{empty}
-We hereby declare that this article is based on our work, unless stated otherwise. No other person’s work has been used without due acknowledgement in this thesis. All references and verbatim extracts have been quoted, and all sources of information have been specifically acknowledged. 
+We hereby declare that this article is based on our work, unless stated otherwise. No other person’s work has been used without due acknowledgement in this thesis. All references and verbatim extracts have been quoted, and all sources of information have been specifically acknowledged.
 \\
 \\[3.5cm] 
 Berlin, \today
@@ -238,7 +238,7 @@ In $\mathbb{R}^2$, equation \ref{NavierStokes2} can be written out as
 	f_1 \\ f_2
 	\end{matrix} \right).
 \end{align*}
-The pressure and velocity field that appears in the Navier-Stokes equations, are related. By combining equation \ref{NavierStokes1} and \ref{NavierStokes2} we obtain a singe equation as follows.\\
+The pressure and velocity field that appear in the Navier-Stokes equations, are related. By combining equation \ref{NavierStokes1} and \ref{NavierStokes2} we obtain a singe equation as follows.\\
 
 By the Helmholtz-Hodge decomposition theorem we have that any vector field $w = u + \nabla q + \text{res}$ uniquely decomposes into a divergence-free part $u$, a gradient field $\nabla q$ and a residual term depending on the genus of the surface. In our case, the residual term vanishes.\\
 
@@ -259,14 +259,16 @@ Each of the four terms in equation \ref{FundamentalEquation} is applied successi
 \end{align*}
 The solution at time $t+\Delta t$ is then given by $u(x,t+\Delta t) = u^4(x)$.
 \subsection{Add force}
-The add force step incorporates additional force by the user, or buoyancy force due to uplift of lighter gases and downlift of heavier gases.
+The add force step incorporates additional force by the user, or buoyancy force due to uplift of lighter or hotter gases resp. downlift of heavier or cooler gases.
 \begin{align*}
 	u^1(x) = u^0(x) + \Delta t~ f(t,x)
 \end{align*}
-The buoyancy force is computed using Archimedes' principle. In a simplified approach, heaviness is equal to the density of the smoke. After computing the average temperature of the fluid, the upward force is determined for each pixel separately depending on the difference with respect to the average temperature.
+The buoyancy force is computed using Archimedes' principle. In a simplified approach, heaviness is equal to the density of the smoke. After computing the average temperature of the fluid, the upward force is determined for each pixel separately depending on the difference with respect to the average temperature.\\
+
+[tba] exact formula of buoyancy force [tba]
 \subsection{Advect}
-The advect step accounts for the advection or convection of the fluid itself, i.e. this step lets the fluid \glqq flow\grqq ~a little.
-The advection step is fundamental to this particular fluid solver. Thats why the solver is called \glqq Stable\grqq Fluids, as this solver will never blow up, independent of the size of the time step $\Delta t$. 
+The advect step accounts for the advection or convection of the fluid itself, i.e. this step lets the fluid \grqq flow\grqq ~or move a little according to its own speed.
+The advection step is fundamental to this particular fluid solver. The design of the advection solving process is the reason why this method is called \glqq Stable\grqq ~Fluids, as this solver will never \grqq  blow up\grqq , independent of the size of the time step $\Delta t$. 
 
 The method can be understood intuitively: All particles in the fluid are moved by the velocity of the fluid itself. To obtain the velocity at the point $x$ at time $t + \Delta t$ we backtrace the the point $x$ through the velocity field at time $t$. This defines a path $p: (-\delta,\delta) \times \Omega \rightarrow \Omega$ corresponding to a streamline of the fluid. The velocity $u^2(x)$ is the set to be the velocity of $u^1(p(-\Delta t,x))$ at the previous time step:
 \begin{align*}
@@ -275,14 +277,14 @@ The method can be understood intuitively: All particles in the fluid are moved b
 [tba] include a figure that illustrates the approach. [tba]
 [tba] include a comparison to other solvers of the advect step. [tba]
 \subsection{Diffuse}
-This step solves the diffusion of the fluid itself, i.e. the \glqq friction\grqq ~between parts of the fluid with different velocity. This effect is equivalent to the diffusion equation 
+This step solves the diffusion of the fluid itself, i.e. the \grqq friction\grqq ~between parts of the fluid with different velocity. This effect is equivalent to the diffusion equation 
 \begin{align}
 	\frac{\partial u^2}{\partial t} = \nu \Delta u^2. \label{Diffusion}
 \end{align}
-The most straightforward way would be to discretize the Laplacian and solve the resulting sparse linear system. However, this approach is unstable when the viscosity is large. For our implicit approach we proceed as follows, by approximating $\frac{\partial u}{\partial t}$ with the backward difference quotient:
+The most straightforward way would be to discretize the Laplacian and solve the resulting sparse linear system. However, this approach is unstable when the viscosity is large. For our implicit approach we proceed by approximating $\frac{\partial u}{\partial t}$ with the backward difference quotient:
 \begin{align}
-	\frac{u(t+\Delta t,x) - u(x,t)}{\Delta t} = \nu \Delta u(t-\Delta t,x) \nonumber
-	\shortintertext{finally, this gives}
+	\frac{u(t+\Delta t,x) - u(t,x)}{\Delta t} = \nu \Delta u(t-\Delta t,x) \nonumber
+	\shortintertext{Finally, this yields}
 	(I - \nu \Delta t) u^3(x) = u^2(x). \label{Diffusion2}
 \end{align}
 We now discretize \ref{Diffusion2} using a finite difference method and obtain
@@ -313,7 +315,9 @@ We now discretize \ref{Diffusion2} using a finite difference method and obtain
 		\draw[loosely dotted] (m-1-4)-- (m-3-6);
 	\end{tikzpicture} ~\nu\frac{\Delta t}{h^2} )u^3 = u^2.\label{Diffuse}
 \end{equation}
-The resulting square matrix has $n*m$ rows and columns, where $n, m$ denote the number of pixels in the x- and y-axis respectively. Solving such a system can be done efficiently by iterative schemes, e.g. Gauß-Seidel.
+The resulting square matrix has $n\cdot m$ rows and columns, where $n, m$ denote the number of pixels in the x- and y-axis respectively. Solving such a system can be done efficiently by iterative schemes, e.g. Gauß-Seidel.\\
+
+[tba] make formatting nice, i.e. bigger brackets and identity bigger [tba]\\
 
 \subsection{Project}
 The last step makes the vectorfield mass preserving, i.e. divergence free. We already discussed in the derivation of our fundamental equation that the projection is obtained by solving
@@ -371,7 +375,7 @@ Our solver enables us to compute the ambient fluid. However, we need to visualiz
 \begin{align}
 	\frac{\partial d}{\partial t} = - u \cdot \nabla a + \kappa \Delta a - \alpha  a + S \label{Density}
 \end{align}
-where $\kappa$ is the diffusion constant, $\alpha$ the dissipation term and $S$ is a source term. The dissipation term, which will be dropped in our modelling, describes the effect that kinetic energy is converted in thermal energy. The diffusion constant determines the effect of diffusion, i.e. the effect that density \glqq interfuses\grqq ~with nearby density and the overall picture becomes \glqq  softer\grqq .\\
+where $\kappa$ is the diffusion constant, $\alpha$ the dissipation term and $S$ is a source term. The dissipation term, which will be dropped in our modelling, describes the effect that kinetic energy is converted in thermal energy. The diffusion constant determines the effect of diffusion, i.e. the effect that density \grqq interfuses\grqq ~with nearby density and the overall picture becomes \grqq  softer\grqq .\\
 
 The terms in equation \ref{Density} are quite similar to the terms in our fundamental equation \ref{FundamentalEquation}. Thus the evolution of the density field can be computed analogously to the computation of the velocity field. In particular we need to perform the advect step and the diffuse step, which correspond to the movement of the density along the velocity field and the diffusion of the density itself.
 
@@ -402,14 +406,14 @@ We identify $\omega$ with a 1d scalar field on $\Omega$. The vorticity measures 
 is a vector field on $\Omega$ that points from regions of low to high vorticity.\\
 Finally the small scale detail is added as follows
 \begin{align}
-	f = \epsilon h (N\times \omega ) = \left( \begin{matrix}
+	f = \varepsilon h (N\times \omega ) = \left( \begin{matrix}
 	N^1\\ N^2 \\0
 	\end{matrix}  \right) \times \left( \begin{matrix} 0\\ 0\\ \omega \end{matrix} \right) = \left( \begin{matrix}
 	N^2 \omega \\ -N^1 \omega \\ 0
-	\end{matrix} \right) \label{VorticityConfinement}
+	\end{matrix} \right). \label{VorticityConfinement}
 \end{align}
 Again in equation \ref{VorticityConfinement} we identify 2d vector fields with 3d vector fields that are constant in the with respect to the direction of the $x^3$-axis.
-Here $\epsilon >0$ is a factor that determines the effect of vorticity confinement. The dependence on $h$ gives that small scale detail is added proportional to the grid size, i.e. to the numerical dissipation. Hence the convergence of the solver is preserved.\\
+Here $\varepsilon >0$ is a factor that determines the effect of vorticity confinement. The dependence on $h$ gives that small scale detail is added proportional to the grid size, i.e. to the numerical dissipation. Hence the convergence of the solver is preserved.\\
 In fact the construction provides that small scale detail is added, exactly where it is needed.
 
 \begin{figure}[H]
@@ -425,7 +429,7 @@ The solver is compatible with a wide range of parameters. Thus we can simulate d
 \begin{figure}[H]
  \centering
  \includegraphics[scale=0.30]{Viscosity-2.png}
- \caption{The left picture shows a fluid with high viscosity, e.g. honey or very thick water. The right picture shows a more liquid fluid like thin water or some gas. The left picture preserBoth pictures where created with identical initial condition and vary only in the viscosity constant. In both pictures there is no vorticity confinement to emphasize the effect of viscosity.}
+ \caption{The left picture shows a fluid with high viscosity, e.g. honey or very thick water. The right picture shows a more liquid fluid like thin water or some gas. The left picture preser [tba] end the sentence [tba] Both pictures where created with identical initial condition and vary only in the viscosity constant. In both pictures there is no vorticity confinement to emphasize the effect of viscosity.}
  \label{ViscosityOnOff}
 \end{figure}
 
@@ -437,7 +441,7 @@ The solver is compatible with a wide range of parameters. Thus we can simulate d
 \end{figure}
 
 \section{Colors and Fotoimport}
-There are several ways to represent colors. One of the most common priciples are RGB or CMY color schemes. In the black and white solver there is only one density array which evolves according to the velocity field. To represent colors, we use three separate density fields, each represents cyan, magenta or yellow respectively and evolves according to the velocity field.\\
+There are several ways to represent colors. One of the most common priciples are RGB or CMY color schemes. In the black and white solver there is only one density array which evolves according to the velocity field. To represent colors, we use three separate density fields, each one of them representing either cyan, magenta or yellow and evolving according to the same velocity field, i.e. the same \grqq ambient fluid\grqq.\\
 We are now able to import picture, which behave like liquid or smoke, i.e. the picture can be manipulated interactively and behaves like the ambient fluid.\\
 One can experiment with different kinds of buoyancy forces, e.g. only specific colors generate an uplift. However 
 
@@ -452,6 +456,7 @@ Blocksize\\
 Capabilities of Javaview\\
 Details vom Solver, Wie funktioniert ein Schritt genau? e.g. Beschreibe den Advect-Schritt detailliert\\
 Physikalische Beschreibung der Navier-Stokes\\
+Genaue Formel der buoyancy force\\
 Bewertung der Results -> Was ist gut, was ist schlecht\\
 Anleitung um hübsche Bilder zu generieren, Tutorial um den Solver zu verwenden\\
 Verlgleich der einzelnen Schritte vom Solver mit alternativen Lösungsansätzen -> Warum ist der Solver STABLE\\
