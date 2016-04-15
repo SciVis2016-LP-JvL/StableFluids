@@ -446,15 +446,39 @@ We are now able to import picture, which behave like liquid or smoke, i.e. the p
 One can experiment with different kinds of buoyancy forces, e.g. only specific colors generate an uplift. However 
 
 \chapter{Implementation and Framework}
+We implemented our whole framework in the environment of JavaView. In the following, we want to show some features of our application, how they work and why we think they make sense for visualizing smoke.
+%
+\section{Capabilities of JavaView}
+We want to give a brief overview over the features of JavaView that were used in the development of the project and also how they were used.
+\begin{itemize}
+\item To be able to show an image visualizing the smoke in the application, we use the common \texttt{PvDisplayIf} class. One can fix the camera over an x-y-coordinate system by selecting the correct camera: \texttt{m\_disp.selectCamera(PvCameraIf.CAMERA\_ORTHO\_XY)}. Then one can set the image one is manipulating as the background image by \texttt{m\_disp.setBackgroundImage(m\_image)}.
+\item For handling mouse input, there are the two functions \texttt{pickInitial(PvPickEvent pickEvent)} and \texttt{dragCamera(PvCameraEvent cameraEvent)} which are invoked by JavaView, when the left resp. right mouse button is clicked. These methods were overwritten to add smoke resp. force. The mouse coordinates can be obtained from the corresponding events in the parameter list.
+\item The parameters of the fluid solver (the \grqq mathematics object\grqq) and block size (see below) are controlled by sliders in the application. One is able to add these for types like \texttt{PuInteger} or \texttt{PuDouble} by for instance adding \texttt{m\_Project.m\_vorticityConf} to some \texttt{PsPanel} in the application.
+\item Time can be handled by an animation, i.e. an instance of the class \texttt{PsAnimation}. Registering this animation in the project class' superclass makes JavaView invoke the method \texttt{setTime(PsTimeEvent timeEvent)} which was overwritten to call our \texttt{computeImage()}-function. To overcome the problem, that every animation has a maximum time, we are increasing the maximum by one timestep for every call of \texttt{setTime}.
+\item When the user drags though the display with the left mouse button, the corresponding \texttt{PvPickEvent}s yield some loose points in the canvas. The class \texttt{PgBezierCurve} is used to connect them with spline curves, such that there is not only some bumps, but a whole continuous trace of smoke added in the cancas, like one would expect for instance from a pen. For details, see \ref{splinesChapter}.
+\end{itemize}
+%
+\section{Splines}\label{splinesChapter}
+		Purpose
+		Formula
+		Image
+
+\section{Block-Size}
+		Purpose
+		Changing BlockSize in real time
+
+%
+%
+%
 \chapter{Results}
-\chapter{Extensions}
+\chapter{Possible extensions}
 \chapter{Outlook}
 
 Bezier curves\\
 Reference List\\
 Blocksize\\
 Capabilities of Javaview\\
-Details vom Solver, Wie funktioniert ein Schritt genau? e.g. Beschreibe den Advect-Schritt detailliert\\
+Details vom Solver, Wie funktioniert ein Schritt genau? e.g. Beschreibe den Advect-Schritt detailliert (Pseudocode)\\
 Physikalische Beschreibung der Navier-Stokes\\
 Genaue Formel der buoyancy force\\
 Bewertung der Results -> Was ist gut, was ist schlecht\\
