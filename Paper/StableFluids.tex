@@ -20,6 +20,7 @@
 \usepackage{amsmath, amssymb}
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
+\usepackage{subfigure}
 \usepackage{enumerate}
 \usepackage{multirow}
 \usepackage{subfigure}
@@ -490,6 +491,31 @@ If the user wants to change the size of a block, the color value of the new bloc
 %
 %
 \chapter{Results}
+Our solver could be used for many purposes requiring smoke-like motions, e.g. in graphic design or computer games. It can also be used to create purely artistical effects. Some possitbilities generated with the solver are shown in the following.\\
+\begin{figure}[H]
+\centering
+\subfigure[Smoke generated with a single density array.]
+{
+ \includegraphics[width=6cm]{images/greySmoke.png}
+ \label{greySmoke}
+}
+\subfigure[Colored smoke generated with a three density arrays.]
+{
+ \includegraphics[width=6cm]{images/colors.png}
+ \label{coloredSmoke}
+}
+\\
+\subfigure[Distorted Marilyn Monroe.]
+{
+ \includegraphics[width=6cm]{images/monroe.png}
+ \label{monroe}
+}
+\subfigure[Distorted pineapple.]
+{
+ \includegraphics[width=6cm]{images/pineapple.png}
+ \label{monroe}
+}
+\end{figure}
 \chapter{Possible extensions}
 \chapter{Outlook}
 
