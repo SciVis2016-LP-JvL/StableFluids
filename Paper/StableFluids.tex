@@ -204,18 +204,17 @@ Freie Universit\"at Berlin\\
 %_______________________________________________________________________________
 \setcounter{chapter}{-1}
 \chapter{Abstract}
+This article is a tutorial to implement the ``Stable Fluids'' solver by Stam \cite{Stam} which includes a nice user interface to interactively manipulate the fluid. We provide the mathematical idea, numerical computations and the concept of the framework which we implemented in JavaView \cite{JavaView}. The main features of this solver are real time computation and being unconditionally stable. Moreover it allows to compute a wide range fluids with e.g. different viscosities.
 \chapter{Introduction}
 
-The concept of this solver is based on \cite{Stam}. The method of solution has been implemented in this article.
-The program runs in the framework of JavaView \cite{JavaView}.
+For many years, building realistic fluid solvers has been a challenging problem in the VFX industry.\\
+In computer graphics, in contrast to many physical applications, the visual appearance of the fluid is very important whereas physical accuracy is not essential. In order to animate the fluid, it is required to provide real time computation. Typically this results in lower bounds on physical accuracy.\\
 
-We added\\
- ->Colors\\
- ->Fotoimport\\
- ->nice user interface\\
- ->Insertion in the framework of JavaView.
+The Stable Fluids Solver by Stam \cite{Stam} first gave a method that provides unconditionally stable fluids which are computed in real time. Previous solvers are unstable, i.e. they require small time steps which contradicts real time computation, or they are not based on the full Navier-Stokes equations and thus do not reflect a realistic fluid simulation.\\
+
+Stams method of solution has been implemented in this article in the framework of JavaView \cite{JavaView}. We added the representation of colours, the functionality to import fotos and a give the user a nice framework to interactively manipulate the fluid.
  
-\chapter{Mathematical Modelling} \label{Section:Mathematical Modelling}
+\chapter{Mathematical Modelling} \label{Section:Mathematical Modelling} \label{chapter:Math}
 
 \section{Basic Equations}
 Let $\Omega \subset \mathbb{R}^2$ be the domain of interest, e.g. $\Omega = (0,1)^2$. Now let $u \in C^2(\mathbb{R} \times \Omega,\mathbb{R}^2)$ denote the velocity vector field and $p\in C^2(\mathbb{R} \times \Omega,\mathbb{R})$ denote the pressure field. Both fields depend on the time $t\in \mathbb{R}$ and the position in space $x\in \Omega$. The evolution of these fields is given by the Navier-Stokes equations
@@ -253,30 +252,34 @@ If we now apply $P$ to both sides of \ref{NavierStokes2}, the Navier-Stokes equa
 	\frac{\partial u}{\partial t} = P \left(- (u \cdot \nabla)u - \frac{1}{\rho}\nabla p + \nu \Delta u + f \right) \label{FundamentalEquation}
 \end{align}
 \section{Method of Solution and Discretization}
-Equation \ref{FundamentalEquation} consists of four parts, the \textbf{add force} term $f$, the \textbf{advection} term $(u\cdot \nabla )u$, the \textbf{diffusion} term $\nu \Delta u$ and the \textbf{projection} operator $P$. The equation is solved from an initial state $u^0 = u(0,x)$. Both time and space are discretized with time step $\Delta T$ and some equidistant grid points of distance $h= \frac{1}{n}$.
+Equation \ref{FundamentalEquation} consists of four parts, the \textbf{add force} term $f$, the \textbf{advection} term $(u\cdot \nabla )u$, the \textbf{diffusion} term $\nu \Delta u$ and the \textbf{projection} operator $P$. The equation is solved from an initial state $u^0 = u(t,x)$. Both time and space are discretized with time step $\Delta T$ and some equidistant grid points of distance $h= \frac{1}{n}$.
 Each of the four terms in equation \ref{FundamentalEquation} is applied successively to the initial state $u^0 \in C^2(\Omega,\mathbb{R})$. The general procedure is
 \begin{align*}
 	u^0 ~\overset{\text{add force}}{\longrightarrow}~ u^1 ~ \overset{\text{advect}}{\longrightarrow}~ u^2 ~\overset{\text{diffuse}}{\longrightarrow} ~u^3~ \overset{\text{project}}{\longrightarrow} ~u^4
 \end{align*}
 The solution at time $t+\Delta t$ is then given by $u(x,t+\Delta t) = u^4(x)$.
 \subsection{Add force}
-The add force step incorporates additional force by the user, or buoyancy force due to uplift of lighter or hotter gases resp. downlift of heavier or cooler gases.
+The add force step incorporates additional force by the user and buoyancy force due to uplift of lighter or hotter gases, respectively downlift of heavier or cooler gases.
 \begin{align*}
 	u^1(x) = u^0(x) + \Delta t~ f(t,x)
 \end{align*}
-The buoyancy force is computed using Archimedes' principle. In a simplified approach, heaviness is equal to the density of the smoke. After computing the average temperature of the fluid, the upward force is determined for each pixel separately depending on the difference with respect to the average temperature.\\
+The buoyancy force is computed using Archimedes' principle. In a simplified approach, heaviness is equal to the density of the smoke. After computing the average temperature of the fluid, the upward force is determined for each pixel separately depending on the difference with respect to the average temperature.
+\begin{align*}
+	&\texttt{for all grid blocks...}\\
+	&\texttt{weight of block} = \texttt{sum of densities in this block}\\
+	&f = T_{amb} * \texttt{weight of block} + (1-T_{amb}) * \texttt{weight of one block of air}\\
+\end{align*}
 
-[tba] exact formula of buoyancy force [tba]
 \subsection{Advect}
-The advect step accounts for the advection or convection of the fluid itself, i.e. this step lets the fluid \grqq flow\grqq ~or move a little according to its own speed.
-The advection step is fundamental to this particular fluid solver. The design of the advection solving process is the reason why this method is called \glqq Stable\grqq ~Fluids, as this solver will never \grqq  blow up\grqq , independent of the size of the time step $\Delta t$. 
+The advect step accounts for the advection or convection of the fluid itself, i.e. this step lets the fluid ``flow'' ~or move a little according to its own speed.
+The advection step is fundamental to this particular fluid solver. The design of the advect method is the reason why this method is called ``Stable'' Fluids, as this solver will never ``blow up'', independent of the size of the time step $\Delta t$. 
 
 The method can be understood intuitively: All particles in the fluid are moved by the velocity of the fluid itself. To obtain the velocity at the point $x$ at time $t + \Delta t$ we backtrace the the point $x$ through the velocity field at time $t$. This defines a path $p: (-\delta,\delta) \times \Omega \rightarrow \Omega$ corresponding to a streamline of the fluid. The velocity $u^2(x)$ is the set to be the velocity of $u^1(p(-\Delta t,x))$ at the previous time step:
 \begin{align*}
 	u^2(x) = u^1(p(-\Delta t,x)).
 \end{align*}
+Again, this step is unconditionally stable, independent of the step size.
 [tba] include a figure that illustrates the approach. [tba]
-[tba] include a comparison to other solvers of the advect step. [tba]
 \subsection{Diffuse}
 This step solves the diffusion of the fluid itself, i.e. the \grqq friction\grqq ~between parts of the fluid with different velocity. This effect is equivalent to the diffusion equation 
 \begin{align}
@@ -381,9 +384,9 @@ where $\kappa$ is the diffusion constant, $\alpha$ the dissipation term and $S$ 
 The terms in equation \ref{Density} are quite similar to the terms in our fundamental equation \ref{FundamentalEquation}. Thus the evolution of the density field can be computed analogously to the computation of the velocity field. In particular we need to perform the advect step and the diffuse step, which correspond to the movement of the density along the velocity field and the diffusion of the density itself.
 
 \section{Vorticity Confinement}
-For sufficiently number of grid points, the steps in the previous section \ref{Section:Mathematical Modelling} give the fluid a realistic behaviour, quite similar to the real life experience. In practice, computational power is limited and we have to use a relatively small number of grid points to provide real-time computation. It turns out that small scale details, in particular rotational turbulences are lost due to numerical dissipation.
+For a sufficient number of grid points, the solver described in the previous section \ref{Section:Mathematical Modelling} give the fluid a realistic behaviour, quite similar to the real life experience. In practice, computational power is limited and we have to use a relatively small number of grid points to provide real-time computation. It turns out that small scale details, in particular rotational turbulences are lost due to numerical dissipation.
 
-The key idea of Vorticity Confinement is to add these details artificially in a way that the properties of a fluid are preserved and the effect of numerical dissipation is damped. In a follow-up paper \cite{Stam2}, Stam proposes this idea based on previous work of Steinhoff \cite{Steinhoff}.\\
+The key idea of Vorticity Confinement is to add these details artificially in a way that the properties of the fluid are preserved and the effect of numerical dissipation is damped. In a follow-up paper \cite{Stam2}, Stam proposes this idea based on previous work of Steinhoff \cite{Steinhoff}.\\
 
 The vorticity of a 3d vector field $u$ is defined as
 \begin{align*}
@@ -404,7 +407,7 @@ We identify $\omega$ with a 1d scalar field on $\Omega$. The vorticity measures 
 \begin{align*}
 	N = \frac{\nabla |\omega |}{|\nabla  |\omega ||}
 \end{align*}
-is a vector field on $\Omega$ that points from regions of low to high vorticity.\\
+is a vector field on $\Omega$ that points from regions of low vorticity to regions of high vorticity.\\
 Finally the small scale detail is added as follows
 \begin{align}
 	f = \varepsilon h (N\times \omega ) = \left( \begin{matrix}
@@ -415,7 +418,7 @@ Finally the small scale detail is added as follows
 \end{align}
 Again in equation \ref{VorticityConfinement} we identify 2d vector fields with 3d vector fields that are constant in the with respect to the direction of the $x^3$-axis.
 Here $\varepsilon >0$ is a factor that determines the effect of vorticity confinement. The dependence on $h$ gives that small scale detail is added proportional to the grid size, i.e. to the numerical dissipation. Hence the convergence of the solver is preserved.\\
-In fact the construction provides that small scale detail is added, exactly where it is needed.
+In fact the construction provides that small scale detail is added, exactly where it is needed. The reader can convince himself of the effectiveness in figure \ref{VorticityOnOff}.
 
 \begin{figure}[H]
  \centering
@@ -444,7 +447,7 @@ The solver is compatible with a wide range of parameters. Thus we can simulate d
 \section{Colors and Fotoimport}
 There are several ways to represent colors. One of the most common priciples are RGB or CMY color schemes. In the black and white solver there is only one density array which evolves according to the velocity field. To represent colors, we use three separate density fields, each one of them representing either cyan, magenta or yellow and evolving according to the same velocity field, i.e. the same \grqq ambient fluid\grqq.\\
 We are now able to import picture, which behave like liquid or smoke, i.e. the picture can be manipulated interactively and behaves like the ambient fluid.\\
-One can experiment with different kinds of buoyancy forces, e.g. only specific colors generate an uplift. However 
+One can experiment with different kinds of buoyancy forces, e.g. only specific colors generate an uplift where some colors are heavier that others. 
 
 \chapter{Implementation and Framework}
 We implemented our whole framework in the environment of JavaView. In the following, we want to show some features of our application, how they work and why we think they make sense for visualizing smoke.
@@ -499,7 +502,7 @@ Our solver could be used for many purposes requiring smoke-like motions, e.g. in
  \includegraphics[width=6cm]{images/greySmoke.png}
  \label{greySmoke}
 }
-\subfigure[Colored smoke generated with a three density arrays.]
+\subfigure[Colored smoke generated with three density arrays for the CMY-colors]
 {
  \includegraphics[width=6cm]{images/colors.png}
  \label{coloredSmoke}
@@ -513,10 +516,13 @@ Our solver could be used for many purposes requiring smoke-like motions, e.g. in
 \subfigure[Distorted pineapple.]
 {
  \includegraphics[width=6cm]{images/pineapple.png}
- \label{monroe}
+ \label{pineapple}
 }
 \end{figure}
 \chapter{Possible extensions}
+As mentioned in chapter \ref{chapter:Math}, the solver can be implemented in three dimensions. This gives interesting possible extensions e.g. light sources and makes it possible to animate more complex phenomena such as clouds that are based mainly on the appearance of light and darkness. However due to the increase in grid points and more entries in the sparse matrices, we are not able to compute a 3d version in real time. Also a 3d implementation requires a renderer and the interactive user interface becomes more complicated.\\
+
+Our implementation uses Gauss-Seidel to solve the sparse linear systems. While this is easy to implement and relatively fast, it does not reach the speed of multi-grid methods. 
 \chapter{Outlook}
 
 Bezier curves\\
