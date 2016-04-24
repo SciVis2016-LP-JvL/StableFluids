@@ -575,7 +575,8 @@ public class Painter extends PjProject implements ComponentListener {
 			resetMouseTraces();
 			
 			// Solve fluid
-			if(isFrozen) {} else {
+			if (!isFrozen)
+			{
 				m_fluidSolver.velocitySolver();
 				m_fluidSolver.densitySolver();
 			}
