@@ -518,9 +518,15 @@ Since for a large enough canvas sizes interaction with the smoke in real time is
 
 If the user wants to change the size of a block, the color value of the new blocks are taken to be the average of the previous color of all pixels, that lie in that block.
 \section{Code Files}
-[tba]
+The program consists of four code files:
+\begin{itemize}
+\item App.java: This is the actual application and contains the entry point (main). It is loading and starting the project inside a window of sizes and with canvas dimensions which are specified here.
+\item FluidSolver.java: The \texttt{FluidSolver} object does all the mathematics of the program, i.e. it holds the vector field for the fluid and one scalar field for each density array and calculates all four steps of the method of solution of the fluid respectively the three steps for all density arrays. The user (i.e. the \texttt{Painter} class) just needs to call \texttt{velocitySolver()} and \texttt{densitySolver()}.
+\item Painter.java: This class contains almost all the framework. It is calling the FluidSolver's solution methods, handling the mouse input from the user, drawing into the display and computing colors out of the calculation results from the FluidSolver.
+\item Painter\_IP.java: This class contains the design of the info panel and connection of the GUI elements to the \texttt{Painter} class.
+\end{itemize}
 \section{Framework Structure}
-We now want to give a (brief and slightly simplified) overview over the structure of the implementation of the framework.\\
+We now want to give a (brief and slightly simplified) overview over the structure of the implementation of the framework contained in the \texttt{Painter} class.\\
 
 Every time when \texttt{setTime()} is invoked (when the animation has moved forward in time), the thread dives into the heart of the program. The structure there is as follows:\medskip\\
 %
@@ -562,7 +568,7 @@ Only now can we go on in \texttt{computeImage()} and copy the solution of the di
 %
 \begin{function}[H]
 \DontPrintSemicolon
-\SetKwProg{Fn}{}{}{}
+\SetKwProg{Fn}{}{}{end}
 \SetKwFunction{rI}{resizeImage}
 \SetKwFunction{nA}{notifyAll}
 \SetKwData{disp}{display}
@@ -592,7 +598,7 @@ The \texttt{changeBlockSize()}-function also works rather straighforward:\medski
 %
 \begin{function}[H]
 \DontPrintSemicolon
-\SetKwProg{Fn}{}{}{}
+\SetKwProg{Fn}{}{}{end}
 \SetKwFunction{cBB}{changeBlockSize}
 \SetKwFunction{nA}{notifyAll}
 \SetKwData{disp}{display}
@@ -611,7 +617,9 @@ The \texttt{changeBlockSize()}-function also works rather straighforward:\medski
 	\nA{}\;
 }
 \end{function}
-\hfill\medskip\\
+\hfill\medskip
+
+[tba] update function [tba]
 %
 %
 %
@@ -653,31 +661,40 @@ Our solver could be used for many purposes requiring smoke-like motions, e.g. in
  \label{pineapple}
 }
 \end{figure}
+%
+There are several positive and negative aspects about our project:
+\begin{itemize}
+\item Positive:
+\begin{itemize}
+\item The produced smoke looks detailed and realistic.
+\item One can produce artistic effects with multiple colors or imported images.
+\end{itemize}
+\item Negative:
+\begin{itemize}
+\item The speed of our application on grid sizes starting from about $256*512$ would need further enhancement. The BlockSize-feature is not really solving the problem, if one wants these ``high'' resolutions for the simulation.
+\item The smoke looks like it is moving out of the display despite our boundary conditions handling and mass preserving projection method. This undesirable effect would need further study.
+\item Coming from the implementation specific point of view, there sometimes seem to be problems when decreasing the block size (and therefore increasing the number of grid points). This is most likely a multithreading issue.
+\end{itemize}
+\end{itemize}
+%
 \chapter{Possible Extensions}
 All in all the fluid solver provides a very realistic simulation which can be used to simulate various phenomena and fluids. In particular the extension with Vorticity Confinement results in an overall realistic and intuitive behaviour of the fluid.\\
 
+Nevertheless, there are further extensions or improvements of our application one could think of. As mentioned in chapter \ref{chapter:Math}, the solver can be implemented in three dimensions without further adaption of the mathematical model. This gives interesting possible extensions e.g. light sources which makes it possible to animate more complex phenomena such as clouds that are based mainly on the appearance of light and darkness. However due to the increase in grid points and more entries in the sparse matrices, we are not able to compute a 3D version in real time. Also a 3D implementation requires a renderer and the interactive user interface becomes more complicated. In this 3D enviroment, it would also be interesting to put objects inside the domain, e.g. a car or an airplane and blow some smoke over it like in a wind channel. One could thereby explore and visualize the aerodynamic properties of these objects.\\
 
-Possible extensions are listed as follows:\\
-As mentioned in chapter \ref{chapter:Math}, the solver can be implemented in three dimensions without further adaption of the mathematical model. This gives interesting possible extensions e.g. light sources which makes it possible to animate more complex phenomena such as clouds that are based mainly on the appearance of light and darkness. However due to the increase in grid points and more entries in the sparse matrices, we are not able to compute a 3d version in real time. Also a 3d implementation requires a renderer and the interactive user interface becomes more complicated.\\
+Furthermore, our implementation uses Gauss-Seidel to solve the sparse linear systems. While this is easy to implement and relatively fast for the sparse matrices we consider, it does not reach the speed of multigrid methods.\\
 
-Our implementation uses Gauss-Seidel to solve the sparse linear systems. While this is easy to implement and relatively fast for the sparse matrices we consider, it does not reach the speed of multigrid methods.
+Lastly, again coming from an implementation specific point of view, it would be convenient to be able to export videos of the rendered images for fast replay, e.g. for presentation purposes.
+%
 \chapter{Outlook}
-
-Bezier curves\\
+\chapter{ToDo}
 Reference List\\
-Blocksize\\
-Capabilities of Javaview\\
 Details vom Solver, Wie funktioniert ein Schritt genau? e.g. Beschreibe den Advect-Schritt detailliert (Pseudocode)\\
 Physikalische Beschreibung der Navier-Stokes\\
-Genaue Formel der buoyancy force\\
-Bewertung der Results -> Was ist gut, was ist schlecht\\
-Anleitung um hübsche Bilder zu generieren, Tutorial um den Solver zu verwenden\\
-Verlgleich der einzelnen Schritte vom Solver mit alternativen Lösungsansätzen -> Warum ist der Solver STABLE\\
-Darstellung der Farben mit Density-Arrays\\
+Tutorial um den Solver zu verwenden\\
+Genauer Vergleich der einzelnen Schritte vom Solver mit alternativen Lösungsansätzen -> Warum ist der Solver STABLE\\
 Gauß-Seidel\\
 Boundary Conditions\\
-Abstract (Zusammenfassung)\\
-Introduction (Einlietung, Historie.\\
 
 %_______________________________________________________________________________
 \begin{appendix}

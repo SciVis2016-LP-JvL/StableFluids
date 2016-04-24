@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.15 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2015.5.25)  16 APR 2016 13:18
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2015.5.25)  24 APR 2016 22:32
 entering extended mode
 **StableFluids.tex
 (StableFluids.tex
@@ -1211,7 +1211,60 @@ File: tikzlibrarytopaths.code.tex 2008/06/17 v3.0.0 (rcs-revision 1.2)
 librarymatrix.code.tex"
 File: tikzlibrarymatrix.code.tex 2013/07/12 v3.0.0 (rcs-revision 1.4)
 )
-("C:\Program Files\MiKTeX 2.9\tex\latex\koma-script\scrpage2.sty"
+("C:\Program Files\MiKTeX 2.9\tex\latex\algorithm2e\algorithm2e.sty"
+Package: algorithm2e 2013/01/06 v5.00 algorithms environments
+\c@AlgoLine=\count158
+
+("C:\Program Files\MiKTeX 2.9\tex\latex\base\ifthen.sty"
+Package: ifthen 2014/09/29 v1.1c Standard LaTeX ifthen package (DPC)
+)
+\algocf@hangindent=\skip66
+
+("C:\Program Files\MiKTeX 2.9\tex\latex\ltxmisc\relsize.sty"
+Package: relsize 2003/07/04 ver 3.1
+)
+********************************************************
+Package `algorithm2e' Release 5.1 -- october 19 2015 --
+- algorithm2e-announce@lirmm.fr mailing list for announcement about releases
+- algorithm2e-discussion@lirmm.fr mailing list for discussion about package
+subscribe by emailing sympa@lirmm.fr with 'subscribe <list> <firstname name>'
+- Author: Christophe Fiorio (christophe.fiorio@umontpellier.fr)
+********************************************************
+\skiptotal=\skip67
+\skiplinenumber=\skip68
+\skiprule=\skip69
+\skiphlne=\skip70
+\skiptext=\skip71
+\skiplength=\skip72
+\algomargin=\skip73
+\skipalgocfslide=\skip74
+\algowidth=\dimen181
+\inoutsize=\dimen182
+\inoutindent=\dimen183
+\interspacetitleruled=\dimen184
+\interspacealgoruled=\dimen185
+\interspacetitleboxruled=\dimen186
+\algocf@ruledwidth=\skip75
+\algocf@inoutbox=\box42
+\algocf@inputbox=\box43
+\AlCapSkip=\skip76
+\AlCapHSkip=\skip77
+\algoskipindent=\skip78
+\algocf@nlbox=\box44
+\algocf@hangingbox=\box45
+\algocf@untilbox=\box46
+\algocf@skipuntil=\skip79
+\algocf@capbox=\box47
+\algoheightruledefault=\skip80
+\algoheightrule=\skip81
+\algotitleheightruledefault=\skip82
+\algotitleheightrule=\skip83
+\c@algocfline=\count159
+\c@algocfproc=\count160
+\c@algocf=\count161
+\algocf@algoframe=\box48
+\algocf@algobox=\box49
+) ("C:\Program Files\MiKTeX 2.9\tex\latex\koma-script\scrpage2.sty"
 Package: scrpage2 2015/02/07 v3.16 KOMA-Script package (page head and foot)
 LaTeX Info: Redefining \pagemark on input line 174.
 )
@@ -1219,67 +1272,61 @@ LaTeX Info: Redefining \pagemark on input line 174.
 
 LaTeX Warning: Label `ViscosityOnOff' multiply defined.
 
-
-LaTeX Warning: Label `monroe' multiply defined.
-
-
-LaTeX Warning: Label `sub@monroe' multiply defined.
-
 )
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 108.
-LaTeX Font Info:    ... okay on input line 108.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 108.
-LaTeX Font Info:    ... okay on input line 108.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 108.
-LaTeX Font Info:    ... okay on input line 108.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 108.
-LaTeX Font Info:    ... okay on input line 108.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 108.
-LaTeX Font Info:    ... okay on input line 108.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 108.
-LaTeX Font Info:    ... okay on input line 108.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 108.
-LaTeX Font Info:    Try loading font information for TS1+cmr on input line 108.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 111.
+LaTeX Font Info:    ... okay on input line 111.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 111.
+LaTeX Font Info:    ... okay on input line 111.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 111.
+LaTeX Font Info:    ... okay on input line 111.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 111.
+LaTeX Font Info:    ... okay on input line 111.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 111.
+LaTeX Font Info:    ... okay on input line 111.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 111.
+LaTeX Font Info:    ... okay on input line 111.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 111.
+LaTeX Font Info:    Try loading font information for TS1+cmr on input line 111.
 
  ("C:\Program Files\MiKTeX 2.9\tex\latex\base\ts1cmr.fd"
 File: ts1cmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
-LaTeX Font Info:    ... okay on input line 108.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 108.
-LaTeX Font Info:    ... okay on input line 108.
+LaTeX Font Info:    ... okay on input line 111.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 111.
+LaTeX Font Info:    ... okay on input line 111.
 
 ("C:\Program Files\MiKTeX 2.9\tex\context\base\supp-pdf.mkii"
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count158
-\scratchdimen=\dimen181
-\scratchbox=\box42
-\nofMPsegments=\count159
-\nofMParguments=\count160
+\scratchcounter=\count162
+\scratchdimen=\dimen187
+\scratchbox=\box50
+\nofMPsegments=\count163
+\nofMParguments=\count164
 \everyMPshowfont=\toks43
-\MPscratchCnt=\count161
-\MPscratchDim=\dimen182
-\MPnumerator=\count162
-\makeMPintoPDFobject=\count163
+\MPscratchCnt=\count165
+\MPscratchDim=\dimen188
+\MPnumerator=\count166
+\makeMPintoPDFobject=\count167
 \everyMPtoPDFconversion=\toks44
 )
-\AtBeginShipoutBox=\box43
-Package hyperref Info: Link coloring OFF on input line 108.
+\AtBeginShipoutBox=\box51
+Package hyperref Info: Link coloring OFF on input line 111.
  ("C:\Program Files\MiKTeX 2.9\tex\latex\hyperref\nameref.sty"
 Package: nameref 2012/10/27 v2.43 Cross-referencing by name of section
 
 ("C:\Program Files\MiKTeX 2.9\tex\generic\oberdiek\gettitlestring.sty"
 Package: gettitlestring 2010/12/03 v1.4 Cleanup title references (HO)
 )
-\c@section@level=\count164
+\c@section@level=\count168
 )
-LaTeX Info: Redefining \ref on input line 108.
-LaTeX Info: Redefining \pageref on input line 108.
-LaTeX Info: Redefining \nameref on input line 108.
+LaTeX Info: Redefining \ref on input line 111.
+LaTeX Info: Redefining \pageref on input line 111.
+LaTeX Info: Redefining \nameref on input line 111.
 
 (StableFluids.out) (StableFluids.out)
 \@outlinefile=\write4
  ABD: EveryShipout initializing macros
-Underfull \hbox (badness 10000) in paragraph at lines 131--133
+Underfull \hbox (badness 10000) in paragraph at lines 134--136
 
  []
 
@@ -1300,7 +1347,7 @@ Class scrbook Warning: Usage of deprecated font command `\tt'!
 (scrbook)              Note also, that KOMA-Script will remove the definition
 (scrbook)              of `\tt' anytime until release of about version 3.20.
 (scrbook)              But for now, KOMA-Script will replace deprecated `\tt'
-(scrbook)              by `\normalfont \ttfamily ' on input line 156.
+(scrbook)              by `\normalfont \ttfamily ' on input line 159.
 
 
 Class scrbook Warning: Usage of deprecated font command `\tt'!
@@ -1314,7 +1361,7 @@ Class scrbook Warning: Usage of deprecated font command `\tt'!
 (scrbook)              Note also, that KOMA-Script will remove the definition
 (scrbook)              of `\tt' anytime until release of about version 3.20.
 (scrbook)              But for now, KOMA-Script will replace deprecated `\tt'
-(scrbook)              by `\normalfont \ttfamily ' on input line 157.
+(scrbook)              by `\normalfont \ttfamily ' on input line 160.
 
 [3] (StableFluids.toc
 LaTeX Font Info:    Try loading font information for U+msa on input line 4.
@@ -1335,11 +1382,11 @@ File: uwasy.fd 2003/10/30 v2.0 Wasy-2 symbol font definitions
 
 
 ]
-\c@test333=\count165
-\c@thm=\count166
+\c@test333=\count169
+\c@thm=\count170
 
 
-Package amsthm Warning: Unknown theoremstyle `theorem' on input line 189.
+Package amsthm Warning: Unknown theoremstyle `theorem' on input line 192.
 
 Kapitel 0.
 
@@ -1364,18 +1411,39 @@ Class scrbook Warning: \float@addtolists detected!
 
 ]
 Kapitel 1.
+
+Underfull \hbox (badness 10000) in paragraph at lines 213--215
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 216--217
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 218--219
+
+ []
+
 [2
 
 
 ]
 Kapitel 2.
 
-Underfull \hbox (badness 10000) in paragraph at lines 241--243
+Underfull \hbox (badness 10000) in paragraph at lines 245--247
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 244--245
+Underfull \hbox (badness 1748) in paragraph at lines 248--249
+[]\OT1/cmr/m/n/10 By the Helmholtz-Hodge de-com-po-si-ti-on theo-rem we ha-ve t
+hat any $\OML/cmm/m/it/10 C[]$ \OT1/cmr/m/n/10 vec-tor field
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 248--249
 
  []
 
@@ -1383,211 +1451,270 @@ Underfull \hbox (badness 10000) in paragraph at lines 244--245
 
 
 ]
-Underfull \hbox (badness 10000) in paragraph at lines 266--268
+Underfull \hbox (badness 10000) in paragraph at lines 303--305
 
  []
 
 [4]
-Underfull \hbox (badness 10000) in paragraph at lines 318--320
+Underfull \hbox (badness 10000) in paragraph at lines 306--307
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 321--322
+Underfull \hbox (badness 10000) in paragraph at lines 347--349
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 350--351
 
  []
 
 [5]
-Underfull \hbox (badness 10000) in paragraph at lines 378--380
+Underfull \hbox (badness 10000) in paragraph at lines 407--409
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 386--387
+Underfull \hbox (badness 10000) in paragraph at lines 413--414
 
  []
 
-[6] <images/Vorticity.png, id=196, 1027.84pt x 256.96pt>
+[6]
+Underfull \hbox (badness 10000) in paragraph at lines 415--416
+
+ []
+
+<images/Vorticity.png, id=216, 1027.84pt x 256.96pt>
 File: images/Vorticity.png Graphic file (type png)
 
 <use images/Vorticity.png>
-Package pdftex.def Info: images/Vorticity.png used on input line 422.
+Package pdftex.def Info: images/Vorticity.png used on input line 451.
 (pdftex.def)             Requested size: 308.35437pt x 77.0886pt.
-
-<images/Viscosity-2.png, id=197, 1027.84pt x 256.96pt>
+ [7]
+<images/Viscosity-2.png, id=225, 1027.84pt x 256.96pt>
 File: images/Viscosity-2.png Graphic file (type png)
 
 <use images/Viscosity-2.png>
-Package pdftex.def Info: images/Viscosity-2.png used on input line 432.
+Package pdftex.def Info: images/Viscosity-2.png used on input line 461.
 (pdftex.def)             Requested size: 308.35437pt x 77.0886pt.
- [7pdfTeX warning (ext4): destination with the same identifier (name{figure.2.1
-}) has been already used, duplicate ignored
 
-\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
-                                                  \fi \fi 
-l.436 
-       <./images/Vorticity.png>]
-<images/Diffusion.png, id=204, 1027.84pt x 256.96pt>
+<images/Diffusion.png, id=226, 1027.84pt x 256.96pt>
 File: images/Diffusion.png Graphic file (type png)
 
 <use images/Diffusion.png>
-Package pdftex.def Info: images/Diffusion.png used on input line 439.
+Package pdftex.def Info: images/Diffusion.png used on input line 468.
 (pdftex.def)             Requested size: 308.35437pt x 77.0886pt.
- [8pdfTeX warning (ext4): destination with the same identifier (name{figure.2.2
-}) has been already used, duplicate ignored
 
-\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
-                                                  \fi \fi 
-l.449 \chapter
-              {Implementation and Framework}pdfTeX warning (ext4): destination 
-with the same identifier (name{figure.2.3}) has been already used, duplicate ig
-nored
-
-\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
-                                                  \fi \fi 
-l.449 \chapter
-              {Implementation and Framework} <./images/Viscosity-2.png> <./imag
-es/Diffusion.png>]
-Kapitel 3.
-
-Underfull \hbox (badness 10000) in paragraph at lines 463--464
+Underfull \hbox (badness 10000) in paragraph at lines 474--475
 
  []
 
-<images/SmokeTrace.png, id=212, 251.43938pt x 146.79843pt>
+[8pdfTeX warning (ext4): destination with the same identifier (name{figure.2.1}
+) has been already used, duplicate ignored
+
+\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
+                                                  \fi \fi 
+l.475 
+      pdfTeX warning (ext4): destination with the same identifier (name{figure.
+2.2}) has been already used, duplicate ignored
+
+\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
+                                                  \fi \fi 
+l.475 
+      pdfTeX warning (ext4): destination with the same identifier (name{figure.
+2.3}) has been already used, duplicate ignored
+
+\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
+                                                  \fi \fi 
+l.475 
+       <./images/Vorticity.png> <./images/Viscosity-2.png> <./images/Diffusion.
+png>] [9]
+Kapitel 3.
+
+Underfull \hbox (badness 10000) in paragraph at lines 493--494
+
+ []
+
+<images/SmokeTrace.png, id=240, 251.43938pt x 146.79843pt>
 File: images/SmokeTrace.png Graphic file (type png)
 
 <use images/SmokeTrace.png>
-Package pdftex.def Info: images/SmokeTrace.png used on input line 467.
+Package pdftex.def Info: images/SmokeTrace.png used on input line 497.
 (pdftex.def)             Requested size: 201.15176pt x 117.43889pt.
- [9
+ [10
 
 
 ]
-Underfull \hbox (badness 10000) in paragraph at lines 471--472
+Underfull \hbox (badness 10000) in paragraph at lines 501--502
 
  []
 
-<images/SplinesScheme.png, id=220, 960.58875pt x 508.14844pt>
+<images/SplinesScheme.png, id=247, 960.58875pt x 508.14844pt>
 File: images/SplinesScheme.png Graphic file (type png)
 
 <use images/SplinesScheme.png>
-Package pdftex.def Info: images/SplinesScheme.png used on input line 476.
+Package pdftex.def Info: images/SplinesScheme.png used on input line 506.
 (pdftex.def)             Requested size: 288.17885pt x 152.4457pt.
 
-Underfull \hbox (badness 10000) in paragraph at lines 487--488
+Underfull \hbox (badness 10000) in paragraph at lines 517--518
 
  []
 
-[10pdfTeX warning (ext4): destination with the same identifier (name{figure.3.1
+[11pdfTeX warning (ext4): destination with the same identifier (name{figure.3.1
 }) has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.488 
+l.518 
       pdfTeX warning (ext4): destination with the same identifier (name{figure.
 3.2}) has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.488 
-       <./images/SmokeTrace.png> <./images/SplinesScheme.png>] [11]
-Kapitel 4.
-<images/greySmoke.png, id=235, 380.17032pt x 365.11406pt>
-File: images/greySmoke.png Graphic file (type png)
-
-<use images/greySmoke.png>
-Package pdftex.def Info: images/greySmoke.png used on input line 501.
-(pdftex.def)             Requested size: 170.71652pt x 163.95996pt.
-
-<images/colors.png, id=236, 365.53957pt x 230.42609pt>
-File: images/colors.png Graphic file (type png)
- <use images/colors.png>
-Package pdftex.def Info: images/colors.png used on input line 506.
-(pdftex.def)             Requested size: 170.71652pt x 107.61464pt.
-
-<images/monroe.png, id=237, 1023.825pt x 805.50937pt>
-File: images/monroe.png Graphic file (type png)
- <use images/monroe.png>
-Package pdftex.def Info: images/monroe.png used on input line 512.
-(pdftex.def)             Requested size: 170.71652pt x 134.30449pt.
-
-<images/pineapple.png, id=238, 722.7pt x 626.34pt>
-File: images/pineapple.png Graphic file (type png)
- <use images/pineapple.png>
-Package pdftex.def Info: images/pineapple.png used on input line 517.
-(pdftex.def)             Requested size: 170.71652pt x 147.95448pt.
-
-Underfull \hbox (badness 10000) in paragraph at lines 494--518
+l.518 
+       <./images/SmokeTrace.png> <./images/SplinesScheme.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 529--530
 
  []
 
-[12
+[12] [13] [14]
+Kapitel 4.
+<images/greySmoke.png, id=272, 380.17032pt x 365.11406pt>
+File: images/greySmoke.png Graphic file (type png)
+
+<use images/greySmoke.png>
+Package pdftex.def Info: images/greySmoke.png used on input line 635.
+(pdftex.def)             Requested size: 156.49014pt x 150.29384pt.
+
+<images/colors.png, id=273, 365.53957pt x 230.42609pt>
+File: images/colors.png Graphic file (type png)
+ <use images/colors.png>
+Package pdftex.def Info: images/colors.png used on input line 640.
+(pdftex.def)             Requested size: 156.49014pt x 98.6488pt.
+
+<images/viscosity.png, id=274, 292.22217pt x 148.31061pt>
+File: images/viscosity.png Graphic file (type png)
+
+<use images/viscosity.png>
+Package pdftex.def Info: images/viscosity.png used on input line 646.
+(pdftex.def)             Requested size: 156.49014pt x 79.42345pt.
+
+<images/diffusionDemo.png, id=275, 331.9602pt x 190.7928pt>
+File: images/diffusionDemo.png Graphic file (type png)
+
+<use images/diffusionDemo.png>
+Package pdftex.def Info: images/diffusionDemo.png used on input line 651.
+(pdftex.def)             Requested size: 156.49014pt x 89.94336pt.
+
+<images/monroe.png, id=276, 1023.825pt x 805.50937pt>
+File: images/monroe.png Graphic file (type png)
+ <use images/monroe.png>
+Package pdftex.def Info: images/monroe.png used on input line 657.
+(pdftex.def)             Requested size: 156.49014pt x 123.11961pt.
+
+<images/pineapple.png, id=277, 722.7pt x 626.34pt>
+File: images/pineapple.png Graphic file (type png)
+ <use images/pineapple.png>
+Package pdftex.def Info: images/pineapple.png used on input line 662.
+(pdftex.def)             Requested size: 156.49014pt x 135.62575pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 628--663
+
+ []
+
+[15
 
 
- <./images/greySmoke.png> <./images/colors.png> <./images/monroe.png> <./images
-/pineapple.png>]
+ <./images/greySmoke.png> <./images/colors.png> <./images/viscosity.png> <./ima
+ges/diffusionDemo.png> <./images/monroe.png> <./images/pineapple.png>]
+[16]
 Kapitel 5.
-[13
+
+Underfull \hbox (badness 10000) in paragraph at lines 681--682
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 683--684
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 685--686
+
+ []
+
+[17
 
 
 ]
 Kapitel 6.
-
-Underfull \hbox (badness 10000) in paragraph at lines 522--537
-
- []
-
-[14
-
-
-] [15
+[18
 
 
 ]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 576.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 576.
+Kapitel 7.
+
+Underfull \hbox (badness 10000) in paragraph at lines 691--698
+
+ []
+
+[19
+
+
+] [20
+
+
+]
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 737.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 737.
  (StableFluids.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 576.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 576.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 737.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 737.
 Package rerunfilecheck Info: File `StableFluids.out' has not changed.
-(rerunfilecheck)             Checksum: 05880CBDD55A4AD20E94BA1E22DAEA3B;1232.
+(rerunfilecheck)             Checksum: 30E10BC0DF2FD5F1957CA80854113FEE;1404.
 
 
 LaTeX Warning: There were multiply-defined labels.
 
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 576.
- ) 
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 737.
+ )
+(\end occurred inside a group at level 1)
+
+### simple group (level 1) entered at line 1061 ({)
+### bottom level 
 Here is how much of TeX's memory you used:
- 21530 strings out of 493671
- 384597 string characters out of 3143853
- 541080 words of memory out of 3000000
- 24408 multiletter control sequences out of 15000+200000
+ 22750 strings out of 493671
+ 404344 string characters out of 3143853
+ 556496 words of memory out of 3000000
+ 25602 multiletter control sequences out of 15000+200000
  15849 words of font info for 57 fonts, out of 3000000 for 9000
  1026 hyphenation exceptions out of 8191
- 64i,15n,70p,538b,867s stack positions out of 5000i,500n,10000p,200000b,50000s
-{C:/Program Files/MiKTeX 2.9/fonts/enc/dvips/mnsymbol/MnSymbolE.enc} <C:\User
-s\Johannes\AppData\Local\MiKTeX\2.9\fonts\pk\ljfour\jknappen\ec\dpi600\tcrm1000
-.pk>{C:/Program Files/MiKTeX 2.9/fonts/enc/dvips/mnsymbol/MnSymbolC.enc}{C:/Pro
-gram Files/MiKTeX 2.9/fonts/enc/dvips/mnsymbol/MnSymbolA.enc}{C:/Program Files/
-MiKTeX 2.9/fonts/enc/dvips/mnsymbol/MnSymbolD.enc}<C:/Program Files/MiKTeX 2.9/
-fonts/type1/public/mnsymbol/MnSymbol10.pfb><C:/Program Files/MiKTeX 2.9/fonts/t
-ype1/public/mnsymbol/MnSymbol7.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/pub
-lic/amsfonts/cm/cmbx10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsf
-onts/cm/cmmi10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/
-cmmi7.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr10.pfb
-><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Prog
-ram Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr5.pfb><C:/Program Files/
-MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr7.pfb><C:/Program Files/MiKTeX 2.9
-/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Program Files/MiKTeX 2.9/fonts/typ
-e1/public/amsfonts/cm/cmsl10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/publi
-c/amsfonts/cm/cmssbx10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsf
-onts/cm/cmti10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/
-cmtt10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/symbols/msb
-m10.pfb>
-Output written on StableFluids.pdf (19 pages, 4318255 bytes).
+ 64i,16n,70p,974b,3008s stack positions out of 5000i,500n,10000p,200000b,50000s
+{C:/Program Files/MiKTeX 2.9/fonts/enc/dvips/mnsymbol/MnSymbolE
+.enc} <C:\Users\Johannes\AppData\Local\MiKTeX\2.9\fonts\pk\ljfour\jknappen\ec\d
+pi600\tcrm1000.pk>{C:/Program Files/MiKTeX 2.9/fonts/enc/dvips/mnsymbol/MnSymbo
+lC.enc}{C:/Program Files/MiKTeX 2.9/fonts/enc/dvips/mnsymbol/MnSymbolA.enc}{C:/
+Program Files/MiKTeX 2.9/fonts/enc/dvips/mnsymbol/MnSymbolD.enc}<C:/Program Fil
+es/MiKTeX 2.9/fonts/type1/public/mnsymbol/MnSymbol10.pfb><C:/Program Files/MiKT
+eX 2.9/fonts/type1/public/mnsymbol/MnSymbol7.pfb><C:/Program Files/MiKTeX 2.9/f
+onts/type1/public/amsfonts/cm/cmbx10.pfb><C:/Program Files/MiKTeX 2.9/fonts/typ
+e1/public/amsfonts/cm/cmmi10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/publi
+c/amsfonts/cm/cmmi7.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfont
+s/cm/cmr10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr1
+2.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr5.pfb><C:/
+Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr7.pfb><C:/Program Fi
+les/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Program Files/MiKTeX
+ 2.9/fonts/type1/public/amsfonts/cm/cmsl10.pfb><C:/Program Files/MiKTeX 2.9/fon
+ts/type1/public/amsfonts/cm/cmss10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1
+/public/amsfonts/cm/cmssbx10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/publi
+c/amsfonts/cm/cmti10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfon
+ts/cm/cmtt10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/symbo
+ls/msbm10.pfb>
+Output written on StableFluids.pdf (24 pages, 5087135 bytes).
 PDF statistics:
- 343 PDF objects out of 1000 (max. 8388607)
- 68 named destinations out of 1000 (max. 500000)
- 218 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 401 PDF objects out of 1000 (max. 8388607)
+ 82 named destinations out of 1000 (max. 500000)
+ 252 words of extra memory for PDF output out of 10000 (max. 10000000)
 
