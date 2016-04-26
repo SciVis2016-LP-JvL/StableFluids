@@ -1,30 +1,21 @@
 package StableFluids;
 
-//import java.awt.BorderLayout;
 import java.awt.Button;
-//import java.awt.Canvas;
 import java.awt.FlowLayout;
-import java.awt.GridLayout;
 import java.awt.Panel;
-import java.awt.Label;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-//import jv.number.PdVector_IP;
-//import jv.object.PsConfig;
-//import jv.object.PsMainFrame;
 import jv.object.PsPanel;
 import jv.object.PsUpdateIf;
 import jv.objectGui.PsMultiLineLabel;
 import jv.project.PjProject_IP;
-//import jv.project.PvDisplayIf;
-//import jv.vecmath.PdVector;
 
 /**
  * Project visualizing smoke like [Jos Stam 1999].
  * 
- * @author		Lukas Polthier, Johannes von Lindheim, [Konrad Polthier (Julia Set project)]
- * @version			20.12.15, 0.00 reused JuliaSets project as template for Stable Fluids application
+ * @author		Lukas Polthier, Johannes von Lindheim, [Konrad Polthier (Julia Set project template)]
+ * @version		29.04.16, 1.00 version submitted as our final SciVis project
  */
 public class Painter_IP extends PjProject_IP implements ActionListener { 
 	protected	Painter				m_Project;

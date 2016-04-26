@@ -6,8 +6,7 @@ import jv.object.PsDebug;
  * Project visualizing smoke like [Jos Stam 1999].
  * 
  * @author		Lukas Polthier, Johannes von Lindheim
- * @version		04.03.2016
- * 				update of FluidSolver, now everything works properly, Gauﬂ-Seidel as linear solver
+ * @version		29.04.16, 1.00 version submitted as our final SciVis project
  */
 
 public class FluidSolver implements Cloneable

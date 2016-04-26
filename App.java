@@ -12,8 +12,8 @@ import vgp.object.PsApplet;
 /**
  * Project visualizing smoke like [Jos Stam 1999].
  * 
- * @author		Lukas Polthier, Johannes von Lindheim, Konrad Polthier (Julia Set project)
- * @version			20.12.15, 0.00 reused JuliaSets project as template for Stable Fluids application
+ * @author		Lukas Polthier, Johannes von Lindheim, [Konrad Polthier (Julia Set project template)]
+ * @version		29.04.16, 1.00 version submitted as our final SciVis project
  */
 public class App extends PsApplet {
 	/** Interface of applet to inform about author, version, and copyright */
@@ -25,7 +25,6 @@ public class App extends PsApplet {
 	}
 	/** Return a new allocated project instance. */
 	public Rectangle getSizeOfFrame() {
-//		return new Rectangle(580, 5, 272, 620);
 		return new Rectangle(580, 5, 272+256, 720);
 	}
 	/** Return a new allocated project instance. */

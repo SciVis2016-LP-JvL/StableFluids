@@ -31,7 +31,7 @@ import jvx.curve.PgBezierCurve;
 /**
  * Project visualizing smoke like [Jos Stam 1999].
  * 
- * @author		Lukas Polthier, Johannes von Lindheim, Konrad Polthier (Julia Set project)
+ * @author		Lukas Polthier, Johannes von Lindheim, [Konrad Polthier (Julia Set project template)]
  * @version		0.0, 20.12.15 reused JuliaSets project as template for Stable Fluids application
  */
 @SuppressWarnings("serial")
