@@ -102,13 +102,19 @@ public class Painter extends PjProject implements ComponentListener
 
     private 	PuDouble 			m_dt;
     
-	public Painter() {
+
+    ///////////////////////////////////////////////////////////////////////////////
+
+    
+	public Painter()
+	{
 		super("Stable Fluids");
 		myReset();
 	}
+
+	// Resets everything
 	public void myReset()
 	{
-		// PsDebug.message("reset");
 		m_pix					= new PiVector();
 		m_density				= new PdVector();
 		m_density2				= new PdVector();
@@ -143,91 +149,7 @@ public class Painter extends PjProject implements ComponentListener
 		}
 	}
 
-	// Called, when reset-Button is pressed
-	public synchronized void buttonReset()
-	{
-		init();
-		initAnimation();
-		myStart();
-		initFluidSolver();
-	}
-	
-	public void buttonClear()
-	{
-		m_fluidSolver.clearArray();
-	}
-	
-	public void buttonFlipColor()
-	{
-		if(colorON) {
-			if(whichColor <=5) {
-				whichColor = whichColor + 1;
-			} else {
-				whichColor = 1;
-			}
-		}
-	}
-	
-	public void buttonImportImage()
-	{
-		if(colorON) {} else { buttonColorOnOff(); }
-		PsImage bild;
-		float factor = 0.00392156863f;
-		float alpha;
-		//bild = new PsImage("mysource/StableFluids/test.png");
-		bild = new PsImage("myProjects/StableFluids/test.png");
-		//bild.setSize(m_numBlocksX, m_numBlocksY);
-		int[] pixelBild;
-		Image bild2 = bild.getImage();
-		pixelBild = new int[(bild.getHeight()) * (bild.getWidth())];
-		pixelBild = PsImage.getPixels( bild2 );
-		int[] red, green, blue;
-		red = new int[(m_numBlocksX+2) * (m_numBlocksY+2)];
-		green = new int[(m_numBlocksX+2) * (m_numBlocksY+2)];
-		blue = new int[(m_numBlocksX+2) * (m_numBlocksY+2)];
-		
-		for(int i=0;i<m_numBlocksX; i++) {
-			for(int j=0;j<m_numBlocksY; j++) {
-				Color farbe = new Color( pixelBild[ i + bild.getWidth() * (j) ], false );
-				//alpha = Math.round( farbe.getAlpha() ) / 255;
-				alpha = 1;
-				/**
-				red[Id(i,j)] = Math.round( (255 - farbe.getRed())*factor / alpha );
-				green[Id(i,j)] = Math.round( (255 - farbe.getGreen())*factor / alpha );
-				blue[Id(i,j)] = Math.round( (255 - farbe.getBlue())*factor/ alpha );
-				*/
-				
-				
-				red[Id(i,j)] = 255 - farbe.getRed();
-				green[Id(i,j)] = 255 - farbe.getGreen();
-				blue[Id(i,j)] = 255 - farbe.getBlue();
-				
-				
-				/**
-				red[Id(i,j)] = 255;
-				green[Id(i,j)] = 200;
-				blue[Id(i,j)] = 0;
-				*/
-			}
-		}
-		//set density in the fluidsolver
-		m_fluidSolver.setDensity(red,green,blue);	
-	}
-	
-	// Invoked, when button "Freeze" is clicked.
-	public void buttonFreeze()
-	{
-		isFrozen = !isFrozen;
-	}
-	
-	// Invoked, when button "ColorOnOff" is clicked.
-	public void buttonColorOnOff()
-	{
-		colorChange = true;
-		colorONset = !colorONset;
-		buttonReset();
-	}
-
+	// Initializes everything
 	public void init()
 	{
 		super.init();
@@ -279,15 +201,14 @@ public class Painter extends PjProject implements ComponentListener
 		m_oldBlockSize.setValue(1);
 	}
 
-	/**
-	 * Called when project is launched by viewer on applet start.
-	 */
+	// Called when project is launched by viewer on applet start
 	public void start()
 	{
 		myStart();
 		super.start();
 	}
 	
+	// Start method without calling super.start()
 	@SuppressWarnings("deprecation")
 	private void myStart()
 	{
@@ -317,10 +238,7 @@ public class Painter extends PjProject implements ComponentListener
 
 	}
 	
-	/**
-	 * Update the class whenever a child has changed.
-	 * Method is usually invoked from the children.
-	 */
+	// Update the class whenever a child has changed - method is usually invoked from the children
 	public boolean update(Object event) 
 	{
 		// Null
@@ -372,16 +290,12 @@ public class Painter extends PjProject implements ComponentListener
 	// Initialize animation: Create time listener, reset time intervals etc.
 	private void initAnimation()
 	{
-		// PsDebug.message("initAnimation");
 		if (!super.hasAnimation())
 		{
 			PsAnimation anim = new PsAnimation();
-			anim.setName("Animation");	// Set title of the animation dialog.
+			anim.setName("Animation");	// Set title of the animation dialog
 			if (!anim.hasTimeListener(this))
-			{
-				// PsDebug.message("create new time listener");
 				anim.addTimeListener(this);
-			}
 		}
 
 		PsAnimation anim = super.getAnimation();
@@ -398,7 +312,89 @@ public class Painter extends PjProject implements ComponentListener
 		if (super.hasAnimation())
 			super.getAnimation().start();
 	}
+
+	// Called, when reset-button is pressed
+	public synchronized void buttonReset()
+	{
+		init();
+		initAnimation();
+		myStart();
+		initFluidSolver();
+	}
 	
+	// Invoked, when Button "Clear canvas" is pressed
+	public void buttonClear()
+	{
+		m_fluidSolver.clearArray();
+	}
+	
+	// Invoked, when button "Flip color" is pressed
+	public void buttonFlipColor()
+	{
+		if(colorON)
+		{
+			if(whichColor <=5)
+				whichColor = whichColor + 1;
+			else
+				whichColor = 1;
+		}
+	}
+	
+	// Invoked, when button "Import Image" is pressed
+	public void buttonImportImage()
+	{
+		// Switch colors on, if they are not on
+		if(!colorON)
+			buttonColorOnOff();
+
+		// Load image
+		PsImage bild;
+		//float factor = 0.00392156863f;
+		//float alpha;
+		//bild = new PsImage("mysource/StableFluids/test.png");
+		bild = new PsImage("myProjects/StableFluids/test.png");
+		//bild.setSize(m_numBlocksX, m_numBlocksY);
+		int[] pixelBild;
+		Image bild2 = bild.getImage();
+		pixelBild = new int[(bild.getHeight()) * (bild.getWidth())];
+		pixelBild = PsImage.getPixels( bild2 );
+		int[] red, green, blue;
+		red = new int[(m_numBlocksX+2) * (m_numBlocksY+2)];
+		green = new int[(m_numBlocksX+2) * (m_numBlocksY+2)];
+		blue = new int[(m_numBlocksX+2) * (m_numBlocksY+2)];
+		
+		for(int i=0;i<m_numBlocksX; i++)
+		{
+			for(int j=0;j<m_numBlocksY; j++)
+			{
+				Color farbe = new Color( pixelBild[ i + bild.getWidth() * (j) ], false );
+				//alpha = 1;
+
+				red[Id(i,j)] = 255 - farbe.getRed();
+				green[Id(i,j)] = 255 - farbe.getGreen();
+				blue[Id(i,j)] = 255 - farbe.getBlue();
+			}
+		}
+
+		//set density in the fluidsolver
+		m_fluidSolver.setDensity(red,green,blue);	
+	}
+	
+	// Invoked, when button "Freeze" is pressed.
+	public void buttonFreeze()
+	{
+		isFrozen = !isFrozen;
+	}
+	
+	// Invoked, when button "ColorOnOff" is pressed.
+	public void buttonColorOnOff()
+	{
+		colorChange = true;
+		colorONset = !colorONset;
+		buttonReset();
+	}
+
+	// Heart of the program. Invoked, whenever time has changed in the animation. Calls computeImage().
 	public boolean setTime(PsTimeEvent timeEvent)
 	{
 		// PsDebug.message("setTime");
@@ -411,8 +407,7 @@ public class Painter extends PjProject implements ComponentListener
 		return super.update(this);				// Update info panel of this project
 	}
 	
-	
-	// Adjust size of image to dimension of Display canvas.
+	// Adjust size of image to dimension of Display canvas. Also adjust sizes of FluidSolver and all densitiy arrays and restart animation
 	private synchronized boolean resizeImage(PvDisplayIf disp) 
 	{
 		if (m_currentlyResizing)
@@ -498,19 +493,19 @@ public class Painter extends PjProject implements ComponentListener
 		return false;
 	}
 
-	/** Invoked when component has been shown. */
+	// Invoked when component has been shown.
 	public void componentShown(ComponentEvent comp) {}
-	/** Invoked when component has been hidden. */
+	// Invoked when component has been hidden
 	public void componentHidden(ComponentEvent comp) {}
-	/** Invoked when component has been moved. */
+	// Invoked when component has been moved.
 	public void componentMoved(ComponentEvent comp) {}
-	/** When component has been resized all images must be resized. */
+	// When component has been resized all images must be resized.
 	public void componentResized(ComponentEvent comp) 
 	{
-		// PsDebug.message("componentResized");
 		// Adjust sizes of images to dimension of display canvas
 		Object source = comp.getSource();
-		if (source == m_disp) {
+		if (source == m_disp)
+		{
 			if (!resizeImage(m_disp))
 				return;
 			m_disp.update(null);
@@ -520,7 +515,6 @@ public class Painter extends PjProject implements ComponentListener
 	// Get display
 	public PvDisplayIf getDisp() 
 	{
-		// PsDebug.message("getDisp");
 		if (m_disp != null)
 			return m_disp;
 		
@@ -535,14 +529,11 @@ public class Painter extends PjProject implements ComponentListener
 		}
 		m_disp.setBackgroundColor(Color.white);
 		m_disp.addPickListener(this);
-//		((PvCameraIf)m_disp).addCameraListener(m_disp.getCamera());
-		// PsDebug.message("adding component listener...");
 		((Component)m_disp).addComponentListener(this);
-		// PsDebug.message("added component listener!");
 		m_disp.addCameraListener(new PvCameraListenerIf()
 		{
 			@Override
-			public void pickCamera(PvCameraEvent cameraEvent) {/*PsDebug.message("pickCamera");*/}
+			public void pickCamera(PvCameraEvent cameraEvent) {}
 			@Override
 			public String getName() {return null;}
 			@Override
@@ -555,10 +546,9 @@ public class Painter extends PjProject implements ComponentListener
 	// Compute image pixel values
 	private synchronized void computeImage()
 	{
-		// PsDebug.message("Compute image!");
-		// PsDebug.initTime();
-
-		if(colorChange) { colorChange = false;} else
+		if(colorChange)
+			colorChange = false;
+		else
 		{
 			// Add forces on corresponding mouse trace
 			if (m_forceTraceX.getSize() == m_forceTraceY.getSize())
@@ -700,9 +690,6 @@ public class Painter extends PjProject implements ComponentListener
 					check[1] = green;
 					check[2] = blue;
 					m_pix.setEntry(I(x,y), PdColor.getDimmedColor( PdColor.getColor(255, check), (double) 1.0f)  );
-					//if(x == 1 && y ==1)
-					//PsDebug.message("Rot:" + String.valueOf(check[0]) + "Grün" + String.valueOf(check[1]) + "Blau" + String.valueOf(check[2]) );
-					//m_pix.setEntry(I(x,y), PdColor.getColor(255, 0, 0, 255) );
 				} else {
 					if ((int)Math.round(m_density.getEntry(I(x,y))*255) > 255) {
 						m_pix.setEntry(I(x,y), PdColor.hsv2rgbAsInt(0, 0, 0));
@@ -753,11 +740,9 @@ public class Painter extends PjProject implements ComponentListener
 		}
 	}
 
+	// Adjusts fluidSolver and density clone to new blockSize.
 	private synchronized boolean changeBlockSize()
 	{
-		// PsDebug.message("changeBlockSize");
-		// PsDebug.message("change blockSize from " + String.valueOf(m_oldBlockSize.getValue()) + " to " + String.valueOf(m_blockSize.getValue()));
-
 		// Change resolutions
 		int oldNumBlocksX = m_numBlocksX;
 		m_numBlocksX = (int) Math.ceil((double)(m_imageWidth) / m_blockSize.getValue());
@@ -837,7 +822,6 @@ public class Painter extends PjProject implements ComponentListener
 		
 		return true;
 	}
-
 	
 	// Init and configure fluidSolver for current imageWidth, imageHeight, default constants
 	private void initFluidSolver()
@@ -875,10 +859,6 @@ public class Painter extends PjProject implements ComponentListener
      **/
     private void addForce(int oldX, int oldY, int newX, int newY, int radius)
     {
-//    	boolean wasZero = true;
-//    	PsDebug.message("addForce to x: " + String.valueOf(m_mouseX_Old) + ", y: " + String.valueOf(m_mouseY_Old));
-//    	PsDebug.message("new x: " + String.valueOf(m_mouseX) + ", new y: " + String.valueOf(m_mouseY));
-
     	float[] lowerUbound = new float[m_numBlocksX*m_numBlocksY];
     	float[] lowerVbound = new float[m_numBlocksX*m_numBlocksY];
     	PdVector mousePos = new PdVector((double)oldX, (double)oldY);
@@ -888,24 +868,13 @@ public class Painter extends PjProject implements ComponentListener
 		{
 			for (int y=Math.max(0, oldY-radius); y<Math.min(m_imageHeight, oldY+radius); ++y)
 			{
-//				if (m_fluidSolver.vOld[I(x, y)] != 0 || m_fluidSolver.uOld[I(x, y)] != 0)
-//				{
-//					if (wasZero)
-//				    	PsDebug.message("at x: " + String.valueOf(x) + ", y: " + String.valueOf(y) + " vOld/uOld is not zero");
-//					wasZero = false;
-//				}
-//		    	PsDebug.message("dist == " + String.valueOf(mousePos.dist(new PdVector((double)x, (double)y))));
 				double lambda = Math.max(0.0, (radius - mousePos.dist(new PdVector((double)x, (double)y))) / (double)radius);
-				
-//				PsDebug.message("x: " + String.valueOf(x) + ", y: " + String.valueOf(y)
-//							+ ", lambda: " + String.valueOf(lambda));
-				
+
 				lowerUbound[Id(block(x), block(y))] += (float)(m_forceConst.getValue() * lambda * (newX - oldX) / m_blockSize.getValue());
 				lowerVbound[Id(block(x), block(y))] += (float)(m_forceConst.getValue() * lambda * (newY - oldY) / m_blockSize.getValue());
 			}
 		}
 
-		// DIESE GRENZEN TESTEN
 		int uSign = newX - oldX >= 0 ? 1 : -1, vSign = newY - oldY >= 0 ? 1 : -1;
 		for (int x=Math.max(0, block(oldX-radius)); x<Math.min(m_numBlocksX, block(oldX+radius)); ++x)
 		{
@@ -920,14 +889,9 @@ public class Painter extends PjProject implements ComponentListener
 				m_fluidSolver.vOld[Id(x, y)] = vSign * Math.max(vSign * lowerVbound[Id(x, y)], vSign * m_fluidSolver.vOld[Id(x, y)]);
 			}
 		}
-				
-//		if (!wasZero)
-//			PsDebug.warning("vOld/uOld war nicht null!");
     }
     
-    /**
-     * Add density splines according to the current mouse trace
-     */
+    // Add density splines according to the current mouse trace
     private synchronized void addDensityTrace()
     {
     	// Security check
@@ -1093,60 +1057,30 @@ public class Painter extends PjProject implements ComponentListener
 				// Put maximum of input force that is already there, that was there last frame
 				// and new density cone into fluidSolver
 				if(whichColor == 1) {
-					// m_fluidSolver.dOld[Id(x, y)] = Math.max(lowerDbound[Id(x, y)], m_fluidSolver.dOld[Id(x, y)]);
 					temp = m_fluidSolver.dOld[Id(x,y)];
 					m_fluidSolver.dOld[Id(x, y)] = (float) Math.max(temp, Math.max(0.0, Math.max(lowerDbound[Id(x, y)], temp) - (float) m_oldInputDensity.getEntry(Id(x, y)))); 
 				} else if(whichColor == 2) {
-					// m_fluidSolver.d2Old[Id(x, y)] = Math.max(lowerDbound[Id(x, y)], m_fluidSolver.d2Old[Id(x, y)]);
 					temp = m_fluidSolver.d2Old[Id(x,y)];
 					m_fluidSolver.d2Old[Id(x, y)] = (float) Math.max(temp, Math.max(0.0, Math.max(lowerDbound[Id(x, y)], temp) - (float) m_oldInputDensity.getEntry(Id(x, y)))); 
 				} else if(whichColor == 3) {
-					// m_fluidSolver.d3Old[Id(x, y)] = Math.max(lowerDbound[Id(x, y)], m_fluidSolver.d3Old[Id(x, y)]);
 					temp = m_fluidSolver.d3Old[Id(x,y)];
 					m_fluidSolver.d3Old[Id(x, y)] = (float) Math.max(temp, Math.max(0.0, Math.max(lowerDbound[Id(x, y)], temp) - (float) m_oldInputDensity.getEntry(Id(x, y)))); 
 				} else if(whichColor == 4) {
-					// m_fluidSolver.d3Old[Id(x, y)] = Math.max(lowerDbound[Id(x, y)], m_fluidSolver.d3Old[Id(x, y)]);
 					temp = m_fluidSolver.d3Old[Id(x,y)];
 					m_fluidSolver.d3Old[Id(x, y)] = (float) Math.max(temp, Math.max(0.0, Math.max(lowerDbound[Id(x, y)], temp) - (float) m_oldInputDensity.getEntry(Id(x, y)))); 
-					// m_fluidSolver.d2Old[Id(x, y)] = Math.max(lowerDbound[Id(x, y)], m_fluidSolver.d2Old[Id(x, y)]);
 					temp = m_fluidSolver.d2Old[Id(x,y)];
 					m_fluidSolver.d2Old[Id(x, y)] = (float) Math.max(temp, Math.max(0.0, Math.max(lowerDbound[Id(x, y)], temp) - (float) m_oldInputDensity.getEntry(Id(x, y)))); 
 				} else if(whichColor == 5) {
-					// m_fluidSolver.dOld[Id(x, y)] = Math.max(lowerDbound[Id(x, y)], m_fluidSolver.dOld[Id(x, y)]);
 					temp = m_fluidSolver.dOld[Id(x,y)];
 					m_fluidSolver.dOld[Id(x, y)] = (float) Math.max(temp, Math.max(0.0, Math.max(lowerDbound[Id(x, y)], temp) - (float) m_oldInputDensity.getEntry(Id(x, y)))); 
-					// m_fluidSolver.d2Old[Id(x, y)] = Math.max(lowerDbound[Id(x, y)], m_fluidSolver.d2Old[Id(x, y)]);
 					temp = m_fluidSolver.d2Old[Id(x,y)];
 					m_fluidSolver.d2Old[Id(x, y)] = (float) Math.max(temp, Math.max(0.0, Math.max(lowerDbound[Id(x, y)], temp) - (float) m_oldInputDensity.getEntry(Id(x, y)))); 
 				} else if(whichColor == 6) {
-					// m_fluidSolver.dOld[Id(x, y)] = Math.max(lowerDbound[Id(x, y)], m_fluidSolver.dOld[Id(x, y)]);
 					temp = m_fluidSolver.dOld[Id(x,y)];
 					m_fluidSolver.dOld[Id(x, y)] = (float) Math.max(temp, Math.max(0.0, Math.max(lowerDbound[Id(x, y)], temp) - (float) m_oldInputDensity.getEntry(Id(x, y)))); 
-					// m_fluidSolver.d3Old[Id(x, y)] = Math.max(lowerDbound[Id(x, y)], m_fluidSolver.d3Old[Id(x, y)]);
 					temp = m_fluidSolver.d3Old[Id(x,y)];
 					m_fluidSolver.d3Old[Id(x, y)] = (float) Math.max(temp, Math.max(0.0, Math.max(lowerDbound[Id(x, y)], temp) - (float) m_oldInputDensity.getEntry(Id(x, y)))); 
 				}
-				// else if(whichColor == 7) {
-				// 	// m_fluidSolver.d3Old[Id(x, y)] = Math.max(lowerDbound[Id(x, y)], m_fluidSolver.d3Old[Id(x, y)]);
-				// 	temp = m_fluidSolver.d3Old[Id(x,y)];
-				// 	m_fluidSolver.d3Old[Id(x, y)] = (float) Math.max(temp, Math.max(0.0, Math.max(lowerDbound[Id(x, y)], temp) - (float) m_oldInputDensity.getEntry(Id(x, y)))); 
-				// 	// m_fluidSolver.d2Old[Id(x, y)] = Math.max(lowerDbound[Id(x, y)], m_fluidSolver.d2Old[Id(x, y)]);
-				// 	temp = m_fluidSolver.d2Old[Id(x,y)];
-				// 	m_fluidSolver.d2Old[Id(x, y)] = (float) Math.max(temp, Math.max(0.0, Math.max(lowerDbound[Id(x, y)], temp) - (float) m_oldInputDensity.getEntry(Id(x, y)))); 
-				// 	// m_fluidSolver.dOld[Id(x, y)] = Math.max(lowerDbound[Id(x, y)], m_fluidSolver.dOld[Id(x, y)])/2;
-				// 	temp = m_fluidSolver.dOld[Id(x,y)];
-				// 	m_fluidSolver.dOld[Id(x, y)] = (float) Math.max(temp, Math.max(0.0, Math.max(lowerDbound[Id(x, y)], temp) - (float) (m_oldInputDensity.getEntry(Id(x, y))/2)))/2;
-				// } else if(whichColor == 8) {
-				// 	// m_fluidSolver.d3Old[Id(x, y)] = Math.max(lowerDbound[Id(x, y)], m_fluidSolver.d3Old[Id(x, y)]);
-				// 	temp = m_fluidSolver.d3Old[Id(x,y)];
-				// 	m_fluidSolver.d3Old[Id(x, y)] = (float) Math.max(temp, Math.max(0.0, Math.max(lowerDbound[Id(x, y)], temp) - (float) m_oldInputDensity.getEntry(Id(x, y)))); 
-				// 	// m_fluidSolver.d2Old[Id(x, y)] = Math.max(lowerDbound[Id(x, y)], m_fluidSolver.d2Old[Id(x, y)])/2;
-				// 	temp = m_fluidSolver.d2Old[Id(x,y)];
-				// 	m_fluidSolver.d2Old[Id(x, y)] = (float) Math.max(temp, Math.max(0.0, Math.max(lowerDbound[Id(x, y)], temp) - (float) m_oldInputDensity.getEntry(Id(x, y))/2))/2;
-				// 	// m_fluidSolver.dOld[Id(x, y)] = Math.max(lowerDbound[Id(x, y)], m_fluidSolver.dOld[Id(x, y)])/2;
-				// 	temp = m_fluidSolver.dOld[Id(x,y)];
-				// 	m_fluidSolver.dOld[Id(x, y)] = (float) Math.max(temp, Math.max(0.0, Math.max(lowerDbound[Id(x, y)], temp) - (float) m_oldInputDensity.getEntry(Id(x, y))/2))/2;
-				// }
 			}
 		}
     }
@@ -1248,8 +1182,5 @@ public class Painter extends PjProject implements ComponentListener
 			return true;
 		
 		return false;
-}
-	
-	
-	public PuDouble getTime() { return m_time; }
+	}
 }
