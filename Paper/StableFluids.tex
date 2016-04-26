@@ -45,6 +45,9 @@
 \usepackage{float}
 \usepackage{tikz}
 \usetikzlibrary{matrix}
+%\usepackage{algpseudocode}
+%\usepackage[ruled]{algorithm2e}
+\usepackage[]{algorithm2e}
 %_______________________________________________________________________________
 % bold fonts for headings
 %_______________________________________________________________________________
@@ -193,7 +196,7 @@ Freie Universit\"at Berlin\\
 
 \theoremstyle{definition}
 \newtheorem{Rem}[thm]{Remark}
-\newtheorem{State}[subsection]{\#}
+%\newtheorem{State}[subsection]{\#}
 
 
 
@@ -267,12 +270,28 @@ The add force step incorporates additional force by the user and buoyancy force 
 \begin{align*}
 	u^1(x) = u^0(x) + \Delta t~ f(t,x)
 \end{align*}
-The buoyancy force is computed using Archimedes' principle. In a simplified approach, heaviness is equal to the density of the smoke. After computing the average temperature of the fluid, the upward force is determined for each pixel separately depending on the difference with respect to the average temperature.
-\begin{align*}
-	&\texttt{for all grid blocks...}\\
-	&\texttt{weight of block} = \texttt{sum of densities in this block}\\
-	&f = T_{amb} * \texttt{weight of block} + (1-T_{amb}) * \texttt{weight of one block of air}\\
-\end{align*}
+The buoyancy force is computed using Archimedes' principle. In a simplified approach, heaviness is equal to the density of the smoke. After computing the average temperature of the fluid, the upward force is determined for each pixel separately depending on the difference with respect to the average temperature:
+%\begin{align*}
+%	&\texttt{for all grid blocks...}\\
+%	&\texttt{weight of block} = \texttt{sum of densities in this block}\\
+%	&f = T_{amb} * \texttt{weight of block} + (1-T_{amb}) * \texttt{weight of one block of air}\\
+%\end{align*}
+\begin{algorithm}
+\DontPrintSemicolon
+%\SetKwProg{Fn}{}{}{end}
+\SetKwFunction{setTime}{setTime}
+\SetKwFunction{incSize}{incorrecSizes}
+\SetKwFunction{wait}{wait}
+\SetKwFunction{cI}{computeImage}
+\SetKwFunction{cC}{computeColors}
+\SetKwData{cell}{Cell}
+\SetKwData{weight}{weight}
+\ForEach{Grid cell}
+{
+	\cell.\weight $\leftarrow$ Sum of densities in this cell\;
+	$f\leftarrow T_{amb} \;*$ \cell.\weight $ +\; (1-T_{amb}) \;* $ weight of one block of air\;
+}
+\end{algorithm}
 
 \subsection{Advect}
 The advect step accounts for the advection or convection of the fluid itself, i.e. this step lets the fluid ``flow'' ~or move a little according to its own speed.
@@ -381,7 +400,7 @@ When discretized, this equation becomes
 \end{equation}
 As in equation \ref{Diffuse} we need to solve a sparse linear system which can be done analogously.
 
-\section{Moving substances through the Fluid}
+\section{Moving Substances through the Fluid}
 Our solver enables us to compute the ambient fluid. However, we need to visualize the vector field. A substance, that is injected in the fluid and does not interact with it, will be advected by the vector field and diffuse at the same time. Let $d \in C^2(\mathbb{R}^+\times\Omega, \mathbb{R})$ denote the density field of such a substance. The evolution of this scalar field is given by
 \begin{align}
 	\frac{\partial d}{\partial t} = - u \cdot \nabla d + \kappa \Delta d - \alpha  d + S, \label{Density}
@@ -451,7 +470,7 @@ The solver is compatible with a wide range of parameters. Thus we can simulate d
  \label{ViscosityOnOff}
 \end{figure}
 
-\section{Colors and Fotoimport}
+\section{Colors and Import of Images}
 There are several ways to represent colors. One of the most common priciples are RGB or CMY color schemes. In the black and white solver there is only one density array which evolves according to the velocity field. To represent colors, we use three separate density fields, each one of them representing either cyan, magenta or yellow and evolving according to the same velocity field, i.e. the same ``ambient fluid''.\\
 
 We are now able to import picture, which behave like liquid or smoke, i.e. the picture can be manipulated interactively and behaves like the ambient fluid.\\
@@ -465,7 +484,7 @@ We want to give a brief overview over the features of JavaView that were used in
 \begin{itemize}
 \item To be able to show an image visualizing the smoke in the application, we use the common \texttt{PvDisplayIf} class. One can fix the camera over an x-y-coordinate system by selecting the correct camera: \texttt{m\_disp.selectCamera(PvCameraIf.CAMERA\_ORTHO\_XY)}. Then one can set the image one is manipulating as the background image by \texttt{m\_disp.setBackgroundImage(m\_image)}.
 \item For handling mouse input, there are the two functions \texttt{pickInitial(PvPickEvent pickEvent)} and \texttt{dragCamera(PvCameraEvent cameraEvent)} which are invoked by JavaView, when the left resp. right mouse button is clicked. These methods were overwritten to add smoke resp. force. The mouse coordinates can be obtained from the corresponding events in the parameter list.
-\item The parameters of the fluid solver (the ``mathematics object'') and block size (see below) are controlled by sliders in the application. One is able to add these for types like \texttt{PuInteger} or \texttt{PuDouble} by for instance adding \texttt{m\_Project.m\_vorticityConf} to some \texttt{PsPanel} in the application.
+\item The parameters of the fluid solver (the ``mathematics object'') and block size (see \ref{sec:block-size}) are controlled by sliders in the application. One is able to add these for types like \texttt{PuInteger} or \texttt{PuDouble} by for instance adding \texttt{m\_Project.m\_vorticityConf} to some \texttt{PsPanel} in the application.
 \item Time can be handled by an animation, i.e. an instance of the class \texttt{PsAnimation}. Registering this animation in the project class' superclass makes JavaView invoke the method \texttt{setTime(PsTimeEvent timeEvent)} which was overwritten to call our \texttt{computeImage()}-function. To overcome the problem, that every animation has a maximum time, we are increasing the maximum by one timestep for every call of \texttt{setTime}.
 \item When the user drags though the display with the left mouse button, the corresponding \texttt{PvPickEvent}s yield some loose points in the canvas. The class \texttt{PgBezierCurve} is used to connect them with spline curves, such that there is not only some bumps, but a whole continuous trace of smoke added in the cancas, like one would expect for instance from a pen. For details, see \ref{splinesChapter}.
 \end{itemize}
@@ -494,10 +513,114 @@ q_{i0} & = p_i + \alpha |p_i-p_{i+1}| \cdot \left((p_i-p_{i-1})^{\star} + (p_{i+
 q_{i1} & = p_{i+1} + \alpha |p_i-p_{i+1}| \cdot \left((p_i-p_{i+1})^{\star} + (p_{i+1}-p_{i+2})^{\star}\right)^{\star}
 \end{align*}
 where $p^{\star}$ is a notation for $\frac{p}{|p|}$. In our case we chose $\alpha = \frac{2}{5}$. 
-\section{Block-Size}
+\section{Block Size}\label{sec:block-size}
 Since for a large enough canvas sizes interaction with the smoke in real time is not possible because of the large amount of computations, the user should be able to choose lower resolutions on the same canvas size to make the application run faster. The corresponding (larger) pixels are called \emph{blocks}.\\
 
 If the user wants to change the size of a block, the color value of the new blocks are taken to be the average of the previous color of all pixels, that lie in that block.
+\section{Code Files}
+The program consists of four code files:
+\begin{itemize}
+\item App.java: This is the actual application and contains the entry point (main). It is loading and starting the project inside a window of sizes and with canvas dimensions which are specified here.
+\item FluidSolver.java: The \texttt{FluidSolver} object does all the mathematics of the program, i.e. it holds the vector field for the fluid and one scalar field for each density array and calculates all four steps of the method of solution of the fluid respectively the three steps for all density arrays. The user (i.e. the \texttt{Painter} class) just needs to call \texttt{velocitySolver()} and \texttt{densitySolver()}.
+\item Painter.java: This class contains almost all the framework. It is calling the FluidSolver's solution methods, handling the mouse input from the user, drawing into the display and computing colors out of the calculation results from the FluidSolver.
+\item Painter\_IP.java: This class contains the design of the info panel and connection of the GUI elements to the \texttt{Painter} class.
+\end{itemize}
+\section{Framework Structure}
+We now want to give a (brief and slightly simplified) overview over the structure of the implementation of the framework contained in the \texttt{Painter} class.\\
+
+Every time when \texttt{setTime()} is invoked (when the animation has moved forward in time), the thread dives into the heart of the program. The structure there is as follows:\medskip\\
+%
+\begin{function}[H]
+\DontPrintSemicolon
+\SetKwProg{Fn}{}{}{end}
+\SetKwFunction{setTime}{setTime}
+\SetKwFunction{incSize}{incorrecSizes}
+\SetKwFunction{wait}{wait}
+\SetKwFunction{cI}{computeImage}
+\SetKwFunction{cC}{computeColors}
+\SetKwData{isFrozen}{isFrozen}
+\SetKwData{false}{false}
+\Fn{\setTime{}}
+{
+	\Fn{\cI{}}
+	{
+		Add Input Force\;
+		Add Input Density\;
+		\If{\isFrozen $==$ \false}
+		{
+			Solve ambient fluid\;
+			Solve densities\;
+		}
+		\While{\incSize{}}{\wait{}\;}
+		Copy solution into density array of canvas\;
+		\cC{}\;
+	}
+}
+%\caption{setTime()}
+\end{function}
+\hfill\medskip\\
+%
+Since JavaView runs multithreaded, the user could possibly change the BlockSize or the size of the canvas, while a calculation of the Fluid Solver is running. But then the dimensions of the Fluid Solver and the display's density array do not match, so as seen above, the thread first has to \texttt{wait}.
+
+Eventually a \texttt{componentResized}-event or the \texttt{update()}-method of the \texttt{blockSize}-variable is triggered. In the first case, the \texttt{Painter}'s procedure \texttt{resizeImage()} is invoked or in the latter case, \texttt{update()} in turn calls \texttt{changeBlockSize()}. Both adjust the dimensions of the Fluid Solver (see below).
+
+Only now can we go on in \texttt{computeImage()} and copy the solution of the differential equations into the own density array of the size of the canvas. The two adjustment functions look like this:\medskip\\
+%
+\begin{function}[H]
+\DontPrintSemicolon
+\SetKwProg{Fn}{}{}{end}
+\SetKwFunction{rI}{resizeImage}
+\SetKwFunction{nA}{notifyAll}
+\SetKwData{disp}{display}
+\SetKwData{res}{resolution}
+\SetKwData{bs}{blockSize}
+\SetKwData{this}{this}
+\SetKwData{size}{size}
+\Fn{\rI{}}
+{
+	\If{\this.\size $==$ \disp.\size}
+	{
+		\this.\size $\leftarrow$ \disp.\size\;
+		\res $\leftarrow$ \this.\size /\bs\;
+		Resize FluidSolver\;
+		Resize density arrays\;
+		Resize images\;
+		Initialize and start animation\;
+	}
+	\nA{}\;
+}
+\end{function}
+\hfill\medskip\\
+%
+Note the very important call of \texttt{notifyAll()}, which is the sign for the possible other thread sitting in \texttt{computeImage()} to stop \texttt{wait}ing and further process the calculation results of the Fluid Solver.
+
+The \texttt{changeBlockSize()}-function also works rather straighforward:\medskip\\
+%
+\begin{function}[H]
+\DontPrintSemicolon
+\SetKwProg{Fn}{}{}{end}
+\SetKwFunction{cBB}{changeBlockSize}
+\SetKwFunction{nA}{notifyAll}
+\SetKwData{disp}{display}
+\SetKwData{res}{resolution}
+\SetKwData{bs}{blockSize}
+\SetKwData{this}{this}
+\SetKwData{size}{size}
+\Fn{\cBB{}}
+{
+	Copy current FluidSolver\;
+	Resize FluidSolver\;
+	\ForEach{Block of FluidSolver}
+	{
+		Store average of pixels lying in this Block\;
+	}
+	\nA{}\;
+}
+\end{function}
+\hfill\medskip
+
+[tba] update function [tba]
+%
 %
 %
 %
@@ -507,51 +630,71 @@ Our solver could be used for many purposes requiring smoke-like motions, e.g. in
 \centering
 \subfigure[Smoke generated with a single density array.]
 {
- \includegraphics[width=6cm]{images/greySmoke.png}
+ \includegraphics[width=5.5cm]{images/greySmoke.png}
  \label{greySmoke}
 }
 \subfigure[Colored smoke generated with three density arrays for the CMY-colors]
 {
- \includegraphics[width=6cm]{images/colors.png}
+ \includegraphics[width=5.5cm]{images/colors.png}
  \label{coloredSmoke}
+}
+\\
+\subfigure[Fluid with high viscosity.]
+{
+ \includegraphics[width=5.5cm]{images/viscosity.png}
+ \label{viscosity}
+}
+\subfigure[Still standing fluid, which has been diffusing for a while.]
+{
+ \includegraphics[width=5.5cm]{images/diffusionDemo.png}
+ \label{diffusionDemo}
 }
 \\
 \subfigure[Distorted Marilyn Monroe.]
 {
- \includegraphics[width=6cm]{images/monroe.png}
+ \includegraphics[width=5.5cm]{images/monroe.png}
  \label{monroe}
 }
 \subfigure[Distorted pineapple.]
 {
- \includegraphics[width=6cm]{images/pineapple.png}
+ \includegraphics[width=5.5cm]{images/pineapple.png}
  \label{pineapple}
 }
 \end{figure}
-\chapter{Results and Possible Extensions}
+%
+There are several positive and negative aspects about our project:
+\begin{itemize}
+\item Positive:
+\begin{itemize}
+\item The produced smoke looks detailed and realistic.
+\item One can produce artistic effects with multiple colors or imported images.
+\end{itemize}
+\item Negative:
+\begin{itemize}
+\item The speed of our application on grid sizes starting from about $256*512$ would need further enhancement. The BlockSize-feature is not really solving the problem, if one wants these ``high'' resolutions for the simulation.
+\item The smoke looks like it is moving out of the display despite our boundary conditions handling and mass preserving projection method. This undesirable effect would need further study.
+%\item Coming from the implementation specific point of view, there sometimes seem to be problems when decreasing the block size (and therefore increasing the number of grid points). This is most likely a multithreading issue.
+\end{itemize}
+\end{itemize}
+%
+\chapter{Possible Extensions}
 All in all the fluid solver provides a very realistic simulation which can be used to simulate various phenomena and fluids. In particular the extension with Vorticity Confinement results in an overall realistic and intuitive behaviour of the fluid.\\
 
+Nevertheless, there are further extensions or improvements of our application one could think of. As mentioned in chapter \ref{chapter:Math}, the solver can be implemented in three dimensions without further adaption of the mathematical model. This gives interesting possible extensions e.g. light sources which makes it possible to animate more complex phenomena such as clouds that are based mainly on the appearance of light and darkness. However due to the increase in grid points and more entries in the sparse matrices, we are not able to compute a 3D version in real time. Also a 3D implementation requires a renderer and the interactive user interface becomes more complicated. In this 3D enviroment, it would also be interesting to put objects inside the domain, e.g. a car or an airplane and blow some smoke over it like in a wind channel. One could thereby explore and visualize the aerodynamic properties of these objects.\\
 
-Possible extensions are listed as follows:\\
-As mentioned in chapter \ref{chapter:Math}, the solver can be implemented in three dimensions without further adaption of the mathematical model. This gives interesting possible extensions e.g. light sources which makes it possible to animate more complex phenomena such as clouds that are based mainly on the appearance of light and darkness. However due to the increase in grid points and more entries in the sparse matrices, we are not able to compute a 3d version in real time. Also a 3d implementation requires a renderer and the interactive user interface becomes more complicated.\\
+Furthermore, our implementation uses Gauss-Seidel to solve the sparse linear systems. While this is easy to implement and relatively fast for the sparse matrices we consider, it does not reach the speed of multigrid methods.\\
 
-Our implementation uses Gauss-Seidel to solve the sparse linear systems. While this is easy to implement and relatively fast for the sparse matrices we consider, it does not reach the speed of multi-grid methods.
+Lastly, again coming from an implementation specific point of view, it would be convenient to be able to export videos of the rendered images for fast replay, e.g. for presentation purposes.
+%
 \chapter{Outlook}
-
-Bezier curves\\
+\chapter{ToDo}
 Reference List\\
-Blocksize\\
-Capabilities of Javaview\\
 Details vom Solver, Wie funktioniert ein Schritt genau? e.g. Beschreibe den Advect-Schritt detailliert (Pseudocode)\\
 Physikalische Beschreibung der Navier-Stokes\\
-Genaue Formel der buoyancy force\\
-Bewertung der Results -> Was ist gut, was ist schlecht\\
-Anleitung um hübsche Bilder zu generieren, Tutorial um den Solver zu verwenden\\
-Verlgleich der einzelnen Schritte vom Solver mit alternativen Lösungsansätzen -> Warum ist der Solver STABLE\\
-Darstellung der Farben mit Density-Arrays\\
+Tutorial um den Solver zu verwenden\\
+Genauer Vergleich der einzelnen Schritte vom Solver mit alternativen Lösungsansätzen -> Warum ist der Solver STABLE\\
 Gauß-Seidel\\
 Boundary Conditions\\
-Abstract (Zusammenfassung)\\
-Introduction (Einlietung, Historie.\\
 
 %_______________________________________________________________________________
 \begin{appendix}

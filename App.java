@@ -51,19 +51,14 @@ public class App extends PsApplet {
 		Painter project = (Painter)getProject();
 		m_viewer.addProject(project);
 		m_viewer.selectProject(project);
-
-		// Must be called after registration of project in m_viewer
-		// since m_viewer need in method getDispMandelbrot().
-//		project.addDisplay(project.getDispMandelbrot());
 		
 		// Get 3d display from viewer and add it to applet
 		setLayout(new BorderLayout());
 		add(project.getInfoPanel(), BorderLayout.CENTER);
 		PsPanel pDisplay = new PsPanel(new GridLayout(1, 2));
 		{
-			pDisplay.setPreferredSize(512, 512);
+			pDisplay.setPreferredSize(512, 256);
 			pDisplay.add(project.getDisp().getCanvas());
-//			pDisplay.add(project.getDispMandelbrot().getCanvas());
 		}
 		add(pDisplay, BorderLayout.NORTH);
 		validate();
