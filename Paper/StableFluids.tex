@@ -144,10 +144,10 @@
 
 \newpage
 \thispagestyle{empty}
-We hereby declare that this article is based on our work, unless stated otherwise. No other person’s work has been used without due acknowledgement in this thesis. All references and verbatim extracts have been quoted, and all sources of information have been specifically acknowledged.
+We hereby declare that this article is based on our work, unless stated otherwise. No other person’s work has been used without due acknowledgement in this article. All references and verbatim extracts have been quoted, and all sources of information have been specifically acknowledged.
 \\
 \\[3.5cm] 
-Berlin, \today
+Berlin, 29th April 2016
 \vfill
 \noindent 
 Lukas Polthier\\
@@ -207,29 +207,34 @@ Freie Universit\"at Berlin\\
 %_______________________________________________________________________________
 \setcounter{chapter}{-1}
 \chapter{Abstract}
-This article is a tutorial to implement the ``Stable Fluids'' solver by Stam \cite{Stam} which includes a nice user interface to interactively manipulate the fluid. We provide the mathematical idea, numerical computations and the concept of the framework which we implemented in JavaView \cite{JavaView}. The main features of this solver are real time computation and being unconditionally stable. Moreover it allows to compute a wide range fluids with i.e. different viscosities and diffusion attributes, as well as the ability to create artistic effects by handling multiple smoke densities for all three color channels. It is also possible to import images whose pixels are then handled as smoke in the fluid grid.
+This article is a tutorial to implement the ``Stable Fluids'' solver by Stam \cite{Stam} in  a 2d-implementation. Key features of our fluid simulation are a nice user interface to interactively manipulate the fluid, the ability to control the physical constants of the fluid and the visualization of pictures made by smoke via foto-import. We provide the mathematical idea, numerical computations and the concept of the framework which we implemented in JavaView \cite{JavaView}. The main features of this solver in general are real time computation and being unconditionally stable. Moreover it allows to compute a wide range fluids with i.e. different viscosities and diffusion attributes.
+\linebreak
+\linebreak
+\newline
+\noindent
+\begin{minipage}{\textwidth}
 \chapter{Introduction}
+\end{minipage}
 
+\nopagebreak
 For many years, building realistic fluid solvers has been a challenging problem in the VFX industry.\\
 In computer graphics, in contrast to many physical applications, the visual appearance of the fluid is very important whereas physical accuracy is not essential. In order to animate the fluid, it is required to provide real time computation. Typically this results in lower bounds on physical accuracy.\\
 
 The Stable Fluids Solver by Stam \cite{Stam} first gave a method that provides unconditionally stable fluids which are computed in real time. Previous solvers are unstable, i.e. they require small time steps which contradicts real time computation, or they are not based on the full Navier-Stokes equations and thus do not reflect a realistic fluid simulation.\\
 
-Stams method of solution has been implemented in this article in the framework of JavaView \cite{JavaView}. We added the representation of colours, the functionality to import fotos and a give the user a nice framework to interactively manipulate the fluid.\\
-
-The general problem is to create a realistic looking fluid simulation that can be computed in real time. This yields to constructing a stable solver for the Navier-Stokes equations.
+The general problem is to create a realistic looking fluid simulation that can be computed in real time. This yields to constructing a stable solver for the Navier-Stokes equations. Stams method of solution has been implemented in this article in the framework of JavaView \cite{JavaView}. We added the representation of colours, the functionality to import fotos and a give the user a nice framework to interactively manipulate the fluid. In the following all steps are described in detail to provide the reade with all necessary information use the solver in applications.\\
  
 \chapter{Mathematical Modelling} \label{Section:Mathematical Modelling} \label{chapter:Math}
 
 \section{Basic Equations}
-Let $\Omega \subset \mathbb{R}^2$ be the domain of interest, e.g. $\Omega = (0,1)^2$. Now let $u \in C^2(\mathbb{R} \times \Omega,\mathbb{R}^2)$ denote the velocity vector field and $p\in C^2(\mathbb{R} \times \Omega,\mathbb{R})$ denote the pressure field. $u$ describes the velocity of the ``ambient fluid'', whereas $p$ denotes the pressure of the fluid. Both fields depend on the time $t\in \mathbb{R}$ and the position in space $x\in \Omega$. The evolution of these fields is given by the Navier-Stokes equations
+Let $\Omega \subset \mathbb{R}^2$ be the domain of interest, e.g. in our case we use $\Omega = (0,1)^2$. Now let $u \in C^2(\mathbb{R} \times \Omega,\mathbb{R}^2)$ denote the velocity vector field and $p\in C^2(\mathbb{R} \times \Omega,\mathbb{R})$ denote the pressure field. $u$ describes the velocity of the ``ambient fluid'', whereas $p$ denotes the pressure of the fluid. Both fields depend on the time $t\in \mathbb{R}$ and the position in space $x\in \Omega$. The evolution of these fields is given by the Navier-Stokes equations
 \begin{align}
 	&\text{div } u = 0 \label{NavierStokes1}
 	\\
 	&\frac{\partial u}{\partial t} = - (u \cdot \nabla)u - \frac{1}{\rho}\nabla p + \nu \Delta u + f, \label{NavierStokes2}
 \end{align}
 where $\nu, \rho$ are constants that determine the viscosity of the fluid and the density respectively.
-In $\mathbb{R}^2$, equation \ref{NavierStokes2} can be written out as
+To clearify notation, in our two dimensional environment equation \ref{NavierStokes2} can be written explicitly as
 \begin{align*}
 	\left( \begin{matrix}
 	\frac{\partial u_1}{\partial t} \\ \frac{\partial u_2}{\partial t}
@@ -247,11 +252,11 @@ Here, $u_1, u_2$ denote the first and second component of $u$ respectively. The 
 
 By the Helmholtz-Hodge decomposition theorem we have that any $C^2$ vector field $w = u + \nabla q + \text{res}$ uniquely decomposes into a divergence-free part $u$, a gradient field $\nabla q$ and a residual term depending on the genus of the surface. In our case, the residual term vanishes as we operate on $\Omega \subset \mathbb{R}^2$ and $\Omega$ is contractible.\\
 
-Let $P : C^2(\Omega,\mathbb{R}^2) \rightarrow \{f\in C^2(\Omega, \mathbb{R}^2), \text{div} f = 0\}$ denote the projection operator onto the divergence free part. The operator $P$ is implicitly defined by 
+Let $P : C^2(\Omega,\mathbb{R}^2) \rightarrow \{f\in C^2(\Omega, \mathbb{R}^2), \text{div } f = 0\}$ denote the projection operator onto the divergence free part of the vector field. The operator $P$ is implicitly defined by 
 \begin{align}
 	\text{div } w = \Delta q. \label{Poisson-1}
 \end{align}
-With Neumann boundary condition ($\frac{\partial q}{\partial n} = 0$ on $\partial \Omega$, $n$ is the outward normal), equation \ref{Poisson-1} is a Poisson equation. Let $q$ denote the solution, then $P$ is defined by $Pw = w - \nabla q$. 
+With Neumann boundary condition ($\frac{\partial q}{\partial n} = 0$ on $\partial \Omega$, $n$ is the outward normal), equation \ref{Poisson-1} is a Poisson equation. Let $q$ denote a solution, then $P$ is defined by $Pw = w - \nabla q$. 
 If we now apply $P$ to both sides of \ref{NavierStokes2}, the Navier-Stokes equation compress into our fundamental equation \ref{FundamentalEquation}. Equation \ref{NavierStokes1} is no longer needed, as the projection ensures that the resulting field is divergence free. In particular the pressure field drops out as $\nabla p$ is a gradient field.
 \begin{align}
 	\frac{\partial u}{\partial t} &= P \left(- (u \cdot \nabla)u - \frac{1}{\rho}\nabla p + \nu \Delta u + f \right) \nonumber
@@ -303,7 +308,7 @@ The method can be understood intuitively: All particles in the fluid are moved b
 \end{align*}
 Again, this step is unconditionally stable, independent of the step size. \\
 
-In practice we backtrace each particle with some Runge-Kutta scheme, e.g. an Euler method. The we interpolate the vector at $p(-\Delta t,x)$ linearly from the values of the vector field on the four neighboring grid points.
+In practice we trace each particle backward in time with some Runge-Kutta scheme. The we interpolate the vector at $p(-\Delta t,x)$ linearly from the values of the vector field on the four neighbouring grid points. We obtained good results even with simple Euler methods.
 \begin{figure}[H]
  \centering
  \includegraphics[scale=0.40]{images/advection.png}
@@ -405,10 +410,10 @@ When discretized, this equation becomes
 		\draw[loosely dotted] (m-1-4)-- (m-3-6);
 	\end{tikzpicture} ~q.\label{Project}
 \end{equation}
-As in equation \ref{Diffuse} we need to solve a sparse linear system which can be done analogously.
+This equation is quite similar to \ref{Diffuse} as the matrices have the same structure. As in equation \ref{Diffuse} we need to solve a sparse linear system which can be done analogously.
 
 \section{Moving Substances through the Fluid}
-Our solver enables us to compute the ambient fluid. However, we need to visualize the vector field. A substance, that is injected in the fluid and does not interact with it, will be advected by the vector field and diffuse at the same time. Let $d \in C^2(\mathbb{R}^+\times\Omega, \mathbb{R})$ denote the density field of such a substance. The evolution of this scalar field is given by
+Our solver enables us to compute the ambient fluid. However, we need to visualize the vector field. A substance, that is injected in the fluid and does not interact with it, will be advected by the vector field and diffuse at the same time. This density will thus visualize the fluid as one can see it in real life when milk is stirred in a coffee or smoke is injected in the air. Let $d \in C^2(\mathbb{R}^+\times\Omega, \mathbb{R})$ denote the density field of such a substance. The evolution of this scalar field is given by
 \begin{align}
 	\frac{\partial d}{\partial t} = - u \cdot \nabla d + \kappa \Delta d - \alpha  d + S, \label{Density}
 \end{align}
@@ -486,9 +491,11 @@ In contrast to similar methods like the Jacobi method, this cannot be performed 
 To make sure, that nothing leaves the finite grid, we put a border with a thickness of one cell all around the grid, which is acting as a ``wall''. After all calculations performed, these grid cells are given the velocity vector that would emerge if the vector right next to them (in the inner grid) would be ``bounced off this wall''.\\
 
 [tba] picture illustrating this? [tba]
+The terms in equation \ref{Density} are quite similar to the terms in our fundamental equation \ref{FundamentalEquation}. Thus the evolution of the density field can be computed analogously to the computation of the velocity field. In particular we need to perform the advect step and the diffuse step, which correspond to the movement of the density along the velocity field and the diffusion of the density itself.\\
+Thus we do not require additional methods and we can reuse our numerical approximation from the previous section.
 
 \section{Vorticity Confinement}
-For a sufficient number of grid points and infinite computational power, the solver described in the previous section \ref{Section:Mathematical Modelling} gives the fluid a realistic behaviour, quite similar to the real life experience. In practice, computational power is limited and we have to use a relatively small number of grid points to provide real-time computation. It turns out that small scale details, in particular rotational turbulences are lost due to numerical dissipation.\\
+For a sufficient number of grid points and infinite computational power, the solver described in the current chapter \ref{Section:Mathematical Modelling} gives the fluid a realistic behaviour, quite similar to the real life experience. In practice, computational power is limited and we have to use a relatively small number of grid points to provide real-time computation. It turns out that small scale details, in particular rotational turbulences are lost due to numerical dissipation on the coarse grid.\\
 
 The key idea of Vorticity Confinement is to add these details artificially in a way that the properties of the fluid are preserved and the effect of numerical dissipation is damped. In a follow-up paper \cite{Stam2}, Stam proposes this idea based on previous work of Steinhoff \cite{Steinhoff}.\\
 
@@ -537,7 +544,7 @@ The solver is compatible with a wide range of parameters. Thus we can simulate d
 \begin{figure}[H]
  \centering
  \includegraphics[scale=0.30]{images/Viscosity-2.png}
- \caption{The left picture shows a fluid with high viscosity, e.g. honey or very thick water. The right picture shows a more liquid fluid like thin water or some gas. The left picture preser [tba] end the sentence [tba] Both pictures where created with identical initial condition and vary only in the viscosity constant. In both pictures there is no vorticity confinement to emphasize the effect of viscosity.}
+ \caption{The left picture shows a fluid with high viscosity, e.g. honey or very thick water. The right picture shows a more liquid fluid like thin water or some gas. Both pictures where created with identical initial condition and vary only in the viscosity constant. In both pictures there is no vorticity confinement to emphasize the effect of viscosity.}
  \label{ViscosityOnOff}
 \end{figure}
 
@@ -549,10 +556,10 @@ The solver is compatible with a wide range of parameters. Thus we can simulate d
 \end{figure}
 
 \section{Colors and Import of Images}
-There are several ways to represent colors. One of the most common priciples are RGB or CMY color schemes. In the black and white solver there is only one density array which evolves according to the velocity field. To represent colors, we use three separate density fields, each one of them representing either cyan, magenta or yellow and evolving according to the same velocity field, i.e. the same ``ambient fluid''.\\
+There are several ways to represent colors. One of the most common priciples are RGB or CMY color schemes. In the black and white fluid solver described so far there is only one density array which evolves according to the velocity field. To represent colors, we use three separate density fields, each one of them representing either cyan, magenta or yellow and evolving according to the same velocity field, i.e. the same ``ambient fluid''.\\
 
 We are now able to import picture, which behave like liquid or smoke, i.e. the picture can be manipulated interactively and behaves like the ambient fluid.\\
-One can experiment with different kinds of buoyancy forces, e.g. only specific colors generate an uplift where some colors are heavier that others. 
+One can experiment with different kinds of buoyancy forces, e.g. only specific colors generate an uplift where some colors are heavier that others.
 
 \chapter{Implementation and Framework}
 We implemented our whole framework in the environment of JavaView. In the following, we want to show some features of our application, how they work and why we think they make sense for visualizing smoke.
@@ -739,6 +746,9 @@ Our solver could be used for many purposes requiring smoke-like motions, e.g. in
 }
 \end{figure}
 %
+%
+\chapter{Possible Extensions}
+
 There are several positive and negative aspects about our project:
 \begin{itemize}
 \item Positive:
@@ -753,8 +763,7 @@ There are several positive and negative aspects about our project:
 %\item Coming from the implementation specific point of view, there sometimes seem to be problems when decreasing the block size (and therefore increasing the number of grid points). This is most likely a multithreading issue.
 \end{itemize}
 \end{itemize}
-%
-\chapter{Possible Extensions}
+
 All in all the fluid solver provides a very realistic simulation which can be used to simulate various phenomena and fluids. In particular the extension with Vorticity Confinement results in an overall realistic and intuitive behaviour of the fluid.\\
 
 Nevertheless, there are further extensions or improvements of our application one could think of. As mentioned in chapter \ref{chapter:Math}, the solver can be implemented in three dimensions without further adaption of the mathematical model. This gives interesting possible extensions e.g. light sources which makes it possible to animate more complex phenomena such as clouds that are based mainly on the appearance of light and darkness. However due to the increase in grid points and more entries in the sparse matrices, we are not able to compute a 3D version in real time. Also a 3D implementation requires a renderer and the interactive user interface becomes more complicated. In this 3D enviroment, it would also be interesting to put objects inside the domain, e.g. a car or an airplane and blow some smoke over it like in a wind channel. One could thereby explore and visualize the aerodynamic properties of these objects.\\
@@ -763,7 +772,7 @@ Furthermore, our implementation uses Gauss-Seidel to solve the sparse linear sys
 
 Lastly, again coming from an implementation specific point of view, it would be convenient to be able to export videos of the rendered images for fast replay, e.g. for presentation purposes.
 %
-\chapter{Outlook}
+
 \chapter{ToDo}
 Genauer Vergleich der einzelnen Schritte vom Solver mit alternativen Lösungsansätzen -> Warum ist der Solver STABLE\\
 Gauß-Seidel checken\\
