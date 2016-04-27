@@ -419,7 +419,8 @@ Our solver enables us to compute the ambient fluid. However, we need to visualiz
 \end{align}
 where $\kappa$ is the diffusion constant, $\alpha$ the dissipation term and $S$ is a source term. The dissipation term, which will be dropped in our modelling, describes the effect that kinetic energy is converted in thermal energy. The diffusion constant determines the effect of diffusion, i.e. the effect that density ``interfuses'' ~with nearby density and the overall picture becomes ``softer''.\\
 
-The terms in equation \ref{Density} are quite similar to the terms in our fundamental equation \ref{FundamentalEquation}. Thus the evolution of the density field can be computed analogously to the computation of the velocity field. In particular we need to perform the advect step and the diffuse step, which correspond to the movement of the density along the velocity field and the diffusion of the density itself.
+The terms in equation \ref{Density} are quite similar to the terms in our fundamental equation \ref{FundamentalEquation}. Thus the evolution of the density field can be computed analogously to the computation of the velocity field. In particular we need to perform the advect step and the diffuse step, which correspond to the movement of the density along the velocity field and the diffusion of the density itself.\\
+Thus we do not require additional methods and we can reuse our numerical approximation from the previous section.
 
 \section{Gauß-Seidel}
 Since our square matrices are symmetric, positive-definite, iterative schemes like the Gauß-Seidel-method, which we use, are known to converge and appropriate to solve our system. The technique works by decomposing the linear system of equations $Ax=b$ into
@@ -470,8 +471,9 @@ A=\begin{tikzpicture}[baseline=(current bounding box.center)]
 		\draw[loosely dotted] (m-4-1)-- (m-4-5);
 	\end{tikzpicture}
 =
-L+U.
+L+U,
 \end{equation}
+i.e. $L$ is the lower triangular component and $U$ is the strict upper componentn of $A$. 
 The Gauß-Seidel technique now solves the left hand side of \ref{eq:GS-decompose} using a previous solution of $x$ for the right hand side, i.e.
 \begin{equation}
 x^{(k+1)}=L^{-1}(b-Ux^{(k)}).
@@ -479,20 +481,16 @@ x^{(k+1)}=L^{-1}(b-Ux^{(k)}).
 Since $L$ is in triangular form, this can be done sequentially (and therefore fastly) by using forward substitution:
 \begin{equation}
 x^{(k+1)}_i=\frac{1}{a_{ii}}\left( b_i - \sum_{j=1}^{i-1} a_{ij}x_j^{(k+1)} - \sum_{j=i+1}^{n} a_{ij}x_j^{(k)} \right)
-\end{equation} Considering the special case of our matrices for instance for the diffusion step, we can write $u$ as a column vector with $n\cdot m$ entries and boil  this down to
+\end{equation} Considering the special case of our matrices for instance for the diffusion step, we can write $u$ as a column vector with $n\cdot m$ entries and boil this down to
 \begin{equation}
-u^{(k+1)}_i = \frac{1}{1+4c} \left( u_i + c\left(u^{(k+1)}_{i-1} + u^{(k+1)}_{i-n} + u^{(k)}_{i+1}) + u^{(k)}_{i+n}\right) \right),
+u^{(k+1)}_{(i,j)} = \frac{1}{1+4c} \left( u_{(i,j)} + c\left(u^{(k+1)}_{(i-1,j)} + u^{(k+1)}_{(i,j-1)} + u^{(k)}_{(i+1,j)}) + u^{(k)}_{(i,j+1)}\right) \right),
 \end{equation}
-where $c= \nu\frac{\Delta t}{h^2}$.\\
+where $c= \nu\frac{\Delta t}{h^2}$ and $u^{(k)}_{(i,j)}$ gives the $k$-th iterate of the velocity vector at grid point $(i,j)$.\\
 
 In contrast to similar methods like the Jacobi method, this cannot be performed parallel, since in this sequential approach, all values $u_1^{(k+1)}, \dots, u_i^{(k+1)}$ are needed to compute $u_{i+1}^{(k+1)}$. So unfortunately, starting multiple threads to speed up the calculation is not an option.
 
 \section{Boundary conditions}
 To make sure, that nothing leaves the finite grid, we put a border with a thickness of one cell all around the grid, which is acting as a ``wall''. After all calculations performed, these grid cells are given the velocity vector that would emerge if the vector right next to them (in the inner grid) would be ``bounced off this wall''.\\
-
-[tba] picture illustrating this? [tba]
-The terms in equation \ref{Density} are quite similar to the terms in our fundamental equation \ref{FundamentalEquation}. Thus the evolution of the density field can be computed analogously to the computation of the velocity field. In particular we need to perform the advect step and the diffuse step, which correspond to the movement of the density along the velocity field and the diffusion of the density itself.\\
-Thus we do not require additional methods and we can reuse our numerical approximation from the previous section.
 
 \section{Vorticity Confinement}
 For a sufficient number of grid points and infinite computational power, the solver described in the current chapter \ref{Section:Mathematical Modelling} gives the fluid a realistic behaviour, quite similar to the real life experience. In practice, computational power is limited and we have to use a relatively small number of grid points to provide real-time computation. It turns out that small scale details, in particular rotational turbulences are lost due to numerical dissipation on the coarse grid.\\
@@ -753,8 +751,9 @@ There are several positive and negative aspects about our project:
 \begin{itemize}
 \item Positive:
 \begin{itemize}
-\item The produced smoke looks detailed and realistic.
+\item The resulting smoke looks detailed and realistic.
 \item One can produce artistic effects with multiple colors or imported images.
+\item The interactive manipulation works really fine, especially with the Bézier-curve functionality.
 \end{itemize}
 \item Negative:
 \begin{itemize}
@@ -773,11 +772,10 @@ Furthermore, our implementation uses Gauss-Seidel to solve the sparse linear sys
 Lastly, again coming from an implementation specific point of view, it would be convenient to be able to export videos of the rendered images for fast replay, e.g. for presentation purposes.
 %
 
-\chapter{ToDo}
-Genauer Vergleich der einzelnen Schritte vom Solver mit alternativen Lösungsansätzen -> Warum ist der Solver STABLE\\
-Gauß-Seidel checken\\
-Boundary Conditions checken\\
-Ggf. Seitenumbrüche zwischen Chapters löschen
+%\chapter{ToDo}
+%Genauer Vergleich der einzelnen Schritte vom Solver mit alternativen %Lösungsansätzen -> Warum ist der Solver STABLE\\
+%Gauß-Seidel checken\\
+%Boundary Conditions checken\\
 
 %_______________________________________________________________________________
 \begin{appendix}
