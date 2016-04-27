@@ -207,7 +207,7 @@ Freie Universit\"at Berlin\\
 %_______________________________________________________________________________
 \setcounter{chapter}{-1}
 \chapter{Abstract}
-This article is a tutorial to implement the ``Stable Fluids'' solver by Stam \cite{Stam} which includes a nice user interface to interactively manipulate the fluid. We provide the mathematical idea, numerical computations and the concept of the framework which we implemented in JavaView \cite{JavaView}. The main features of this solver are real time computation and being unconditionally stable. Moreover it allows to compute a wide range fluids with i.e. different viscosities and diffusion attributes.
+This article is a tutorial to implement the ``Stable Fluids'' solver by Stam \cite{Stam} which includes a nice user interface to interactively manipulate the fluid. We provide the mathematical idea, numerical computations and the concept of the framework which we implemented in JavaView \cite{JavaView}. The main features of this solver are real time computation and being unconditionally stable. Moreover it allows to compute a wide range fluids with i.e. different viscosities and diffusion attributes, as well as the ability to create artistic effects by handling multiple smoke densities for all three color channels. It is also possible to import images whose pixels are then handled as smoke in the fluid grid.
 \chapter{Introduction}
 
 For many years, building realistic fluid solvers has been a challenging problem in the VFX industry.\\
@@ -301,11 +301,16 @@ The method can be understood intuitively: All particles in the fluid are moved b
 \begin{align*}
 	u^2(x) = u^1(p(-\Delta t,x)).
 \end{align*}
-Again, this step is unconditionally stable, independent of the step size.\\
-
-[tba] include a figure that illustrates the approach. [tba]\\
+Again, this step is unconditionally stable, independent of the step size. \\
 
 In practice we backtrace each particle with some Runge-Kutta scheme, e.g. an Euler method. The we interpolate the vector at $p(-\Delta t,x)$ linearly from the values of the vector field on the four neighboring grid points.
+\begin{figure}[H]
+ \centering
+ \includegraphics[scale=0.40]{images/advection.png}
+ \caption{Illustration of advection method.}
+ \label{Advection}
+\end{figure}
+
 \subsection{Diffuse}
 This step solves the diffusion of the fluid itself, i.e. the ``friction'' between parts of the fluid with different velocity. This effect is equivalent to the diffusion equation 
 \begin{align}
@@ -462,7 +467,7 @@ A=\begin{tikzpicture}[baseline=(current bounding box.center)]
 =
 L+U.
 \end{equation}
-The Gauß-Seidel technique now solves the left hand side of \ref{eq:GS-decompose} using a previous solution of x for the right hand side, i.e.
+The Gauß-Seidel technique now solves the left hand side of \ref{eq:GS-decompose} using a previous solution of $x$ for the right hand side, i.e.
 \begin{equation}
 x^{(k+1)}=L^{-1}(b-Ux^{(k)}).
 \end{equation}
@@ -473,7 +478,14 @@ x^{(k+1)}_i=\frac{1}{a_{ii}}\left( b_i - \sum_{j=1}^{i-1} a_{ij}x_j^{(k+1)} - \s
 \begin{equation}
 u^{(k+1)}_i = \frac{1}{1+4c} \left( u_i + c\left(u^{(k+1)}_{i-1} + u^{(k+1)}_{i-n} + u^{(k)}_{i+1}) + u^{(k)}_{i+n}\right) \right),
 \end{equation}
-where $c= \nu\frac{\Delta t}{h^2}$.
+where $c= \nu\frac{\Delta t}{h^2}$.\\
+
+In contrast to similar methods like the Jacobi method, this cannot be performed parallel, since in this sequential approach, all values $u_1^{(k+1)}, \dots, u_i^{(k+1)}$ are needed to compute $u_{i+1}^{(k+1)}$. So unfortunately, starting multiple threads to speed up the calculation is not an option.
+
+\section{Boundary conditions}
+To make sure, that nothing leaves the finite grid, we put a border with a thickness of one cell all around the grid, which is acting as a ``wall''. After all calculations performed, these grid cells are given the velocity vector that would emerge if the vector right next to them (in the inner grid) would be ``bounced off this wall''.\\
+
+[tba] picture illustrating this? [tba]
 
 \section{Vorticity Confinement}
 For a sufficient number of grid points and infinite computational power, the solver described in the previous section \ref{Section:Mathematical Modelling} gives the fluid a realistic behaviour, quite similar to the real life experience. In practice, computational power is limited and we have to use a relatively small number of grid points to provide real-time computation. It turns out that small scale details, in particular rotational turbulences are lost due to numerical dissipation.\\
@@ -592,7 +604,7 @@ The program consists of four code files:
 \item Painter\_IP.java: This class contains the design of the info panel and connection of the GUI elements to the \texttt{Painter} class.
 \end{itemize}
 \section{Framework Structure}
-We now want to give a (brief and slightly simplified) overview over the structure of the implementation of the framework contained in the \texttt{Painter} class.\\
+We now want to give a (brief and simplified) overview over the structure of the implementation of the framework contained in the \texttt{Painter} class.\\
 
 Every time when \texttt{setTime()} is invoked (when the animation has moved forward in time), the thread dives into the heart of the program. The structure there is as follows:\medskip\\
 %
@@ -683,10 +695,9 @@ The \texttt{changeBlockSize()}-function also works rather straighforward:\medski
 	\nA{}\;
 }
 \end{function}
-\hfill\medskip
-
-[tba] update function [tba]
+\hfill\medskip\\
 %
+Also note that \texttt{computeImage()}, \texttt{resizeImage()} and \texttt{changeBlockSize()}, as well as some other minor methods, are declared as \texttt{synchronized} to prevent multiple threads (for instance the thread handling the animation time) from writing into the data arrays at the same time, which would cause race conditions.
 %
 %
 %
@@ -754,13 +765,10 @@ Lastly, again coming from an implementation specific point of view, it would be 
 %
 \chapter{Outlook}
 \chapter{ToDo}
-Reference List\\
-Details vom Solver, Wie funktioniert ein Schritt genau? e.g. Beschreibe den Advect-Schritt detailliert (Pseudocode)\\
-Physikalische Beschreibung der Navier-Stokes\\
-Tutorial um den Solver zu verwenden\\
 Genauer Vergleich der einzelnen Schritte vom Solver mit alternativen Lösungsansätzen -> Warum ist der Solver STABLE\\
-Gauß-Seidel\\
-Boundary Conditions\\
+Gauß-Seidel checken\\
+Boundary Conditions checken\\
+Ggf. Seitenumbrüche zwischen Chapters löschen
 
 %_______________________________________________________________________________
 \begin{appendix}
