@@ -481,11 +481,11 @@ x^{(k+1)}=L^{-1}(b-Ux^{(k)}).
 Since $L$ is in triangular form, this can be done sequentially (and therefore fastly) by using forward substitution:
 \begin{equation}
 x^{(k+1)}_i=\frac{1}{a_{ii}}\left( b_i - \sum_{j=1}^{i-1} a_{ij}x_j^{(k+1)} - \sum_{j=i+1}^{n} a_{ij}x_j^{(k)} \right)
-\end{equation} Considering the special case of our matrices for instance for the diffusion step, we can write $u$ as a column vector with $n\cdot m$ entries and boil this down to
+\end{equation} Considering the special case of our matrices, for instance for the diffusion step, we can write $u$ as a column vector with $n\cdot m$ entries and boil this down to
 \begin{equation}
 u^{(k+1)}_{(i,j)} = \frac{1}{1+4c} \left( u_{(i,j)} + c\left(u^{(k+1)}_{(i-1,j)} + u^{(k+1)}_{(i,j-1)} + u^{(k)}_{(i+1,j)}) + u^{(k)}_{(i,j+1)}\right) \right),
 \end{equation}
-where $c= \nu\frac{\Delta t}{h^2}$ and $u^{(k)}_{(i,j)}$ gives the $k$-th iterate of the velocity vector at grid point $(i,j)$.\\
+where $c= \nu\frac{\Delta t}{h^2}$ and $u^{(k)}_{(i,j)}$ gives the $k$-th iterate of the velocity vector at grid point $(i,j)$ wich corresponds to the entry $i+j \cdot n$ in the column vector representation of $u$.\\
 
 In contrast to similar methods like the Jacobi method, this cannot be performed parallel, since in this sequential approach, all values $u_1^{(k+1)}, \dots, u_i^{(k+1)}$ are needed to compute $u_{i+1}^{(k+1)}$. So unfortunately, starting multiple threads to speed up the calculation is not an option.
 
