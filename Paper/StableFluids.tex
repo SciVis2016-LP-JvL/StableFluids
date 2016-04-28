@@ -222,7 +222,7 @@ In computer graphics, in contrast to many physical applications, the visual appe
 
 The Stable Fluids Solver by Stam \cite{Stam} first gave a method that provides unconditionally stable fluids which are computed in real time. Previous solvers are unstable, i.e. they require small time steps which contradicts real time computation, or they are not based on the full Navier-Stokes equations and thus do not reflect a realistic fluid simulation.\\
 
-The general problem is to create a realistic looking fluid simulation that can be computed in real time. This yields to constructing a stable solver for the Navier-Stokes equations. Stams method of solution has been implemented in this article in the framework of JavaView \cite{JavaView}. We added the representation of colours, the functionality to import fotos and a give the user a nice framework to interactively manipulate the fluid. In the following all steps are described in detail to provide the reade with all necessary information use the solver in applications.\\
+The general problem is to create a realistic looking fluid simulation that can be computed in real time. This yields to constructing a stable solver for the Navier-Stokes equations. Stams method of solution has been implemented in this article in the framework of JavaView \cite{JavaView}. We added the representation of colours, the functionality to import photos and a give the user a nice framework to interactively manipulate the fluid. In the following all steps are described in detail to provide the reader with all necessary information use the solver in applications.\\
  
 \chapter{Mathematical Modelling} \label{Section:Mathematical Modelling} \label{chapter:Math}
 
@@ -473,12 +473,12 @@ A=\begin{tikzpicture}[baseline=(current bounding box.center)]
 =
 L+U,
 \end{equation}
-i.e. $L$ is the lower triangular component and $U$ is the strict upper componentn of $A$. 
+i.e. $L$ is the lower triangular component and $U$ is the strict upper component of $A$. 
 The Gauß-Seidel technique now solves the left hand side of \ref{eq:GS-decompose} using a previous solution of $x$ for the right hand side, i.e.
 \begin{equation}
 x^{(k+1)}=L^{-1}(b-Ux^{(k)}).
 \end{equation}
-Since $L$ is in triangular form, this can be done sequentially (and therefore fastly) by using forward substitution:
+Since $L$ is in triangular form, this can be done sequentially (and therefore faster than computing the inverse) by using forward substitution:
 \begin{equation}
 x^{(k+1)}_i=\frac{1}{a_{ii}}\left( b_i - \sum_{j=1}^{i-1} a_{ij}x_j^{(k+1)} - \sum_{j=i+1}^{n} a_{ij}x_j^{(k)} \right)
 \end{equation} Considering the special case of our matrices, for instance for the diffusion step, we can write $u$ as a column vector with $n\cdot m$ entries and boil this down to
@@ -643,7 +643,7 @@ Every time when \texttt{setTime()} is invoked (when the animation has moved forw
 \end{function}
 \hfill\medskip\\
 %
-Since JavaView runs multithreaded, the user could possibly change the BlockSize or the size of the canvas, while a calculation of the Fluid Solver is running. But then the dimensions of the Fluid Solver and the display's density array do not match, so as seen above, the thread first has to \texttt{wait}.
+Since JavaView runs multi-threaded, the user could possibly change the BlockSize or the size of the canvas, while a calculation of the Fluid Solver is running. But then the dimensions of the Fluid Solver and the display's density array do not match, so as seen above, the thread first has to \texttt{wait}.
 
 Eventually a \texttt{componentResized}-event or the \texttt{update()}-method of the \texttt{blockSize}-variable is triggered. In the first case, the \texttt{Painter}'s procedure \texttt{resizeImage()} is invoked or in the latter case, \texttt{update()} in turn calls \texttt{changeBlockSize()}. Both adjust the dimensions of the Fluid Solver (see below).
 
@@ -707,7 +707,7 @@ Also note that \texttt{computeImage()}, \texttt{resizeImage()} and \texttt{chang
 %
 %
 \chapter{Results}
-Our solver could be used for many purposes requiring smoke-like motions, e.g. in graphic design or computer games. It can also be used to create purely artistical effects. Some possitbilities generated with the solver are shown in the following.\\
+Our solver could be used for many purposes requiring smoke-like motions, e.g. in graphic design or computer games. It can also be used to create purely artistic effects. Some possibilities generated with the solver are shown in the following.\\
 \begin{figure}[H]
 \centering
 \subfigure[Smoke generated with a single density array.]
@@ -765,7 +765,7 @@ There are several positive and negative aspects about our project:
 
 All in all the fluid solver provides a very realistic simulation which can be used to simulate various phenomena and fluids. In particular the extension with Vorticity Confinement results in an overall realistic and intuitive behaviour of the fluid.\\
 
-Nevertheless, there are further extensions or improvements of our application one could think of. As mentioned in chapter \ref{chapter:Math}, the solver can be implemented in three dimensions without further adaption of the mathematical model. This gives interesting possible extensions e.g. light sources which makes it possible to animate more complex phenomena such as clouds that are based mainly on the appearance of light and darkness. However due to the increase in grid points and more entries in the sparse matrices, we are not able to compute a 3D version in real time. Also a 3D implementation requires a renderer and the interactive user interface becomes more complicated. In this 3D enviroment, it would also be interesting to put objects inside the domain, e.g. a car or an airplane and blow some smoke over it like in a wind channel. One could thereby explore and visualize the aerodynamic properties of these objects.\\
+Nevertheless, there are further extensions or improvements of our application one could think of. As mentioned in chapter \ref{chapter:Math}, the solver can be implemented in three dimensions without further adaption of the mathematical model. This gives interesting possible extensions e.g. light sources which makes it possible to animate more complex phenomena such as clouds that are based mainly on the appearance of light and darkness. However due to the increase in grid points and more entries in the sparse matrices, we are not able to compute a 3D version in real time. Also a 3D implementation requires a renderer and the interactive user interface becomes more complicated. In this 3D environment, it would also be interesting to put objects inside the domain, e.g. a car or an airplane and blow some smoke over it like in a wind channel. One could thereby explore and visualize the aerodynamic properties of these objects.\\
 
 Furthermore, our implementation uses Gauss-Seidel to solve the sparse linear systems. While this is easy to implement and relatively fast for the sparse matrices we consider, it does not reach the speed of multigrid methods.\\
 
