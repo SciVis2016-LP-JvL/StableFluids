@@ -12,16 +12,16 @@ import vgp.object.PsApplet;
 /**
  * Project visualizing smoke like [Jos Stam 1999].
  * 
- * @author		Lukas Polthier, Johannes von Lindheim, [Konrad Polthier (Julia Set project template)]
+ * @author		Lukas Polthier, Johannes von Lindheim
  * @version		29.04.16, 1.00 version submitted as our final SciVis project
  */
 public class App extends PsApplet {
 	/** Interface of applet to inform about author, version, and copyright */
 	public String getAppletInfo() {
 		return "Name: "		+ this.getClass().getName()+ "\r\n" +
-				 "Author: "		+ "Konrad Polthier" + "\r\n" +
-				 "Version: "	+ "2.00" + "\r\n" +
-				 "Applet shows usage of images in display" + "\r\n";
+				 "Author: "		+ "Lukas Polthier, Johannes von Lindheim" + "\r\n" +
+				 "Version: "	+ "1.00" + "\r\n" +
+				 "Applet shows fluid simulation based on Jas Stam 1999" + "\r\n";
 	}
 	/** Return a new allocated project instance. */
 	public Rectangle getSizeOfFrame() {
