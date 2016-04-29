@@ -279,11 +279,7 @@ public class Painter extends PjProject implements ComponentListener
 		//highRes
 		else if (event == m_highRes)
 		{
-			if (m_highRes.getValue() == 1) {
-				m_fluidSolver.highRes = true;
-			} else {
-				m_fluidSolver.highRes = false;
-			}
+			m_fluidSolver.highRes = (m_highRes.getValue() == 1);
 			return true;
 		}
 		// Diffusion
@@ -365,7 +361,8 @@ public class Painter extends PjProject implements ComponentListener
 		PsImage bild;
 
 		//bild = new PsImage("mysource/StableFluids/test.png");
-		bild = new PsImage("myProjects/StableFluids/test.png");
+		//bild = new PsImage("myProjects/StableFluids/test.png");
+		bild = new PsImage("image.png");
 		int[] pixelBild;
 		Image bild2 = bild.getImage();
 		pixelBild = new int[(bild.getHeight()) * (bild.getWidth())];

@@ -25,7 +25,7 @@ public class App extends PsApplet {
 	}
 	/** Return a new allocated project instance. */
 	public Rectangle getSizeOfFrame() {
-		return new Rectangle(580, 5, 272+256, 720);
+		return new Rectangle(5, 5, 272+256, 735);
 	}
 	/** Return a new allocated project instance. */
 	public PjProject getProject() {

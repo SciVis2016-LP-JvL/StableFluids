@@ -14,7 +14,7 @@ import jv.project.PjProject_IP;
 /**
  * Project visualizing smoke like [Jos Stam 1999].
  * 
- * @author		Lukas Polthier, Johannes von Lindheim, [Konrad Polthier (Julia Set project template)]
+ * @author		Lukas Polthier, Johannes von Lindheim
  * @version		29.04.16, 1.00 version submitted as our final SciVis project
  */
 public class Painter_IP extends PjProject_IP implements ActionListener { 

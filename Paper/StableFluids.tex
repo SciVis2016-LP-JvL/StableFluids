@@ -270,7 +270,7 @@ Each of the four terms in equation \ref{FundamentalEquation} is applied successi
 	u^0 ~\overset{\text{add force}}{\longrightarrow}~ u^1 ~ \overset{\text{advect}}{\longrightarrow}~ u^2 ~\overset{\text{diffuse}}{\longrightarrow} ~u^3~ \overset{\text{project}}{\longrightarrow} ~u^4.
 \end{align*}
 The solution at time $t+\Delta t$ is then given by $u(x,t+\Delta t) = u^4(x)$.
-\subsection{Add force}
+\subsection{Add force}\label{sec:add-force}
 The add force step incorporates additional force by the user and buoyancy force due to uplift of lighter or hotter gases, respectively downlift of heavier or cooler gases.
 \begin{align*}
 	u^1(x) = u^0(x) + \Delta t~ f(t,x)
@@ -316,7 +316,7 @@ In practice we trace each particle backward in time with some Runge-Kutta scheme
  \label{Advection}
 \end{figure}
 
-\subsection{Diffuse}
+\subsection{Diffuse}\label{sec:diffusion}
 This step solves the diffusion of the fluid itself, i.e. the ``friction'' between parts of the fluid with different velocity. This effect is equivalent to the diffusion equation 
 \begin{align}
 	\frac{\partial u^2}{\partial t} = \nu \Delta u^2. \label{Diffusion}
@@ -361,7 +361,7 @@ We now discretize \ref{Diffusion2} using a finite difference method and obtain
 \end{equation}
 The resulting square matrix has $n\cdot m$ rows and columns, where $n, m$ denote the number of pixels in the x- and y-axis respectively. Solving such a system can be done efficiently by iterative schemes, e.g. Gauß-Seidel. In particular, due to the symmetric, positive definite nature of the sparse matrix, iterative schemes are very effective.\\
 
-\subsection{Project}
+\subsection{Project}\label{sec:project}
 The last step makes the vectorfield mass preserving, i.e. divergence free. We already discussed in the derivation of our fundamental equation that the projection is obtained by solving
 \begin{align*}
 	\text{div }u = \Delta q.
@@ -485,14 +485,14 @@ x^{(k+1)}_i=\frac{1}{a_{ii}}\left( b_i - \sum_{j=1}^{i-1} a_{ij}x_j^{(k+1)} - \s
 \begin{equation}
 u^{(k+1)}_{(i,j)} = \frac{1}{1+4c} \left( u_{(i,j)} + c\left(u^{(k+1)}_{(i-1,j)} + u^{(k+1)}_{(i,j-1)} + u^{(k)}_{(i+1,j)}) + u^{(k)}_{(i,j+1)}\right) \right),
 \end{equation}
-where $c= \nu\frac{\Delta t}{h^2}$ and $u^{(k)}_{(i,j)}$ gives the $k$-th iterate of the velocity vector at grid point $(i,j)$ wich corresponds to the entry $i+j \cdot n$ in the column vector representation of $u$.\\
+where $c= \nu\frac{\Delta t}{h^2}$ and $u^{(k)}_{(i,j)}$ gives the $k$-th iterate of the velocity vector at grid point $(i,j)$ which corresponds to the entry $i+j \cdot n$ in the column vector representation of $u$.\\
 
 In contrast to similar methods like the Jacobi method, this cannot be performed parallel, since in this sequential approach, all values $u_1^{(k+1)}, \dots, u_i^{(k+1)}$ are needed to compute $u_{i+1}^{(k+1)}$. So unfortunately, starting multiple threads to speed up the calculation is not an option.
 
 \section{Boundary conditions}
 To make sure, that nothing leaves the finite grid, we put a border with a thickness of one cell all around the grid, which is acting as a ``wall''. After all calculations performed, these grid cells are given the velocity vector that would emerge if the vector right next to them (in the inner grid) would be ``bounced off this wall''.\\
 
-\section{Vorticity Confinement}
+\section{Vorticity Confinement}\label{sec:vorticity-confinement}
 For a sufficient number of grid points and infinite computational power, the solver described in the current chapter \ref{Section:Mathematical Modelling} gives the fluid a realistic behaviour, quite similar to the real life experience. In practice, computational power is limited and we have to use a relatively small number of grid points to provide real-time computation. It turns out that small scale details, in particular rotational turbulences are lost due to numerical dissipation on the coarse grid.\\
 
 The key idea of Vorticity Confinement is to add these details artificially in a way that the properties of the fluid are preserved and the effect of numerical dissipation is damped. In a follow-up paper \cite{Stam2}, Stam proposes this idea based on previous work of Steinhoff \cite{Steinhoff}.\\
@@ -536,7 +536,7 @@ In fact the construction provides that small scale detail is added, exactly wher
  \label{VorticityOnOff}
 \end{figure}
 
-\section{Dependence on the Parameters}
+\section{Dependence on the Parameters}\label{sec:parameters}
 The solver is compatible with a wide range of parameters. Thus we can simulate different kinds of fluids, depending on viscosity, buoyancy force, diffusion, etc.
 
 \begin{figure}[H]
@@ -553,7 +553,7 @@ The solver is compatible with a wide range of parameters. Thus we can simulate d
  \label{ViscosityOnOff}
 \end{figure}
 
-\section{Colors and Import of Images}
+\section{Colors and Import of Images}\label{sec:color-photoimport}
 There are several ways to represent colors. One of the most common priciples are RGB or CMY color schemes. In the black and white fluid solver described so far there is only one density array which evolves according to the velocity field. To represent colors, we use three separate density fields, each one of them representing either cyan, magenta or yellow and evolving according to the same velocity field, i.e. the same ``ambient fluid''.\\
 
 We are now able to import picture, which behave like liquid or smoke, i.e. the picture can be manipulated interactively and behaves like the ambient fluid.\\
@@ -561,6 +561,33 @@ One can experiment with different kinds of buoyancy forces, e.g. only specific c
 
 \chapter{Implementation and Framework}
 We implemented our whole framework in the environment of JavaView. In the following, we want to show some features of our application, how they work and why we think they make sense for visualizing smoke.
+%
+\section{Features of our Application}
+First, we want to mention and describe all the (non-default-JavaView) features in the application, i.e. what all the buttons and sliders are for to give the reader a better understanding or motivation of the following chapters.
+\begin{itemize}
+\item Sliders:
+	\begin{itemize}
+	\item BlockSize: Edge length of one ``pixel block'' (see \ref{sec:block-size}) in pixels.
+	\item Density radius: Radius of the ``pencil'' drawing density into the display (see \ref{splinesChapter}).
+	\item Density constant: Controlling, how much smoke is inserted.
+	\item Force radius: Radius of the ``force pencil'', i.e. controlling, how big the region is, which is pulled by inserting force with the mouse.
+	\item Force constant: Controlling, how much force is inserted.
+	\item Buoyancy force: Controlling, how much buoyancy force is inserted (see \ref{sec:add-force}). Can be set to negative values, which makes hot (i.e. dense) smoke sink instead of rise.
+	\item Diffusion: Controlling, how much the fluid diffuses (see \ref{sec:diffusion}).
+	\item Viscosity: Controlling viscosity parameter of the fluid (see also \ref{sec:parameters}).
+	\item Vorticity: Controlling, how much force is inserted, to preserve details lost by vorticity confinement (see \ref{sec:vorticity-confinement}).
+	\item Projection Accuracy: Takes only 0 and 1. If set to 1, the solver produces more accurate results (performing multiple projection steps between all other steps) at the cost of longer computation times (see also \ref{sec:project}).
+	\end{itemize}
+\item Buttons:
+	\begin{itemize}
+	\item Reset: Resets application to starting conditions (without affecting the size of the application).
+	\item Clear Canvas: Clears the canvas from all smoke and sets the fluid to stand still, but keeps all slider values etc. the same.
+	\item Flip Color: If color mode is one, this button selects the next color for drawing density.
+	\item Import Image: Imports the image ``image.png'' from the same directory as the executable into the canvas. The pixels of the image are treated as colored smoke (see \ref{sec:color-photoimport}).
+	\item Freeze: Pauses the fluid to move. Clicking once more wakes it up again.
+	\item Color On/Off: As default, the application starts with greyscale smoke. This button turns on color mode, where you can draw smoke of multiple colors into the display. See also the button ``Flip Color''.
+	\end{itemize}
+\end{itemize}
 %
 \section{Capabilities of JavaView}
 We want to give a brief overview over the features of JavaView that were used in the development of the project and also how they were used.
