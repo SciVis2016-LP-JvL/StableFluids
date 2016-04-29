@@ -12,6 +12,7 @@ import jv.object.PsDebug;
 public class FluidSolver implements Cloneable
 {
 	boolean colorON = true;
+	boolean highRes = false;
     int n; //width of grid point array
     int m; //height of grid point array
     int size; //number of all grid points
@@ -25,13 +26,13 @@ public class FluidSolver implements Cloneable
     						 //the bigger the vorticity, the more curly, but the more crispy
     float weightAir = 5.0f; //[0.025f] constant that determines the upward force due to heat of smoke
     float weightSmoke = 0.4f; //[0.000625f] constant that determines the downward force due to weight of smoke
-    float buoyancy = 0.5f;
+    float buoyancy = 0.5f; //constant that determines the uplift and downlift of heavier gases
 
     float[] d, dOld; //density, old density
     float[] u, uOld; //x-component of the velocity vector field
     float[] v, vOld; //y-component of the velocity vector field
     
-    float[] d2, d3, d2Old, d3Old;
+    float[] d2, d3, d2Old, d3Old; //densities to represent colors
     
     float[] tmp;
     float[] curl;
@@ -158,6 +159,9 @@ public class FluidSolver implements Cloneable
     	this.buoyancy = buoyancy;
     }
     
+    /**
+    * This function changes the size of the domain to the new size (width,height)
+    */
     
     public void resizeArray(int width, int height)
     {
@@ -239,6 +243,11 @@ public class FluidSolver implements Cloneable
     	}
     }
     
+    /**
+     * This function simply clears all density and set the velocity of the ambient fluid to zero.
+     * The physical parameters remain unchanged.
+     */
+    
     public void clearArray()
     {
     	for (int index = 0; index < size; index++) {
@@ -259,6 +268,13 @@ public class FluidSolver implements Cloneable
     	}
     }
     
+    /**
+     * This function prescribes the density. Used for Fotoimport.
+     * @param red: density of the red smoke
+     * @param green: density of the green smoke
+     * @param blue: density of the blue smoke
+     */
+    
     public void setDensity(int[] red, int[] green, int[] blue)
     {
     	for (int index = 0; index <  size; index++)
@@ -275,9 +291,6 @@ public class FluidSolver implements Cloneable
         		d3Old[index] = 0;
             }
     	}
-    	int r = 255;
-    	int g = 100;
-    	int b = 255;
     	for (int index = 0; index <  size; index++)
         {
     		d[index] = ((float)red[index]) / 255;
@@ -301,17 +314,23 @@ public class FluidSolver implements Cloneable
         //add velocity that was input by mouse
         inputData(u, uOld);
         inputData(v, vOld);
-        //project();
+        if(highRes) {
+        	project(); //additional projection to increase accuracy on the cost of slower computations
+        }
 
         //add vorticity confinement force
-        vorticityConfinementNEW();
+		vorticityConfinement();
               
-        //project();
-
+		if(highRes) {
+        	project(); //additional projection to increase accuracy on the cost of slower computations
+        }
+		
         //add buoyancy force (Auftriebskraft)
         buoyancy();
         
-        //project();
+        if(highRes) {
+        	project(); //additional projection to increase accuracy on the cost of slower computations
+        }
         
     	diffuse();
     	project();
@@ -418,7 +437,7 @@ public class FluidSolver implements Cloneable
      * I.e. we add some force that is perpendicular to the gradient of the absolute curl and scaled with the curl.
      */
     
-    public void vorticityConfinementNEW()
+    public void vorticityConfinement()
     {
     	float n1,n2,factor;
     	float[] rot;
@@ -531,9 +550,7 @@ public class FluidSolver implements Cloneable
      * This leads to the problem of solving a sparse linear system.
      * Method to solve the sparse linear system of choice is the Gauss-Seidel method.
      */
-    
-    //i + (n + 2) * j
-    
+        
     private void diffuse()
     {
 		float factor = visc * dt * m * m / 1000;
@@ -633,7 +650,9 @@ public class FluidSolver implements Cloneable
         boundaryCondition(2, v);
     }
 
-    
+    /**
+     * This function implements the evolution of density given by the ambient fluid.
+     */
     public void densitySolver()
     {
     	float[] neu;
@@ -853,12 +872,12 @@ public class FluidSolver implements Cloneable
 
     
     /**
-     * This function handles the boundary conditions.
-     * @param b flag that gives the behavior at the boundary
-     * 		b = 0 -> no reflection at any boundary
-     * 		b = 1 -> reflection on the left and right boundary
-     * 		b = 2 -> reflection on the upper and lower boundary
-     * @param x array that should interact with the boundary
+     * This function handles the boundary conditions. The flags are used to set the behaviour of the fluid at the boundaries.
+     * @param b flag that gives the behavior of the ambient fluid at the boundary
+     * 		b = 0 -> no reflection of smoke at any boundary
+     * 		b = 1 -> reflection of smoke on the left and right boundary
+     * 		b = 2 -> reflection of smoke on the upper and lower boundary
+     * @param x the array that should interact with the boundary
      */
     
     private void boundaryCondition(int b, float[] x)

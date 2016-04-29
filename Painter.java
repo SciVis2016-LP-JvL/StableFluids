@@ -70,6 +70,7 @@ public class Painter extends PjProject implements ComponentListener
 	protected	PuDouble			m_buoyancy;
 	protected	PuDouble			m_diffusion;
 	protected	PuDouble			m_viscosity;
+	protected	PuInteger			m_highRes;
 	protected	PuDouble			m_vorticity;
 	private		PiVector			m_densityTraceX;
 	private		PiVector			m_densityTraceY;
@@ -126,6 +127,7 @@ public class Painter extends PjProject implements ComponentListener
 		m_buoyancy				= new PuDouble("Buoyancy force", this);
 		m_diffusion				= new PuDouble("Diffusion", this);
 		m_viscosity				= new PuDouble("Viscosity", this);
+		m_highRes				= new PuInteger("Projection Accuracy", this);
 		m_vorticity				= new PuDouble("Vorticity", this);
 		m_densityTraceX			= new PiVector();
 		m_densityTraceY			= new PiVector();
@@ -178,7 +180,9 @@ public class Painter extends PjProject implements ComponentListener
 		m_viscosity.setBounds(0.0, 1.0, 0.01, 0.1);
 		m_viscosity.setValue(0.0);
 		m_vorticity.setBounds(0.0, 1.0, 0.01, 0.1);
-		m_vorticity.setValue(0.35);
+		m_vorticity.setValue(0.30);
+		m_highRes.setBounds(0, 1, 1, 1);
+		m_highRes.setValue(0);
 		m_oldInputDensity.setSize(0);
 		m_densityTraceX.setSize(0);
 		m_densityTraceY.setSize(0);
@@ -272,6 +276,16 @@ public class Painter extends PjProject implements ComponentListener
 			m_fluidSolver.setVisc((float) m_viscosity.getValue() / 8);
 			return true;
 		}
+		//highRes
+		else if (event == m_highRes)
+		{
+			if (m_highRes.getValue() == 1) {
+				m_fluidSolver.highRes = true;
+			} else {
+				m_fluidSolver.highRes = false;
+			}
+			return true;
+		}
 		// Diffusion
 		else if (event == m_diffusion)
 		{
@@ -349,11 +363,9 @@ public class Painter extends PjProject implements ComponentListener
 
 		// Load image
 		PsImage bild;
-		//float factor = 0.00392156863f;
-		//float alpha;
+
 		//bild = new PsImage("mysource/StableFluids/test.png");
 		bild = new PsImage("myProjects/StableFluids/test.png");
-		//bild.setSize(m_numBlocksX, m_numBlocksY);
 		int[] pixelBild;
 		Image bild2 = bild.getImage();
 		pixelBild = new int[(bild.getHeight()) * (bild.getWidth())];
@@ -368,8 +380,6 @@ public class Painter extends PjProject implements ComponentListener
 			for(int j=0;j<m_numBlocksY; j++)
 			{
 				Color farbe = new Color( pixelBild[ i + bild.getWidth() * (j) ], false );
-				//alpha = 1;
-
 				red[Id(i,j)] = 255 - farbe.getRed();
 				green[Id(i,j)] = 255 - farbe.getGreen();
 				blue[Id(i,j)] = 255 - farbe.getBlue();
@@ -1148,19 +1158,12 @@ public class Painter extends PjProject implements ComponentListener
 	private int Id(int x, int y) {return x + (m_numBlocksX*y);}
 	// Same as above, but for "custom" (parameter) width of data array
 	private int Id(int x, int y, int arrayWidth) {return x + (arrayWidth*y);}
-    // Calculates the index of a 1d-Array for given x,y-coordinates of 2d-array, which has a 1-pix-border around
-	private int I2(int x, int y)	{return x + ((m_imageWidth+2)*y);}
-	// "Inverse functions" of I
-	private int ind2x(int ind) {return (ind % m_imageWidth);}
-	private int ind2y(int ind) {return Math.floorDiv(ind, m_imageWidth);}
+	
 	// Calculates the block (starting from 0), for the current m_blockSize, that some given pixel pix is in
 	private int block(int pix) {return Math.floorDiv(pix, m_blockSize.getValue());}
 	// Same as above, but for "custom" (parameter) blockSize
 	private int block(int pix, int blockSize) {return Math.floorDiv(pix, blockSize);}
-	// Returns the corner pixel value for a given block index
-	private int cornerPix(int block) {return block * m_blockSize.getValue();}
-	// Same as above, but for "custom" (parameter) blockSize
-	private int cornerPix(int block, int blockSize) {return block * blockSize;}
+
 	
 	// Returns true, iff the size of the fluid solver matches the canvas dimensions
 	private boolean incorrectSizes()

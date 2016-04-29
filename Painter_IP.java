@@ -108,6 +108,7 @@ public class Painter_IP extends PjProject_IP implements ActionListener {
 		m_pSlider.add(m_Project.m_diffusion.getInfoPanel());
 		m_pSlider.add(m_Project.m_viscosity.getInfoPanel());
 		m_pSlider.add(m_Project.m_vorticity.getInfoPanel());
+		m_pSlider.add(m_Project.m_highRes.getInfoPanel());
 	}
 	
 	/**
